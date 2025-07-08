@@ -3,6 +3,8 @@
     {
       "path": ".",
     },
+    {
+      "path": "frontend",
+    },
   ],
-  "settings": {},
 }
