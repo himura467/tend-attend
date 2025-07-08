@@ -24,18 +24,11 @@
     "editor.formatOnSave": true
   },
   // Linting using ESLint.
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   // Ensure enough terminal history is preserved when running tests
   "terminal.integrated.scrollback": 10000,
   // Configure todo-tree to exclude node_modules
-  "todo-tree.filtering.excludeGlobs": [
-    "**/node_modules"
-  ],
+  "todo-tree.filtering.excludeGlobs": ["**/node_modules"],
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/node_modules/**": true
