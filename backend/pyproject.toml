@@ -8,5 +8,6 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "pydantic>=2.11.7",
     "python-jose[cryptography]>=3.5.0",
+    "sqlalchemy[asyncio]>=2.0.41",
     "uuid6>=2025.0.1",
 ]
