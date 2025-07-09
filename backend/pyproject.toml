@@ -17,3 +17,17 @@ dependencies = [
     "sqlalchemy[asyncio]>=2.0.41",
     "uuid6>=2025.0.1",
 ]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.16.1",
+    "ruff>=0.12.2",
+]
+
+[tool.mypy]
+strict = true
+exclude = [".venv", "alembic"]
+
+[tool.ruff]
+target-version = "py313"
+exclude = ["alembic"]
