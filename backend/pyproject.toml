@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "aiosmtplib>=4.0.1",
+    "aws-advanced-python-wrapper>=1.2.0",
     "httpx>=0.28.1",
     "passlib[bcrypt]>=1.7.4",
     "pydantic>=2.11.7",
