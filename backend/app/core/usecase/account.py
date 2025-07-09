@@ -24,7 +24,7 @@ class AccountUsecase(IUsecase):
         self,
         username: str,
         password: str,
-        nickname: str,
+        nickname: str | None,
         birth_date: datetime,
         gender: Gender,
         email: EmailStr,
