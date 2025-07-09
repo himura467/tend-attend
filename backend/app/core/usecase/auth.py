@@ -56,16 +56,16 @@ class AuthUsecase(IUsecase):
             return AuthTokenResponse(
                 error_codes=[ErrorCode.USERNAME_NOT_EXIST],
                 auth_token=None,
-                access_token_max_age=None,
-                refresh_token_max_age=None,
+                access_token_max_age=0,
+                refresh_token_max_age=0,
             )
 
         if not self._password_hasher.verify_password(password, user_account.hashed_password):
             return AuthTokenResponse(
                 error_codes=[ErrorCode.PASSWORD_INCORRECT],
                 auth_token=None,
-                access_token_max_age=None,
-                refresh_token_max_age=None,
+                access_token_max_age=0,
+                refresh_token_max_age=0,
             )
 
         token = self._jwt_cryptography.create_auth_token(user_account.id, Group.HOST)
@@ -88,8 +88,8 @@ class AuthUsecase(IUsecase):
             return AuthTokenResponse(
                 error_codes=[ErrorCode.REFRESH_TOKEN_INVALID],
                 auth_token=None,
-                access_token_max_age=None,
-                refresh_token_max_age=None,
+                access_token_max_age=0,
+                refresh_token_max_age=0,
             )
 
         user_account = await user_account_repository.read_by_id_async(account.account_id)

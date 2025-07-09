@@ -12,8 +12,8 @@ class AuthToken(BaseModel):
 
 class AuthTokenResponse(BaseModelWithErrorCodes):
     auth_token: AuthToken | None = Field(None, title="Auth Token")
-    access_token_max_age: int | None = Field(None, title="Access Token Max Age")
-    refresh_token_max_age: int | None = Field(None, title="Refresh Token Max Age")
+    access_token_max_age: float = Field(..., title="Access Token Max Age")
+    refresh_token_max_age: float = Field(..., title="Refresh Token Max Age")
 
 
 class RefreshAuthTokenRequest(BaseModel):
