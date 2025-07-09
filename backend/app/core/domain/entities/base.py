@@ -12,5 +12,5 @@ class IEntity(metaclass=ABCMeta):
 
     def __eq__(self, obj: object) -> bool:
         if isinstance(obj, IEntity):
-            return self.id == obj.id
+            return self.id is obj.id
         return False
