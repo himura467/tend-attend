@@ -2,10 +2,10 @@ from datetime import datetime
 
 from pydantic.networks import EmailStr
 
-from core.domain.entities.verify import EmailVerification as EmailVerificationEntity
-from core.infrastructure.sqlalchemy.models.commons.verify import EmailVerification
-from core.infrastructure.sqlalchemy.repositories.base import AbstractRepository
-from core.utils.uuid import UUID
+from app.core.domain.entities.verify import EmailVerification as EmailVerificationEntity
+from app.core.infrastructure.sqlalchemy.models.commons.verify import EmailVerification
+from app.core.infrastructure.sqlalchemy.repositories.base import AbstractRepository
+from app.core.utils.uuid import UUID
 
 
 class EmailVerificationRepository(

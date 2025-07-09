@@ -3,16 +3,18 @@ from zoneinfo import ZoneInfo
 
 from pydantic.networks import EmailStr
 
-from core.domain.usecase.base import IUsecase
-from core.dtos.verify import RequestEmailVerificationResponse, VerifyEmailResponse
-from core.error.error_code import ErrorCode
-from core.infrastructure.db.transaction import rollbackable
-from core.infrastructure.sqlalchemy.repositories.account import UserAccountRepository
-from core.infrastructure.sqlalchemy.repositories.verify import (
+from app.core.domain.usecase.base import IUsecase
+from app.core.dtos.verify import RequestEmailVerificationResponse, VerifyEmailResponse
+from app.core.error.error_code import ErrorCode
+from app.core.infrastructure.db.transaction import rollbackable
+from app.core.infrastructure.sqlalchemy.repositories.account import (
+    UserAccountRepository,
+)
+from app.core.infrastructure.sqlalchemy.repositories.verify import (
     EmailVerificationRepository,
 )
-from core.utils.smtp import send_verification_email_async
-from core.utils.uuid import generate_uuid
+from app.core.utils.smtp import send_verification_email_async
+from app.core.utils.uuid import generate_uuid
 
 
 class VerifyUsecase(IUsecase):

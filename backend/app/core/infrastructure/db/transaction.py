@@ -1,8 +1,8 @@
 from functools import wraps
 from typing import Awaitable, Callable, cast
 
-from core.domain.usecase.base import IUsecase
-from core.dtos.base import BaseModelWithErrorCodes
+from app.core.domain.usecase.base import IUsecase
+from app.core.dtos.base import BaseModelWithErrorCodes
 
 
 def rollbackable[**P, T: Awaitable[BaseModelWithErrorCodes]](

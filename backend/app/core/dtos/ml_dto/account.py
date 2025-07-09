@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, field_serializer
 
-from core.features.account import Gender
+from app.core.features.account import Gender
 
 
 class UserAccount(BaseModel):

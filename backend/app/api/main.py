@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from api.routes import account, admin, auth, event, verify
+from app.api.routes import account, admin, auth, event, verify
 
 api_router = APIRouter()
 

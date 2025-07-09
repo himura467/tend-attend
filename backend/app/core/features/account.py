@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, IntEnum
 
-from core.utils.uuid import UUID
+from app.core.utils.uuid import UUID
 
 
 class Group(str, Enum):

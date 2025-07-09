@@ -4,8 +4,8 @@ from email.mime.text import MIMEText
 import aiosmtplib
 from pydantic.networks import EmailStr
 
-from core.constants.secrets import GMAIL_APP_PASSWORD, GMAIL_SENDER_EMAIL
-from core.error.error_code import ErrorCode
+from app.core.constants.secrets import GMAIL_APP_PASSWORD, GMAIL_SENDER_EMAIL
+from app.core.error.error_code import ErrorCode
 
 
 async def send_verification_email_async(

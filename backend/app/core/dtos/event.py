@@ -3,8 +3,8 @@ from datetime import datetime
 from pydantic import BaseModel
 from pydantic.fields import Field
 
-from core.dtos.base import BaseModelWithErrorCodes
-from core.features.event import AttendanceAction
+from app.core.dtos.base import BaseModelWithErrorCodes
+from app.core.features.event import AttendanceAction
 
 
 class Event(BaseModel):

@@ -3,15 +3,20 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from core.dtos.auth import (
+
+from app.core.constants.constants import (
+    ACCESS_TOKEN_NAME,
+    COOKIE_DOMAIN,
+    REFRESH_TOKEN_NAME,
+)
+from app.core.dtos.auth import (
     CreateAuthTokenResponse,
     RefreshAuthTokenRequest,
     RefreshAuthTokenResponse,
 )
-from core.infrastructure.sqlalchemy.db import get_db_async
-from core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
-from core.usecase.auth import AuthUsecase
-from core.constants.constants import ACCESS_TOKEN_NAME, COOKIE_DOMAIN, REFRESH_TOKEN_NAME
+from app.core.infrastructure.sqlalchemy.db import get_db_async
+from app.core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
+from app.core.usecase.auth import AuthUsecase
 
 router = APIRouter()
 

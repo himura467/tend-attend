@@ -1,9 +1,14 @@
 from datetime import datetime
 
-from core.domain.entities.base import IEntity
-from core.features.event import AttendanceAction, AttendanceState, Frequency, Weekday
-from core.utils.datetime import apply_timezone
-from core.utils.uuid import UUID
+from app.core.domain.entities.base import IEntity
+from app.core.features.event import (
+    AttendanceAction,
+    AttendanceState,
+    Frequency,
+    Weekday,
+)
+from app.core.utils.datetime import apply_timezone
+from app.core.utils.uuid import UUID
 
 
 class RecurrenceRule(IEntity):

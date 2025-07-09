@@ -2,7 +2,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from core.dtos.event import (
+from app.core.dtos.event import (
     AttendEventRequest,
     AttendEventResponse,
     CreateEventRequest,
@@ -16,11 +16,11 @@ from core.dtos.event import (
     UpdateAttendancesRequest,
     UpdateAttendancesResponse,
 )
-from core.features.account import Account, Role
-from core.infrastructure.sqlalchemy.db import get_db_async
-from core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
-from core.usecase.event import EventUsecase
-from api.deps import AccessControl
+from app.core.features.account import Account, Role
+from app.core.infrastructure.sqlalchemy.db import get_db_async
+from app.core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
+from app.core.usecase.event import EventUsecase
+from app.api.deps import AccessControl
 
 router = APIRouter()
 

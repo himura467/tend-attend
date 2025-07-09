@@ -1,7 +1,7 @@
 import os
 from typing import TypedDict
 
-from core.constants.constants import (
+from app.core.constants.constants import (
     AURORA_COMMON_DBNAME,
     AURORA_SEQUENCE_DBNAME,
     AURORA_SHARD_DBNAME_PREFIX,
@@ -10,7 +10,7 @@ from core.constants.constants import (
     AWS_RDS_CLUSTER_MASTER_USERNAME,
     DB_SHARD_COUNT,
 )
-from core.constants.secrets import AWS_RDS_CLUSTER_MASTER_PASSWORD
+from app.core.constants.secrets import AWS_RDS_CLUSTER_MASTER_PASSWORD
 
 
 class DBConfig(TypedDict):

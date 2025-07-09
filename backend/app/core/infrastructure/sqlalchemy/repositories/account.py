@@ -5,11 +5,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.strategy_options import joinedload
 from sqlalchemy.sql import select
 
-from core.domain.entities.account import UserAccount as UserAccountEntity
-from core.features.account import Gender
-from core.infrastructure.sqlalchemy.models.commons.account import UserAccount
-from core.infrastructure.sqlalchemy.repositories.base import AbstractRepository
-from core.utils.uuid import UUID, uuid_to_bin
+from app.core.domain.entities.account import UserAccount as UserAccountEntity
+from app.core.features.account import Gender
+from app.core.infrastructure.sqlalchemy.models.commons.account import UserAccount
+from app.core.infrastructure.sqlalchemy.repositories.base import AbstractRepository
+from app.core.utils.uuid import UUID, uuid_to_bin
 
 
 class UserAccountRepository(AbstractRepository[UserAccountEntity, UserAccount]):

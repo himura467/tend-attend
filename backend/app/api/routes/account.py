@@ -1,15 +1,16 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from core.dtos.account import (
+
+from app.api.deps import AccessControl
+from app.core.dtos.account import (
     CreateUserAccountRequest,
     CreateUserAccountResponse,
     GetFollowersInfoResponse,
 )
-from core.features.account import Account, Role
-from core.infrastructure.sqlalchemy.db import get_db_async
-from core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
-from core.usecase.account import AccountUsecase
-from api.deps import AccessControl
+from app.core.features.account import Account, Role
+from app.core.infrastructure.sqlalchemy.db import get_db_async
+from app.core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
+from app.core.usecase.account import AccountUsecase
 
 router = APIRouter()
 

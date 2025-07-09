@@ -2,9 +2,9 @@ from datetime import datetime
 
 from pydantic.networks import EmailStr
 
-from core.domain.entities.base import IEntity
-from core.features.account import Gender
-from core.utils.uuid import UUID
+from app.core.domain.entities.base import IEntity
+from app.core.features.account import Gender
+from app.core.utils.uuid import UUID
 
 
 class UserAccount(IEntity):

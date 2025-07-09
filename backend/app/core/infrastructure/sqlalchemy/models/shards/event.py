@@ -15,22 +15,27 @@ from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.base import Mapped
 from sqlalchemy.sql.schema import ForeignKey, Index, UniqueConstraint
 
-from core.domain.entities.event import Event as EventEntity
-from core.domain.entities.event import EventAttendance as EventAttendanceEntity
-from core.domain.entities.event import (
+from app.core.domain.entities.event import Event as EventEntity
+from app.core.domain.entities.event import EventAttendance as EventAttendanceEntity
+from app.core.domain.entities.event import (
     EventAttendanceActionLog as EventAttendanceActionLogEntity,
 )
-from core.domain.entities.event import (
+from app.core.domain.entities.event import (
     EventAttendanceForecast as EventAttendanceForecastEntity,
 )
-from core.domain.entities.event import Recurrence as RecurrenceEntity
-from core.domain.entities.event import RecurrenceRule as RecurrenceRuleEntity
-from core.features.event import AttendanceAction, AttendanceState, Frequency, Weekday
-from core.infrastructure.sqlalchemy.models.shards.base import (
+from app.core.domain.entities.event import Recurrence as RecurrenceEntity
+from app.core.domain.entities.event import RecurrenceRule as RecurrenceRuleEntity
+from app.core.features.event import (
+    AttendanceAction,
+    AttendanceState,
+    Frequency,
+    Weekday,
+)
+from app.core.infrastructure.sqlalchemy.models.shards.base import (
     AbstractShardDynamicBase,
     AbstractShardStaticBase,
 )
-from core.utils.uuid import bin_to_uuid, uuid_to_bin
+from app.core.utils.uuid import bin_to_uuid, uuid_to_bin
 
 
 class RecurrenceRule(AbstractShardStaticBase):

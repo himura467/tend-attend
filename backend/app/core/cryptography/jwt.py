@@ -4,10 +4,10 @@ from zoneinfo import ZoneInfo
 
 from jose import JWTError, jwt
 
-from core.dtos.auth import AuthToken as AuthTokenDto
-from core.features.account import Group
-from core.features.auth import TokenType
-from core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
+from app.core.dtos.auth import AuthToken as AuthTokenDto
+from app.core.features.account import Group
+from app.core.features.auth import TokenType
+from app.core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
 
 
 @dataclass(frozen=True)

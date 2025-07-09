@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from pydantic.fields import Field
 
-from core.dtos.base import BaseModelWithErrorCodes
+from app.core.dtos.base import BaseModelWithErrorCodes
 
 
 class AuthToken(BaseModel):

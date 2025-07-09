@@ -5,18 +5,23 @@ from sqlalchemy.orm.strategy_options import joinedload
 from sqlalchemy.sql import select
 from sqlalchemy.sql.functions import func
 
-from core.domain.entities.event import Event as EventEntity
-from core.domain.entities.event import EventAttendance as EventAttendanceEntity
-from core.domain.entities.event import (
+from app.core.domain.entities.event import Event as EventEntity
+from app.core.domain.entities.event import EventAttendance as EventAttendanceEntity
+from app.core.domain.entities.event import (
     EventAttendanceActionLog as EventAttendanceActionLogEntity,
 )
-from core.domain.entities.event import (
+from app.core.domain.entities.event import (
     EventAttendanceForecast as EventAttendanceForecastEntity,
 )
-from core.domain.entities.event import Recurrence as RecurrenceEntity
-from core.domain.entities.event import RecurrenceRule as RecurrenceRuleEntity
-from core.features.event import AttendanceAction, AttendanceState, Frequency, Weekday
-from core.infrastructure.sqlalchemy.models.shards.event import (
+from app.core.domain.entities.event import Recurrence as RecurrenceEntity
+from app.core.domain.entities.event import RecurrenceRule as RecurrenceRuleEntity
+from app.core.features.event import (
+    AttendanceAction,
+    AttendanceState,
+    Frequency,
+    Weekday,
+)
+from app.core.infrastructure.sqlalchemy.models.shards.event import (
     Event,
     EventAttendance,
     EventAttendanceActionLog,
@@ -24,8 +29,8 @@ from core.infrastructure.sqlalchemy.models.shards.event import (
     Recurrence,
     RecurrenceRule,
 )
-from core.infrastructure.sqlalchemy.repositories.base import AbstractRepository
-from core.utils.uuid import UUID, uuid_to_bin
+from app.core.infrastructure.sqlalchemy.repositories.base import AbstractRepository
+from app.core.utils.uuid import UUID, uuid_to_bin
 
 
 class RecurrenceRuleRepository(

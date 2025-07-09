@@ -7,13 +7,13 @@ from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.base import Mapped
 from sqlalchemy.sql.schema import ForeignKey
 
-from core.domain.entities.account import UserAccount as UserAccountEntity
-from core.features.account import Gender
-from core.infrastructure.sqlalchemy.models.commons.base import (
+from app.core.domain.entities.account import UserAccount as UserAccountEntity
+from app.core.features.account import Gender
+from app.core.infrastructure.sqlalchemy.models.commons.base import (
     AbstractCommonBase,
     AbstractCommonDynamicBase,
 )
-from core.utils.uuid import bin_to_uuid, uuid_to_bin
+from app.core.utils.uuid import bin_to_uuid, uuid_to_bin
 
 
 class UserAccount(AbstractCommonDynamicBase):

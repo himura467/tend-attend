@@ -1,6 +1,6 @@
 from abc import ABCMeta
 
-from core.utils.uuid import UUID
+from app.core.utils.uuid import UUID
 
 
 class IEntity(metaclass=ABCMeta):

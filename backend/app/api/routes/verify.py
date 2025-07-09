@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from core.dtos.verify import (
+from app.core.dtos.verify import (
     RequestEmailVerificationRequest,
     RequestEmailVerificationResponse,
     VerifyEmailRequest,
     VerifyEmailResponse,
 )
-from core.infrastructure.sqlalchemy.db import get_db_async
-from core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
-from core.usecase.verify import VerifyUsecase
+from app.core.infrastructure.sqlalchemy.db import get_db_async
+from app.core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
+from app.core.usecase.verify import VerifyUsecase
 
 router = APIRouter()
 

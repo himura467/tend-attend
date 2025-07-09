@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
-from core.dtos.ml_dto.account import UserAccount
-from core.dtos.ml_dto.event import Event, EventAttendanceActionLog
+from app.core.dtos.ml_dto.account import UserAccount
+from app.core.dtos.ml_dto.event import Event, EventAttendanceActionLog
 
 
 class ForecastAttendanceTimeRequest(BaseModel):

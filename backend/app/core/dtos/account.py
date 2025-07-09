@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from pydantic.fields import Field
 from pydantic.networks import EmailStr
 
-from core.dtos.base import BaseModelWithErrorCodes
-from core.features.account import Gender
+from app.core.dtos.base import BaseModelWithErrorCodes
+from app.core.features.account import Gender
 
 
 class CreateUserAccountRequest(BaseModel):

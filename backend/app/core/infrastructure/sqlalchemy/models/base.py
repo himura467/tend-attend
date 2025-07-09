@@ -3,7 +3,7 @@ from typing import Any
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase, declared_attr
 
-from core.utils.case_converter import pascal_to_snake
+from app.core.utils.case_converter import pascal_to_snake
 
 
 class AbstractBase(DeclarativeBase):

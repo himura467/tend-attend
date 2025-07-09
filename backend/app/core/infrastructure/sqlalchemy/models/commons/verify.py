@@ -6,11 +6,11 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm.base import Mapped
 from sqlalchemy.sql.schema import ForeignKey
 
-from core.domain.entities.verify import EmailVerification as EmailVerificationEntity
-from core.infrastructure.sqlalchemy.models.commons.base import (
+from app.core.domain.entities.verify import EmailVerification as EmailVerificationEntity
+from app.core.infrastructure.sqlalchemy.models.commons.base import (
     AbstractCommonDynamicBase,
 )
-from core.utils.uuid import bin_to_uuid, uuid_to_bin
+from app.core.utils.uuid import bin_to_uuid, uuid_to_bin
 
 
 class EmailVerification(AbstractCommonDynamicBase):

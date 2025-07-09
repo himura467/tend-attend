@@ -1,7 +1,7 @@
 import re
 from datetime import date, datetime
 
-from core.features.event import Frequency, Recurrence, RecurrenceRule, Weekday
+from app.core.features.event import Frequency, Recurrence, RecurrenceRule, Weekday
 
 
 def parse_rrule(rrule_str: str, is_all_day: bool) -> RecurrenceRule:

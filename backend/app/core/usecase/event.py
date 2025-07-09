@@ -4,28 +4,28 @@ from zoneinfo import ZoneInfo
 
 import httpx
 
-from core.constants.constants import ML_SERVER_URL
-from core.domain.entities.event import Event as EventEntity
-from core.domain.entities.event import (
+from app.core.constants.constants import ML_SERVER_URL
+from app.core.domain.entities.event import Event as EventEntity
+from app.core.domain.entities.event import (
     EventAttendanceActionLog as EventAttendanceActionLogEntity,
 )
-from core.domain.entities.event import (
+from app.core.domain.entities.event import (
     EventAttendanceForecast as EventAttendanceForecastEntity,
 )
-from core.domain.usecase.base import IUsecase
-from core.dtos.event import Attendance as AttendanceDto
-from core.dtos.event import AttendancesWithUsername as AttendancesWithUsernameDto
-from core.dtos.event import AttendanceTimeForecast as AttendanceTimeForecastDto
-from core.dtos.event import (
+from app.core.domain.usecase.base import IUsecase
+from app.core.dtos.event import Attendance as AttendanceDto
+from app.core.dtos.event import AttendancesWithUsername as AttendancesWithUsernameDto
+from app.core.dtos.event import AttendanceTimeForecast as AttendanceTimeForecastDto
+from app.core.dtos.event import (
     AttendanceTimeForecastsWithUsername as AttendanceTimeForecastsWithUsernameDto,
 )
-from core.dtos.event import (
+from app.core.dtos.event import (
     AttendEventResponse,
     CreateEventResponse,
 )
-from core.dtos.event import Event as EventDto
-from core.dtos.event import EventWithId as EventWithIdDto
-from core.dtos.event import (
+from app.core.dtos.event import Event as EventDto
+from app.core.dtos.event import EventWithId as EventWithIdDto
+from app.core.dtos.event import (
     ForecastAttendanceTimeResponse,
     GetAttendanceHistoryResponse,
     GetAttendanceTimeForecastsResponse,
@@ -34,18 +34,18 @@ from core.dtos.event import (
     GetMyEventsResponse,
     UpdateAttendancesResponse,
 )
-from core.dtos.ml_dto.account import UserAccount as UserAccountMLDto
-from core.dtos.ml_dto.event import Event as EventMLDto
-from core.dtos.ml_dto.event import (
+from app.core.dtos.ml_dto.account import UserAccount as UserAccountMLDto
+from app.core.dtos.ml_dto.event import Event as EventMLDto
+from app.core.dtos.ml_dto.event import (
     EventAttendanceActionLog as EventAttendanceActionLogMLDto,
 )
-from core.dtos.ml_dto.event import Recurrence as RecurrenceMLDto
-from core.dtos.ml_dto.event import RecurrenceRule as RecurrenceRuleMLDto
-from core.dtos.ml_dto.forecast import (
+from app.core.dtos.ml_dto.event import Recurrence as RecurrenceMLDto
+from app.core.dtos.ml_dto.event import RecurrenceRule as RecurrenceRuleMLDto
+from app.core.dtos.ml_dto.forecast import (
     ForecastAttendanceTimeRequest,
 )
-from core.error.error_code import ErrorCode
-from core.features.event import (
+from app.core.error.error_code import ErrorCode
+from app.core.features.event import (
     AttendanceAction,
     AttendanceState,
     Event,
@@ -53,9 +53,11 @@ from core.features.event import (
     RecurrenceRule,
     Weekday,
 )
-from core.infrastructure.db.transaction import rollbackable
-from core.infrastructure.sqlalchemy.repositories.account import UserAccountRepository
-from core.infrastructure.sqlalchemy.repositories.event import (
+from app.core.infrastructure.db.transaction import rollbackable
+from app.core.infrastructure.sqlalchemy.repositories.account import (
+    UserAccountRepository,
+)
+from app.core.infrastructure.sqlalchemy.repositories.event import (
     EventAttendanceActionLogRepository,
     EventAttendanceForecastRepository,
     EventAttendanceRepository,
@@ -63,9 +65,9 @@ from core.infrastructure.sqlalchemy.repositories.event import (
     RecurrenceRepository,
     RecurrenceRuleRepository,
 )
-from core.utils.datetime import validate_date
-from core.utils.rfc5545 import parse_recurrence, serialize_recurrence
-from core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
+from app.core.utils.datetime import validate_date
+from app.core.utils.rfc5545 import parse_recurrence, serialize_recurrence
+from app.core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
 
 
 def listify_byday(
@@ -509,9 +511,7 @@ class EventUsecase(IUsecase):
             self.uow
         )
 
-        earliest_attend_data = (
-            await event_attendance_action_log_repository.read_all_earliest_attend_async()
-        )
+        earliest_attend_data = await event_attendance_action_log_repository.read_all_earliest_attend_async()
         latest_leave_data = (
             await event_attendance_action_log_repository.read_all_latest_leave_async()
         )

@@ -3,12 +3,12 @@ from dataclasses import dataclass
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from core.features.account import Account, Role, groupRoleMap
-from core.features.auth import TokenType
-from core.infrastructure.sqlalchemy.db import get_db_async
-from core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
-from core.usecase.auth import AuthUsecase
-from core.constants.constants import ACCESS_TOKEN_NAME
+from app.core.features.account import Account, Role, groupRoleMap
+from app.core.features.auth import TokenType
+from app.core.infrastructure.sqlalchemy.db import get_db_async
+from app.core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
+from app.core.usecase.auth import AuthUsecase
+from app.core.constants.constants import ACCESS_TOKEN_NAME
 
 
 class OAuth2Cookie(OAuth2PasswordBearer):

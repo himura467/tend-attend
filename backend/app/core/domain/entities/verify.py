@@ -2,8 +2,8 @@ from datetime import datetime
 
 from pydantic.networks import EmailStr
 
-from core.domain.entities.base import IEntity
-from core.utils.uuid import UUID
+from app.core.domain.entities.base import IEntity
+from app.core.utils.uuid import UUID
 
 
 class EmailVerification(IEntity):

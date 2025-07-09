@@ -8,8 +8,8 @@ from sqlalchemy.orm.decl_api import declared_attr
 from sqlalchemy.sql import text
 from sqlalchemy.sql.functions import func
 
-from core.infrastructure.db.settings import SHARD_DB_CONNECTION_KEYS
-from core.infrastructure.sqlalchemy.models.base import AbstractBase
+from app.core.infrastructure.db.settings import SHARD_DB_CONNECTION_KEYS
+from app.core.infrastructure.sqlalchemy.models.base import AbstractBase
 
 
 class AbstractShardBase(AbstractBase):

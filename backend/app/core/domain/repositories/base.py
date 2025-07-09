@@ -3,8 +3,8 @@ from typing import Any, Protocol, Type
 
 from sqlalchemy.orm.base import Mapped
 
-from core.domain.entities.base import IEntity
-from core.utils.uuid import UUID
+from app.core.domain.entities.base import IEntity
+from app.core.utils.uuid import UUID
 
 
 class ModelProtocol[TEntity: IEntity](Protocol):

@@ -5,10 +5,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import delete, select, update
 from sqlalchemy.sql.elements import UnaryExpression
 
-from core.domain.entities.base import IEntity
-from core.domain.repositories.base import IRepository, ModelProtocol
-from core.domain.unit_of_work.base import IUnitOfWork
-from core.utils.uuid import UUID, uuid_to_bin
+from app.core.domain.entities.base import IEntity
+from app.core.domain.repositories.base import IRepository, ModelProtocol
+from app.core.domain.unit_of_work.base import IUnitOfWork
+from app.core.utils.uuid import UUID, uuid_to_bin
 
 
 class AbstractRepository[TEntity: IEntity, TModel: ModelProtocol[Any]](

@@ -2,22 +2,24 @@ import random
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from core.domain.entities.event import (
+from app.core.domain.entities.event import (
     EventAttendanceActionLog as EventAttendanceActionLogEntity,
 )
-from core.domain.usecase.base import IUsecase
-from core.dtos.base import BaseModelWithErrorCodes
-from core.features.account import Gender
-from core.features.event import AttendanceAction, Frequency, Weekday
-from core.infrastructure.db.transaction import rollbackable
-from core.infrastructure.sqlalchemy.repositories.account import UserAccountRepository
-from core.infrastructure.sqlalchemy.repositories.event import (
+from app.core.domain.usecase.base import IUsecase
+from app.core.dtos.base import BaseModelWithErrorCodes
+from app.core.features.account import Gender
+from app.core.features.event import AttendanceAction, Frequency, Weekday
+from app.core.infrastructure.db.transaction import rollbackable
+from app.core.infrastructure.sqlalchemy.repositories.account import (
+    UserAccountRepository,
+)
+from app.core.infrastructure.sqlalchemy.repositories.event import (
     EventAttendanceActionLogRepository,
     EventRepository,
     RecurrenceRepository,
     RecurrenceRuleRepository,
 )
-from core.utils.uuid import generate_uuid
+from app.core.utils.uuid import generate_uuid
 
 
 class DevelopUsecase(IUsecase):

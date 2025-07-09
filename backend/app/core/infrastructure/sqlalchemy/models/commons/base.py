@@ -8,8 +8,8 @@ from sqlalchemy.orm.decl_api import declared_attr
 from sqlalchemy.sql import text
 from sqlalchemy.sql.functions import func
 
-from core.infrastructure.db.settings import COMMON_DB_CONNECTION_KEY
-from core.infrastructure.sqlalchemy.models.base import AbstractBase
+from app.core.infrastructure.db.settings import COMMON_DB_CONNECTION_KEY
+from app.core.infrastructure.sqlalchemy.models.base import AbstractBase
 
 
 class AbstractCommonBase(AbstractBase):

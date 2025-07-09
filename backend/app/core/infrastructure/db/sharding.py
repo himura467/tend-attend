@@ -6,8 +6,8 @@ from sqlalchemy.orm.session import ORMExecuteState
 from sqlalchemy.orm.state import InstanceState
 from sqlalchemy.sql.elements import ClauseElement
 
-from core.constants.constants import DB_SHARD_COUNT
-from core.infrastructure.db.settings import (
+from app.core.constants.constants import DB_SHARD_COUNT
+from app.core.infrastructure.db.settings import (
     COMMON_DB_CONNECTION_KEY,
     CONNECTIONS,
     SEQUENCE_DB_CONNECTION_KEY,

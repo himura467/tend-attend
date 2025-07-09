@@ -3,7 +3,7 @@ from typing import Awaitable, Callable
 from fastapi import FastAPI, Request, Response, status
 from mangum import Mangum
 from starlette.middleware.base import BaseHTTPMiddleware
-from api.main import api_router
+from app.api.main import api_router
 
 app = FastAPI()
 

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from pydantic.networks import EmailStr
 
-from core.dtos.base import BaseModelWithErrorCodes
+from app.core.dtos.base import BaseModelWithErrorCodes
 
 
 class RequestEmailVerificationRequest(BaseModel):

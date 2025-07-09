@@ -3,22 +3,22 @@ from typing import Any
 from sqlalchemy import create_mock_engine
 from sqlalchemy.sql.ddl import ExecutableDDLElement
 
-from core.aws.aurora import execute
-from core.constants.constants import (
+from app.core.aws.aurora import execute
+from app.core.constants.constants import (
     AURORA_COMMON_DBNAME,
     AURORA_SEQUENCE_DBNAME,
     AURORA_SHARD_DBNAME_PREFIX,
     DB_SHARD_COUNT,
 )
-from core.infrastructure.sqlalchemy.db import async_engines
-from core.infrastructure.sqlalchemy.models.base import AbstractBase
-from core.infrastructure.sqlalchemy.models.commons.base import (  # noqa: F401
+from app.core.infrastructure.sqlalchemy.db import async_engines
+from app.core.infrastructure.sqlalchemy.models.base import AbstractBase
+from app.core.infrastructure.sqlalchemy.models.commons.base import (  # noqa: F401
     AbstractCommonBase,
 )
-from core.infrastructure.sqlalchemy.models.sequences.base import (  # noqa: F401
+from app.core.infrastructure.sqlalchemy.models.sequences.base import (  # noqa: F401
     AbstractSequenceBase,
 )
-from core.infrastructure.sqlalchemy.models.shards.base import (  # noqa: F401
+from app.core.infrastructure.sqlalchemy.models.shards.base import (  # noqa: F401
     AbstractShardBase,
 )
 

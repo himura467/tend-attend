@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio.engine import create_async_engine
 from sqlalchemy.ext.asyncio.session import AsyncSession, async_sessionmaker
 from sqlalchemy.ext.horizontal_shard import ShardedSession
 
-from core.infrastructure.db.settings import CONNECTIONS
-from core.infrastructure.db.sharding import (
+from app.core.infrastructure.db.settings import CONNECTIONS
+from app.core.infrastructure.db.sharding import (
     execute_chooser,
     identity_chooser,
     shard_chooser,

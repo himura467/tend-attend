@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, field_serializer
 
-from core.features.event import AttendanceAction, Frequency
+from app.core.features.event import AttendanceAction, Frequency
 
 
 class RecurrenceRule(BaseModel):
