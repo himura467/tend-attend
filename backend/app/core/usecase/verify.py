@@ -21,9 +21,7 @@ class VerifyUsecase(IUsecase):
     _TOKEN_EXPIRES = timedelta(minutes=5)
 
     @rollbackable
-    async def request_email_verification_async(
-        self, email: EmailStr
-    ) -> RequestEmailVerificationResponse:
+    async def request_email_verification_async(self, email: EmailStr) -> RequestEmailVerificationResponse:
         user_account_repository = UserAccountRepository(self.uow)
         email_verification_repository = EmailVerificationRepository(self.uow)
 
@@ -39,13 +37,11 @@ class VerifyUsecase(IUsecase):
 
         verification_token = generate_uuid()
         token_expires_at = datetime.now(ZoneInfo("UTC")) + self._TOKEN_EXPIRES
-        email_verification = (
-            await email_verification_repository.create_email_verification_async(
-                entity_id=generate_uuid(),
-                email=email,
-                verification_token=verification_token,
-                token_expires_at=token_expires_at,
-            )
+        email_verification = await email_verification_repository.create_email_verification_async(
+            entity_id=generate_uuid(),
+            email=email,
+            verification_token=verification_token,
+            token_expires_at=token_expires_at,
         )
         if email_verification is None:
             raise Exception("Failed to create email verification")
@@ -56,9 +52,7 @@ class VerifyUsecase(IUsecase):
         return RequestEmailVerificationResponse(error_codes=error_codes)
 
     @rollbackable
-    async def verify_email_async(
-        self, email: EmailStr, verification_token: str
-    ) -> VerifyEmailResponse:
+    async def verify_email_async(self, email: EmailStr, verification_token: str) -> VerifyEmailResponse:
         user_account_repository = UserAccountRepository(self.uow)
         email_verification_repository = EmailVerificationRepository(self.uow)
 
@@ -68,11 +62,7 @@ class VerifyUsecase(IUsecase):
         if user_account.email_verified:
             return VerifyEmailResponse(error_codes=[ErrorCode.EMAIL_ALREADY_VERIFIED])
 
-        email_verification = (
-            await email_verification_repository.read_latest_by_email_or_none_async(
-                email
-            )
-        )
+        email_verification = await email_verification_repository.read_latest_by_email_or_none_async(email)
         if email_verification is None:
             return VerifyEmailResponse(
                 error_codes=[ErrorCode.VERIFICATION_TOKEN_NOT_EXIST],

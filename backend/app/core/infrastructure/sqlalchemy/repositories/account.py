@@ -32,9 +32,7 @@ class UserAccountRepository(AbstractRepository[UserAccountEntity, UserAccount]):
         nickname: str | None = None,
     ) -> UserAccountEntity | None:
         async def read_models_by_ids_async(record_ids: set[UUID]) -> list[UserAccount]:
-            stmt = select(self._model).where(
-                self._model.id.in_(uuid_to_bin(record_id) for record_id in record_ids)
-            )
+            stmt = select(self._model).where(self._model.id.in_(uuid_to_bin(record_id) for record_id in record_ids))
             result = await self._uow.execute_async(stmt)
             return result.scalars().all()
 
@@ -66,26 +64,18 @@ class UserAccountRepository(AbstractRepository[UserAccountEntity, UserAccount]):
                 await savepoint.rollback()
                 return None
 
-    async def read_by_username_or_none_async(
-        self, username: str
-    ) -> UserAccountEntity | None:
+    async def read_by_username_or_none_async(self, username: str) -> UserAccountEntity | None:
         return await self.read_one_or_none_async(
             where=[self._model.username == username],
         )
 
-    async def read_by_usernames_async(
-        self, usernames: set[str]
-    ) -> set[UserAccountEntity]:
+    async def read_by_usernames_async(self, usernames: set[str]) -> set[UserAccountEntity]:
         return await self.read_all_async(where=[self._model.username.in_(usernames)])
 
-    async def read_by_email_or_none_async(
-        self, email: EmailStr
-    ) -> UserAccountEntity | None:
+    async def read_by_email_or_none_async(self, email: EmailStr) -> UserAccountEntity | None:
         return await self.read_one_or_none_async(where=[self._model.email == email])
 
-    async def read_with_followees_by_id_or_none_async(
-        self, record_id: UUID
-    ) -> UserAccountEntity | None:
+    async def read_with_followees_by_id_or_none_async(self, record_id: UUID) -> UserAccountEntity | None:
         stmt = (
             select(self._model)
             .where(self._model.id == uuid_to_bin(record_id))
@@ -95,9 +85,7 @@ class UserAccountRepository(AbstractRepository[UserAccountEntity, UserAccount]):
         record = result.unique().scalar_one_or_none()
         return record.to_entity() if record is not None else None
 
-    async def read_with_followers_by_id_or_none_async(
-        self, record_id: UUID
-    ) -> UserAccountEntity | None:
+    async def read_with_followers_by_id_or_none_async(self, record_id: UUID) -> UserAccountEntity | None:
         stmt = (
             select(self._model)
             .where(self._model.id == uuid_to_bin(record_id))

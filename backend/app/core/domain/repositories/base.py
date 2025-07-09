@@ -13,9 +13,7 @@ class ModelProtocol[TEntity: IEntity](Protocol):
     def to_entity(self) -> TEntity: ...
 
     @classmethod
-    def from_entity(
-        cls: Type["ModelProtocol[TEntity]"], entity: TEntity
-    ) -> "ModelProtocol[TEntity]": ...
+    def from_entity(cls: Type["ModelProtocol[TEntity]"], entity: TEntity) -> "ModelProtocol[TEntity]": ...
 
 
 class IRepository[TEntity: IEntity, TModel: ModelProtocol[Any]](metaclass=ABCMeta):

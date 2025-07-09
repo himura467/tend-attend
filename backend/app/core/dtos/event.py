@@ -39,9 +39,7 @@ class AttendanceTimeForecast(BaseModel):
 
 class AttendanceTimeForecastsWithUsername(BaseModel):
     username: str = Field(..., title="Username")
-    attendance_time_forecasts: list[AttendanceTimeForecast] = Field(
-        ..., title="Attendance Time Forecasts"
-    )
+    attendance_time_forecasts: list[AttendanceTimeForecast] = Field(..., title="Attendance Time Forecasts")
 
 
 class CreateEventRequest(BaseModel):
@@ -69,9 +67,7 @@ class UpdateAttendancesResponse(BaseModelWithErrorCodes):
 
 
 class GetAttendanceHistoryResponse(BaseModelWithErrorCodes):
-    attendances_with_username: AttendancesWithUsername = Field(
-        ..., title="Attendances with Username"
-    )
+    attendances_with_username: AttendancesWithUsername = Field(..., title="Attendances with Username")
 
 
 class GetMyEventsResponse(BaseModelWithErrorCodes):
@@ -87,12 +83,12 @@ class GetGuestAttendanceStatusResponse(BaseModelWithErrorCodes):
 
 
 class ForecastAttendanceTimeResponse(BaseModelWithErrorCodes):
-    attendance_time_forecasts: dict[int, dict[str, list[AttendanceTimeForecast]]] = (
-        Field(..., title="Attendance Time Forecasts")
+    attendance_time_forecasts: dict[int, dict[str, list[AttendanceTimeForecast]]] = Field(
+        ..., title="Attendance Time Forecasts"
     )
 
 
 class GetAttendanceTimeForecastsResponse(BaseModelWithErrorCodes):
-    attendance_time_forecasts_with_username: dict[
-        str, dict[int, AttendanceTimeForecastsWithUsername]
-    ] = Field(..., title="Attendance Time Forecasts with Username")
+    attendance_time_forecasts_with_username: dict[str, dict[int, AttendanceTimeForecastsWithUsername]] = Field(
+        ..., title="Attendance Time Forecasts with Username"
+    )

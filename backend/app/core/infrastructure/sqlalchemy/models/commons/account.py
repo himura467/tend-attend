@@ -17,33 +17,15 @@ from app.core.utils.uuid import bin_to_uuid, uuid_to_bin
 
 
 class UserAccount(AbstractCommonDynamicBase):
-    user_id: Mapped[int] = mapped_column(
-        BIGINT(unsigned=True), unique=True, nullable=False, comment="User ID"
-    )
-    username: Mapped[str] = mapped_column(
-        VARCHAR(63), unique=True, nullable=False, comment="Username"
-    )
-    hashed_password: Mapped[str] = mapped_column(
-        VARCHAR(512), nullable=False, comment="Hashed Password"
-    )
-    refresh_token: Mapped[str | None] = mapped_column(
-        VARCHAR(512), nullable=True, comment="Refresh Token"
-    )
-    nickname: Mapped[str | None] = mapped_column(
-        VARCHAR(63), nullable=True, comment="Nickname"
-    )
-    birth_date: Mapped[datetime] = mapped_column(
-        DATETIME(timezone=True), nullable=False, comment="Birth Date"
-    )
-    gender: Mapped[Gender] = mapped_column(
-        ENUM(Gender), nullable=False, comment="Gender"
-    )
-    email: Mapped[EmailStr] = mapped_column(
-        VARCHAR(63), unique=True, nullable=False, comment="Email Address"
-    )
-    email_verified: Mapped[bool] = mapped_column(
-        BOOLEAN, nullable=False, comment="Email Verified"
-    )
+    user_id: Mapped[int] = mapped_column(BIGINT(unsigned=True), unique=True, nullable=False, comment="User ID")
+    username: Mapped[str] = mapped_column(VARCHAR(63), unique=True, nullable=False, comment="Username")
+    hashed_password: Mapped[str] = mapped_column(VARCHAR(512), nullable=False, comment="Hashed Password")
+    refresh_token: Mapped[str | None] = mapped_column(VARCHAR(512), nullable=True, comment="Refresh Token")
+    nickname: Mapped[str | None] = mapped_column(VARCHAR(63), nullable=True, comment="Nickname")
+    birth_date: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Birth Date")
+    gender: Mapped[Gender] = mapped_column(ENUM(Gender), nullable=False, comment="Gender")
+    email: Mapped[EmailStr] = mapped_column(VARCHAR(63), unique=True, nullable=False, comment="Email Address")
+    email_verified: Mapped[bool] = mapped_column(BOOLEAN, nullable=False, comment="Email Verified")
     followees: Mapped[list["UserAccount"]] = relationship(
         secondary="follow_association",
         primaryjoin="UserAccount.id == FollowAssociation.follower_id",
@@ -59,19 +41,11 @@ class UserAccount(AbstractCommonDynamicBase):
 
     def to_entity(self, depth: int = 1) -> UserAccountEntity:
         try:
-            followees = (
-                [followee.to_entity(depth=depth - 1) for followee in self.followees]
-                if depth > 0
-                else []
-            )
+            followees = [followee.to_entity(depth=depth - 1) for followee in self.followees] if depth > 0 else []
         except StatementError:
             followees = []
         try:
-            followers = (
-                [follower.to_entity(depth=depth - 1) for follower in self.followers]
-                if depth > 0
-                else []
-            )
+            followers = [follower.to_entity(depth=depth - 1) for follower in self.followers] if depth > 0 else []
         except StatementError:
             followers = []
 

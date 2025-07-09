@@ -27,9 +27,7 @@ def generate_ddl() -> list[str]:
     ddl_statements: list[str] = []
 
     def executor(sql: ExecutableDDLElement, *multiparams: Any, **params: Any) -> None:
-        ddl_statements.append(
-            str(sql.compile(dialect=engine.dialect)).replace("\t", "").replace("\n", "")
-        )
+        ddl_statements.append(str(sql.compile(dialect=engine.dialect)).replace("\t", "").replace("\n", ""))
 
     engine = create_mock_engine(
         url="mysql+aiomysql://",

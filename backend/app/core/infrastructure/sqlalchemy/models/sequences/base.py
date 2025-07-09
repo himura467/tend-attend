@@ -25,9 +25,7 @@ class AbstractSequenceBase(AbstractBase):
 class AbstractSequenceId(AbstractSequenceBase):
     __abstract__ = True
 
-    id: Mapped[int] = mapped_column(
-        BIGINT(unsigned=True), primary_key=True, autoincrement=False
-    )
+    id: Mapped[int] = mapped_column(BIGINT(unsigned=True), primary_key=True, autoincrement=False)
 
     @classmethod
     async def id_generator(cls, uow: IUnitOfWork) -> int:

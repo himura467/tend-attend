@@ -11,16 +11,10 @@ from app.core.infrastructure.db.sharding import (
     shard_chooser,
 )
 
-async_engines = {
-    connection_key: create_async_engine(url, echo=True)
-    for connection_key, url in CONNECTIONS.items()
-}
+async_engines = {connection_key: create_async_engine(url, echo=True) for connection_key, url in CONNECTIONS.items()}
 
 async_session = async_sessionmaker(
-    shards={
-        connection_key: async_engines[connection_key].sync_engine
-        for connection_key in CONNECTIONS.keys()
-    },
+    shards={connection_key: async_engines[connection_key].sync_engine for connection_key in CONNECTIONS.keys()},
     sync_session_class=ShardedSession,
     autocommit=False,
     autoflush=True,

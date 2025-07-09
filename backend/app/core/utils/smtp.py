@@ -8,9 +8,7 @@ from app.core.constants.secrets import GMAIL_APP_PASSWORD, GMAIL_SENDER_EMAIL
 from app.core.error.error_code import ErrorCode
 
 
-async def send_verification_email_async(
-    user_email: EmailStr, verification_link: str
-) -> list[int]:
+async def send_verification_email_async(user_email: EmailStr, verification_link: str) -> list[int]:
     if GMAIL_SENDER_EMAIL is None or GMAIL_APP_PASSWORD is None:
         return [ErrorCode.ENVIRONMENT_VARIABLE_NOT_SET]
 
@@ -26,9 +24,7 @@ async def send_verification_email_async(
     message.attach(MIMEText(html, "html"))
 
     try:
-        async with aiosmtplib.SMTP(
-            hostname="smtp.gmail.com", port=465, use_tls=True
-        ) as smtp:
+        async with aiosmtplib.SMTP(hostname="smtp.gmail.com", port=465, use_tls=True) as smtp:
             print(GMAIL_SENDER_EMAIL, GMAIL_APP_PASSWORD)
             await smtp.login(GMAIL_SENDER_EMAIL, GMAIL_APP_PASSWORD)
             await smtp.send_message(message)

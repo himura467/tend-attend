@@ -29,21 +29,15 @@ class AuthUsecase(IUsecase):
         refresh_token_expires=_REFRESH_TOKEN_EXPIRES,
     )
 
-    async def get_account_by_token(
-        self, token: str, token_type: TokenType
-    ) -> Account | None:
+    async def get_account_by_token(self, token: str, token_type: TokenType) -> Account | None:
         user_account_repository = UserAccountRepository(self.uow)
 
-        token_info = self._jwt_cryptography.get_subject_and_group_from_token(
-            token, token_type
-        )
+        token_info = self._jwt_cryptography.get_subject_and_group_from_token(token, token_type)
         if token_info is None:
             return None
         account_id, group = token_info
 
-        user_account = await user_account_repository.read_by_id_or_none_async(
-            account_id
-        )
+        user_account = await user_account_repository.read_by_id_or_none_async(account_id)
         if user_account is None:
             raise ValueError("User account not found")
 
@@ -57,9 +51,7 @@ class AuthUsecase(IUsecase):
     async def auth_user_async(self, username: str, password: str) -> AuthTokenResponse:
         user_account_repository = UserAccountRepository(self.uow)
 
-        user_account = await user_account_repository.read_by_username_or_none_async(
-            username
-        )
+        user_account = await user_account_repository.read_by_username_or_none_async(username)
         if user_account is None:
             return AuthTokenResponse(
                 error_codes=[ErrorCode.USERNAME_NOT_EXIST],
@@ -68,9 +60,7 @@ class AuthUsecase(IUsecase):
                 refresh_token_max_age=None,
             )
 
-        if not self._password_hasher.verify_password(
-            password, user_account.hashed_password
-        ):
+        if not self._password_hasher.verify_password(password, user_account.hashed_password):
             return AuthTokenResponse(
                 error_codes=[ErrorCode.PASSWORD_INCORRECT],
                 auth_token=None,
@@ -102,9 +92,7 @@ class AuthUsecase(IUsecase):
                 refresh_token_max_age=None,
             )
 
-        user_account = await user_account_repository.read_by_id_async(
-            account.account_id
-        )
+        user_account = await user_account_repository.read_by_id_async(account.account_id)
 
         token = self._jwt_cryptography.create_auth_token(user_account.id, Group.HOST)
         user_account = user_account.set_refresh_token(token.refresh_token)

@@ -3,12 +3,13 @@ from dataclasses import dataclass
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio.session import AsyncSession
+
+from app.core.constants.constants import ACCESS_TOKEN_NAME
 from app.core.features.account import Account, Role, groupRoleMap
 from app.core.features.auth import TokenType
 from app.core.infrastructure.sqlalchemy.db import get_db_async
 from app.core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
 from app.core.usecase.auth import AuthUsecase
-from app.core.constants.constants import ACCESS_TOKEN_NAME
 
 
 class OAuth2Cookie(OAuth2PasswordBearer):
@@ -44,13 +45,9 @@ class AccessControl:
                 detail="Could not validate credentials",
             )
         if account.disabled:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive account"
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive account")
         if not self.has_compatible_role(account):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions"
-            )
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
 
         return account
 

@@ -4,9 +4,8 @@ from pydantic.networks import EmailStr
 
 from app.core.cryptography.hash import PasswordHasher
 from app.core.domain.usecase.base import IUsecase
-from app.core.dtos.account import CreateUserAccountResponse
+from app.core.dtos.account import CreateUserAccountResponse, GetFollowersInfoResponse
 from app.core.dtos.account import FollowerInfo as FollowerInfoDto
-from app.core.dtos.account import GetFollowersInfoResponse
 from app.core.error.error_code import ErrorCode
 from app.core.features.account import Gender
 from app.core.infrastructure.db.transaction import rollbackable
@@ -35,9 +34,7 @@ class AccountUsecase(IUsecase):
 
         user_id = await SequenceUserId.id_generator(self.uow)
 
-        followees = await user_account_repository.read_by_usernames_async(
-            followee_usernames
-        )
+        followees = await user_account_repository.read_by_usernames_async(followee_usernames)
 
         user_account_id = generate_uuid()
         user_account = await user_account_repository.create_user_account_async(
@@ -60,16 +57,10 @@ class AccountUsecase(IUsecase):
         return CreateUserAccountResponse(error_codes=[])
 
     @rollbackable
-    async def get_followers_info_async(
-        self, followee_id: UUID
-    ) -> GetFollowersInfoResponse:
+    async def get_followers_info_async(self, followee_id: UUID) -> GetFollowersInfoResponse:
         user_account_repository = UserAccountRepository(self.uow)
 
-        followee = (
-            await user_account_repository.read_with_followers_by_id_or_none_async(
-                followee_id
-            )
-        )
+        followee = await user_account_repository.read_with_followers_by_id_or_none_async(followee_id)
         if followee is None:
             raise ValueError("Followee ID not found")
 

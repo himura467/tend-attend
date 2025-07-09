@@ -11,9 +11,7 @@ from app.core.domain.unit_of_work.base import IUnitOfWork
 from app.core.utils.uuid import UUID, uuid_to_bin
 
 
-class AbstractRepository[TEntity: IEntity, TModel: ModelProtocol[Any]](
-    IRepository[TEntity, TModel]
-):
+class AbstractRepository[TEntity: IEntity, TModel: ModelProtocol[Any]](IRepository[TEntity, TModel]):
     def __init__(self, uow: IUnitOfWork) -> None:
         self._uow = uow
 
@@ -56,9 +54,7 @@ class AbstractRepository[TEntity: IEntity, TModel: ModelProtocol[Any]](
         return record.to_entity() if record is not None else None
 
     async def read_by_ids_async(self, record_ids: set[UUID]) -> set[TEntity]:
-        stmt = select(self._model).where(
-            self._model.id.in_(uuid_to_bin(record_id) for record_id in record_ids)
-        )
+        stmt = select(self._model).where(self._model.id.in_(uuid_to_bin(record_id) for record_id in record_ids))
         result = await self._uow.execute_async(stmt)
         return set(record.to_entity() for record in result.scalars().all())
 
@@ -90,9 +86,7 @@ class AbstractRepository[TEntity: IEntity, TModel: ModelProtocol[Any]](
 
     async def update_async(self, entity: TEntity) -> TEntity:
         model = self._model.from_entity(entity)
-        update_dict = {
-            key: value for key, value in model.__dict__.items() if key != "id"
-        }
+        update_dict = {key: value for key, value in model.__dict__.items() if key != "id"}
         # Remove SQLAlchemy internal state
         if "_sa_instance_state" in update_dict:
             del update_dict["_sa_instance_state"]

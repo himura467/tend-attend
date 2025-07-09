@@ -39,45 +39,19 @@ from app.core.utils.uuid import bin_to_uuid, uuid_to_bin
 
 
 class RecurrenceRule(AbstractShardStaticBase):
-    freq: Mapped[Frequency] = mapped_column(
-        ENUM(Frequency), nullable=False, comment="FREQ"
-    )
-    until: Mapped[datetime | None] = mapped_column(
-        DATETIME(timezone=False), nullable=True, comment="UNTIL"
-    )
-    count: Mapped[int | None] = mapped_column(
-        SMALLINT(unsigned=True), nullable=True, comment="COUNT"
-    )
-    interval: Mapped[int] = mapped_column(
-        SMALLINT(unsigned=True), nullable=False, comment="INTERVAL"
-    )
-    bysecond: Mapped[list[int] | None] = mapped_column(
-        JSON, nullable=True, comment="BYSECOND"
-    )
-    byminute: Mapped[list[int] | None] = mapped_column(
-        JSON, nullable=True, comment="BYMINUTE"
-    )
-    byhour: Mapped[list[int] | None] = mapped_column(
-        JSON, nullable=True, comment="BYHOUR"
-    )
-    byday: Mapped[list[list[int | Weekday]] | None] = mapped_column(
-        JSON, nullable=True, comment="BYDAY"
-    )
-    bymonthday: Mapped[list[int] | None] = mapped_column(
-        JSON, nullable=True, comment="BYMONTHDAY"
-    )
-    byyearday: Mapped[list[int] | None] = mapped_column(
-        JSON, nullable=True, comment="BYYEARDAY"
-    )
-    byweekno: Mapped[list[int] | None] = mapped_column(
-        JSON, nullable=True, comment="BYWEEKNO"
-    )
-    bymonth: Mapped[list[int] | None] = mapped_column(
-        JSON, nullable=True, comment="BYMONTH"
-    )
-    bysetpos: Mapped[list[int] | None] = mapped_column(
-        JSON, nullable=True, comment="BYSETPOS"
-    )
+    freq: Mapped[Frequency] = mapped_column(ENUM(Frequency), nullable=False, comment="FREQ")
+    until: Mapped[datetime | None] = mapped_column(DATETIME(timezone=False), nullable=True, comment="UNTIL")
+    count: Mapped[int | None] = mapped_column(SMALLINT(unsigned=True), nullable=True, comment="COUNT")
+    interval: Mapped[int] = mapped_column(SMALLINT(unsigned=True), nullable=False, comment="INTERVAL")
+    bysecond: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYSECOND")
+    byminute: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYMINUTE")
+    byhour: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYHOUR")
+    byday: Mapped[list[list[int | Weekday]] | None] = mapped_column(JSON, nullable=True, comment="BYDAY")
+    bymonthday: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYMONTHDAY")
+    byyearday: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYYEARDAY")
+    byweekno: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYWEEKNO")
+    bymonth: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYMONTH")
+    bysetpos: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYSETPOS")
     wkst: Mapped[Weekday] = mapped_column(ENUM(Weekday), nullable=False, comment="WKST")
 
     def to_entity(self) -> RecurrenceRuleEntity:
@@ -156,29 +130,17 @@ class Recurrence(AbstractShardStaticBase):
 
 
 class Event(AbstractShardDynamicBase):
-    summary: Mapped[str] = mapped_column(
-        VARCHAR(63), unique=True, nullable=False, comment="Summary"
-    )
-    location: Mapped[str | None] = mapped_column(
-        VARCHAR(63), nullable=True, comment="Location"
-    )
-    start: Mapped[datetime] = mapped_column(
-        DATETIME(timezone=True), nullable=False, comment="Start"
-    )
-    end: Mapped[datetime] = mapped_column(
-        DATETIME(timezone=True), nullable=False, comment="End"
-    )
-    is_all_day: Mapped[bool] = mapped_column(
-        BOOLEAN, nullable=False, comment="Is All Day"
-    )
+    summary: Mapped[str] = mapped_column(VARCHAR(63), unique=True, nullable=False, comment="Summary")
+    location: Mapped[str | None] = mapped_column(VARCHAR(63), nullable=True, comment="Location")
+    start: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Start")
+    end: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="End")
+    is_all_day: Mapped[bool] = mapped_column(BOOLEAN, nullable=False, comment="Is All Day")
     recurrence_id: Mapped[bytes | None] = mapped_column(
         BINARY(16),
         ForeignKey("recurrence.id", ondelete="CASCADE"),
         nullable=True,
     )
-    timezone: Mapped[str] = mapped_column(
-        VARCHAR(63), nullable=False, comment="Timezone"
-    )
+    timezone: Mapped[str] = mapped_column(VARCHAR(63), nullable=False, comment="Timezone")
     recurrence: Mapped[Recurrence | None] = relationship(uselist=False)
 
     def to_entity(self) -> EventEntity:
@@ -195,9 +157,7 @@ class Event(AbstractShardDynamicBase):
             start=self.start,
             end=self.end,
             is_all_day=self.is_all_day,
-            recurrence_id=(
-                bin_to_uuid(self.recurrence_id) if self.recurrence_id else None
-            ),
+            recurrence_id=(bin_to_uuid(self.recurrence_id) if self.recurrence_id else None),
             timezone=self.timezone,
             recurrence=recurrence,
         )
@@ -212,9 +172,7 @@ class Event(AbstractShardDynamicBase):
             start=entity.start,
             end=entity.end,
             is_all_day=entity.is_all_day,
-            recurrence_id=(
-                uuid_to_bin(entity.recurrence_id) if entity.recurrence_id else None
-            ),
+            recurrence_id=(uuid_to_bin(entity.recurrence_id) if entity.recurrence_id else None),
             timezone=entity.timezone,
         )
 
@@ -228,12 +186,8 @@ class EventAttendance(AbstractShardDynamicBase):
         nullable=False,
         comment="Event ID",
     )
-    start: Mapped[datetime] = mapped_column(
-        DATETIME(timezone=True), nullable=False, comment="Start"
-    )
-    state: Mapped[AttendanceState] = mapped_column(
-        ENUM(AttendanceState), nullable=False, comment="Attendance State"
-    )
+    start: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Start")
+    state: Mapped[AttendanceState] = mapped_column(ENUM(AttendanceState), nullable=False, comment="Attendance State")
 
     def to_entity(self) -> EventAttendanceEntity:
         return EventAttendanceEntity(
@@ -255,9 +209,7 @@ class EventAttendance(AbstractShardDynamicBase):
         )
 
 
-UniqueConstraint(
-    EventAttendance.user_id, EventAttendance.event_id, EventAttendance.start
-)
+UniqueConstraint(EventAttendance.user_id, EventAttendance.event_id, EventAttendance.start)
 
 
 class EventAttendanceActionLog(AbstractShardDynamicBase):
@@ -266,15 +218,11 @@ class EventAttendanceActionLog(AbstractShardDynamicBase):
         nullable=False,
         comment="Event ID",
     )
-    start: Mapped[datetime] = mapped_column(
-        DATETIME(timezone=True), nullable=False, comment="Start"
-    )
+    start: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Start")
     action: Mapped[AttendanceAction] = mapped_column(
         ENUM(AttendanceAction), nullable=False, comment="Attendance Action"
     )
-    acted_at: Mapped[datetime] = mapped_column(
-        DATETIME(timezone=True), nullable=False, comment="Acted At"
-    )
+    acted_at: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Acted At")
 
     def to_entity(self) -> EventAttendanceActionLogEntity:
         return EventAttendanceActionLogEntity(
@@ -287,9 +235,7 @@ class EventAttendanceActionLog(AbstractShardDynamicBase):
         )
 
     @classmethod
-    def from_entity(
-        cls, entity: EventAttendanceActionLogEntity
-    ) -> "EventAttendanceActionLog":
+    def from_entity(cls, entity: EventAttendanceActionLogEntity) -> "EventAttendanceActionLog":
         return cls(
             id=uuid_to_bin(entity.id),
             user_id=entity.user_id,
@@ -314,15 +260,11 @@ class EventAttendanceForecast(AbstractShardDynamicBase):
         nullable=False,
         comment="Event ID",
     )
-    start: Mapped[datetime] = mapped_column(
-        DATETIME(timezone=True), nullable=False, comment="Event Start Time"
-    )
+    start: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Event Start Time")
     forecasted_attended_at: Mapped[datetime] = mapped_column(
         DATETIME(timezone=True), nullable=False, comment="Forecasted Attendance Time"
     )
-    forecasted_duration: Mapped[float] = mapped_column(
-        DOUBLE, nullable=False, comment="Forecasted Duration in Seconds"
-    )
+    forecasted_duration: Mapped[float] = mapped_column(DOUBLE, nullable=False, comment="Forecasted Duration in Seconds")
 
     def to_entity(self) -> "EventAttendanceForecastEntity":
         return EventAttendanceForecastEntity(
@@ -335,9 +277,7 @@ class EventAttendanceForecast(AbstractShardDynamicBase):
         )
 
     @classmethod
-    def from_entity(
-        cls, entity: "EventAttendanceForecastEntity"
-    ) -> "EventAttendanceForecast":
+    def from_entity(cls, entity: "EventAttendanceForecastEntity") -> "EventAttendanceForecast":
         return cls(
             id=uuid_to_bin(entity.id),
             user_id=entity.user_id,

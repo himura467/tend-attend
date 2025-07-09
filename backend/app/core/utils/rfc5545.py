@@ -14,50 +14,24 @@ def parse_rrule(rrule_str: str, is_all_day: bool) -> RecurrenceRule:
         if count is not None:
             raise ValueError("RRULE cannot have both COUNT and UNTIL")
         until_str = rrules["UNTIL"]
-        until = (
-            datetime.strptime(until_str, "%Y%m%d")
-            if is_all_day
-            else datetime.strptime(until_str, "%Y%m%dT%H%M%S")
-        )
+        until = datetime.strptime(until_str, "%Y%m%d") if is_all_day else datetime.strptime(until_str, "%Y%m%dT%H%M%S")
     interval = int(rrules["INTERVAL"]) if "INTERVAL" in rrules else 1
-    bysecond = (
-        list(map(int, rrules["BYSECOND"].split(","))) if "BYSECOND" in rrules else None
-    )
-    byminute = (
-        list(map(int, rrules["BYMINUTE"].split(","))) if "BYMINUTE" in rrules else None
-    )
+    bysecond = list(map(int, rrules["BYSECOND"].split(","))) if "BYSECOND" in rrules else None
+    byminute = list(map(int, rrules["BYMINUTE"].split(","))) if "BYMINUTE" in rrules else None
     byhour = list(map(int, rrules["BYHOUR"].split(","))) if "BYHOUR" in rrules else None
     byday = (
         [
-            (
-                (int(m.group(1)), Weekday(m.group(2)))
-                if m.group(1)
-                else (0, Weekday(m.group(2)))
-            )
+            ((int(m.group(1)), Weekday(m.group(2))) if m.group(1) else (0, Weekday(m.group(2))))
             for m in re.finditer(r"(-?\d+)?(\w{2})", rrules["BYDAY"])
         ]
         if "BYDAY" in rrules
         else None
     )
-    bymonthday = (
-        list(map(int, rrules["BYMONTHDAY"].split(",")))
-        if "BYMONTHDAY" in rrules
-        else None
-    )
-    byyearday = (
-        list(map(int, rrules["BYYEARDAY"].split(",")))
-        if "BYYEARDAY" in rrules
-        else None
-    )
-    byweekno = (
-        list(map(int, rrules["BYWEEKNO"].split(","))) if "BYWEEKNO" in rrules else None
-    )
-    bymonth = (
-        list(map(int, rrules["BYMONTH"].split(","))) if "BYMONTH" in rrules else None
-    )
-    bysetpos = (
-        list(map(int, rrules["BYSETPOS"].split(","))) if "BYSETPOS" in rrules else None
-    )
+    bymonthday = list(map(int, rrules["BYMONTHDAY"].split(","))) if "BYMONTHDAY" in rrules else None
+    byyearday = list(map(int, rrules["BYYEARDAY"].split(","))) if "BYYEARDAY" in rrules else None
+    byweekno = list(map(int, rrules["BYWEEKNO"].split(","))) if "BYWEEKNO" in rrules else None
+    bymonth = list(map(int, rrules["BYMONTH"].split(","))) if "BYMONTH" in rrules else None
+    bysetpos = list(map(int, rrules["BYSETPOS"].split(","))) if "BYSETPOS" in rrules else None
     wkst = Weekday(rrules["WKST"]) if "WKST" in rrules else Weekday.MO
 
     return RecurrenceRule(

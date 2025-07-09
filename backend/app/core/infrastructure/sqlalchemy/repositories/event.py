@@ -137,9 +137,7 @@ class EventRepository(AbstractRepository[EventEntity, Event]):
         )
         return await self.create_async(event)
 
-    async def read_with_recurrence_by_user_ids_async(
-        self, user_ids: set[int]
-    ) -> set[EventEntity]:
+    async def read_with_recurrence_by_user_ids_async(self, user_ids: set[int]) -> set[EventEntity]:
         stmt = (
             select(self._model)
             .where(self._model.user_id.in_(user_ids))
@@ -148,14 +146,8 @@ class EventRepository(AbstractRepository[EventEntity, Event]):
         result = await self._uow.execute_async(stmt)
         return set(record.to_entity() for record in result.unique().scalars().all())
 
-    async def read_all_with_recurrence_async(
-        self, where: list[Any]
-    ) -> set[EventEntity]:
-        stmt = (
-            select(self._model)
-            .where(*where)
-            .options(joinedload(Event.recurrence).joinedload(Recurrence.rrule))
-        )
+    async def read_all_with_recurrence_async(self, where: list[Any]) -> set[EventEntity]:
+        stmt = select(self._model).where(*where).options(joinedload(Event.recurrence).joinedload(Recurrence.rrule))
         result = await self._uow.execute_async(stmt)
         return set(record.to_entity() for record in result.unique().scalars().all())
 
@@ -186,10 +178,8 @@ class EventAttendanceRepository(
         start: datetime,
         state: AttendanceState,
     ) -> EventAttendanceEntity | None:
-        existing_event_attendance = (
-            await self.read_by_user_id_and_event_id_and_start_or_none_async(
-                user_id=user_id, event_id=event_id, start=start
-            )
+        existing_event_attendance = await self.read_by_user_id_and_event_id_and_start_or_none_async(
+            user_id=user_id, event_id=event_id, start=start
         )
         if existing_event_attendance:
             updated_event_attendance = existing_event_attendance.set_state(state)
@@ -362,13 +352,9 @@ class EventAttendanceForecastRepository(
 
         return await self.bulk_create_async(event_attendance_forecasts)
 
-    async def read_all_by_event_ids_async(
-        self, event_ids: set[UUID]
-    ) -> set[EventAttendanceForecastEntity]:
+    async def read_all_by_event_ids_async(self, event_ids: set[UUID]) -> set[EventAttendanceForecastEntity]:
         return await self.read_all_async(
             where=[
-                self._model.event_id.in_(
-                    uuid_to_bin(event_id) for event_id in event_ids
-                ),
+                self._model.event_id.in_(uuid_to_bin(event_id) for event_id in event_ids),
             ],
         )

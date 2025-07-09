@@ -42,11 +42,8 @@ DB_CONFIG: DBConfig = {
     "password": AWS_RDS_CLUSTER_MASTER_PASSWORD or _DEFAULT_DB_CONFIG["password"],
     "common_dbname": AURORA_COMMON_DBNAME or _DEFAULT_DB_CONFIG["common_dbname"],
     "sequence_dbname": AURORA_SEQUENCE_DBNAME or _DEFAULT_DB_CONFIG["sequence_dbname"],
-    "shard_dbname_prefix": AURORA_SHARD_DBNAME_PREFIX
-    or _DEFAULT_DB_CONFIG["shard_dbname_prefix"],
-    "unix_socket_path": os.environ.get(
-        "DB_INSTANCE_UNIX_SOCKET", _DEFAULT_DB_CONFIG["unix_socket_path"]
-    ),
+    "shard_dbname_prefix": AURORA_SHARD_DBNAME_PREFIX or _DEFAULT_DB_CONFIG["shard_dbname_prefix"],
+    "unix_socket_path": os.environ.get("DB_INSTANCE_UNIX_SOCKET", _DEFAULT_DB_CONFIG["unix_socket_path"]),
 }
 
 _SHARD_DB_URLS: tuple[str, ...] = ()
@@ -71,8 +68,5 @@ SHARD_DB_CONNECTION_KEYS = tuple(f"shard{i}" for i in range(DB_SHARD_COUNT))
 CONNECTIONS = {
     COMMON_DB_CONNECTION_KEY: _COMMON_DB_URL,
     SEQUENCE_DB_CONNECTION_KEY: _SEQUENCE_DB_URL,
-    **{
-        connection_key: url
-        for connection_key, url in zip(SHARD_DB_CONNECTION_KEYS, _SHARD_DB_URLS)
-    },
+    **{connection_key: url for connection_key, url in zip(SHARD_DB_CONNECTION_KEYS, _SHARD_DB_URLS)},
 }

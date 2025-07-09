@@ -29,9 +29,7 @@ class DevelopUsecase(IUsecase):
         recurrence_rule_repository = RecurrenceRuleRepository(self.uow)
         recurrence_repository = RecurrenceRepository(self.uow)
         event_repository = EventRepository(self.uow)
-        event_attendance_action_log_repository = EventAttendanceActionLogRepository(
-            self.uow
-        )
+        event_attendance_action_log_repository = EventAttendanceActionLogRepository(self.uow)
 
         host = await user_account_repository.create_user_account_async(
             entity_id=generate_uuid(),
@@ -93,9 +91,7 @@ class DevelopUsecase(IUsecase):
         # Users depending on the potential weekly event
         user_ids = range(1, 11)
 
-        today = datetime.now(ZoneInfo("UTC")).replace(
-            hour=0, minute=0, second=0, microsecond=0, tzinfo=ZoneInfo("UTC")
-        )
+        today = datetime.now(ZoneInfo("UTC")).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=ZoneInfo("UTC"))
 
         for user_id in user_ids:
             await user_account_repository.create_user_account_async(

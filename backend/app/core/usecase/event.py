@@ -22,10 +22,6 @@ from app.core.dtos.event import (
 from app.core.dtos.event import (
     AttendEventResponse,
     CreateEventResponse,
-)
-from app.core.dtos.event import Event as EventDto
-from app.core.dtos.event import EventWithId as EventWithIdDto
-from app.core.dtos.event import (
     ForecastAttendanceTimeResponse,
     GetAttendanceHistoryResponse,
     GetAttendanceTimeForecastsResponse,
@@ -34,6 +30,8 @@ from app.core.dtos.event import (
     GetMyEventsResponse,
     UpdateAttendancesResponse,
 )
+from app.core.dtos.event import Event as EventDto
+from app.core.dtos.event import EventWithId as EventWithIdDto
 from app.core.dtos.ml_dto.account import UserAccount as UserAccountMLDto
 from app.core.dtos.ml_dto.event import Event as EventMLDto
 from app.core.dtos.ml_dto.event import (
@@ -79,9 +77,7 @@ def listify_byday(
 def parse_byday(
     byday: list[list[int | Weekday]] | None,
 ) -> list[tuple[int, Weekday]] | None:
-    return (
-        [(int(i[0]), Weekday(str(i[1]))) for i in byday] if byday is not None else None
-    )
+    return [(int(i[0]), Weekday(str(i[1]))) for i in byday] if byday is not None else None
 
 
 def stringify_dates(dates: list[date]) -> list[str]:
@@ -115,9 +111,7 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                     wkst=event.recurrence.rrule.wkst,
                 ),
                 rdate=(parse_dates(event.recurrence.rdate) if event.is_all_day else []),
-                exdate=(
-                    parse_dates(event.recurrence.exdate) if event.is_all_day else []
-                ),
+                exdate=(parse_dates(event.recurrence.exdate) if event.is_all_day else []),
             )
         event_dto_list.append(
             EventWithIdDto(
@@ -180,25 +174,23 @@ class EventUsecase(IUsecase):
         if event.recurrence is None:
             recurrence_id = None
         else:
-            recurrence_rule = (
-                await recurrence_rule_repository.create_recurrence_rule_async(
-                    entity_id=generate_uuid(),
-                    user_id=user_id,
-                    freq=event.recurrence.rrule.freq,
-                    until=event.recurrence.rrule.until,
-                    count=event.recurrence.rrule.count,
-                    interval=event.recurrence.rrule.interval,
-                    bysecond=event.recurrence.rrule.bysecond,
-                    byminute=event.recurrence.rrule.byminute,
-                    byhour=event.recurrence.rrule.byhour,
-                    byday=listify_byday(event.recurrence.rrule.byday),
-                    bymonthday=event.recurrence.rrule.bymonthday,
-                    byyearday=event.recurrence.rrule.byyearday,
-                    byweekno=event.recurrence.rrule.byweekno,
-                    bymonth=event.recurrence.rrule.bymonth,
-                    bysetpos=event.recurrence.rrule.bysetpos,
-                    wkst=event.recurrence.rrule.wkst,
-                )
+            recurrence_rule = await recurrence_rule_repository.create_recurrence_rule_async(
+                entity_id=generate_uuid(),
+                user_id=user_id,
+                freq=event.recurrence.rrule.freq,
+                until=event.recurrence.rrule.until,
+                count=event.recurrence.rrule.count,
+                interval=event.recurrence.rrule.interval,
+                bysecond=event.recurrence.rrule.bysecond,
+                byminute=event.recurrence.rrule.byminute,
+                byhour=event.recurrence.rrule.byhour,
+                byday=listify_byday(event.recurrence.rrule.byday),
+                bymonthday=event.recurrence.rrule.bymonthday,
+                byyearday=event.recurrence.rrule.byyearday,
+                byweekno=event.recurrence.rrule.byweekno,
+                bymonth=event.recurrence.rrule.bymonth,
+                bysetpos=event.recurrence.rrule.bysetpos,
+                wkst=event.recurrence.rrule.wkst,
             )
             if recurrence_rule is None:
                 raise ValueError("Failed to create recurrence rule")
@@ -243,9 +235,7 @@ class EventUsecase(IUsecase):
         user_account_repository = UserAccountRepository(self.uow)
         event_repository = EventRepository(self.uow)
         event_attendance_repository = EventAttendanceRepository(self.uow)
-        event_attendance_action_log_repository = EventAttendanceActionLogRepository(
-            self.uow
-        )
+        event_attendance_action_log_repository = EventAttendanceActionLogRepository(self.uow)
 
         event_id = str_to_uuid(event_id_str)
 
@@ -306,9 +296,7 @@ class EventUsecase(IUsecase):
         user_account_repository = UserAccountRepository(self.uow)
         event_repository = EventRepository(self.uow)
         event_attendance_repository = EventAttendanceRepository(self.uow)
-        event_attendance_action_log_repository = EventAttendanceActionLogRepository(
-            self.uow
-        )
+        event_attendance_action_log_repository = EventAttendanceActionLogRepository(self.uow)
 
         event_id = str_to_uuid(event_id_str)
 
@@ -367,18 +355,14 @@ class EventUsecase(IUsecase):
     ) -> GetAttendanceHistoryResponse:
         user_account_repository = UserAccountRepository(self.uow)
         event_repository = EventRepository(self.uow)
-        event_attendance_action_log_repository = EventAttendanceActionLogRepository(
-            self.uow
-        )
+        event_attendance_action_log_repository = EventAttendanceActionLogRepository(self.uow)
 
         event_id = str_to_uuid(event_id_str)
 
         guest = await user_account_repository.read_by_id_or_none_async(guest_id)
         if guest is None:
             return GetAttendanceHistoryResponse(
-                attendances_with_username=AttendancesWithUsernameDto(
-                    username="", attendances=[]
-                ),
+                attendances_with_username=AttendancesWithUsernameDto(username="", attendances=[]),
                 error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
             )
 
@@ -387,9 +371,7 @@ class EventUsecase(IUsecase):
         event = await event_repository.read_by_id_or_none_async(event_id)
         if event is None:
             return GetAttendanceHistoryResponse(
-                attendances_with_username=AttendancesWithUsernameDto(
-                    username="", attendances=[]
-                ),
+                attendances_with_username=AttendancesWithUsernameDto(username="", attendances=[]),
                 error_codes=[ErrorCode.EVENT_NOT_FOUND],
             )
 
@@ -397,14 +379,10 @@ class EventUsecase(IUsecase):
             user_id=user_id, event_id=event_id, start=start
         )
 
-        attendances = [
-            AttendanceDto(action=log.action, acted_at=log.acted_at) for log in logs
-        ]
+        attendances = [AttendanceDto(action=log.action, acted_at=log.acted_at) for log in logs]
 
         return GetAttendanceHistoryResponse(
-            attendances_with_username=AttendancesWithUsernameDto(
-                username=guest.username, attendances=attendances
-            ),
+            attendances_with_username=AttendancesWithUsernameDto(username=guest.username, attendances=attendances),
             error_codes=[],
         )
 
@@ -413,9 +391,7 @@ class EventUsecase(IUsecase):
         user_account_repository = UserAccountRepository(self.uow)
         event_repository = EventRepository(self.uow)
 
-        user_account = await user_account_repository.read_by_id_or_none_async(
-            account_id
-        )
+        user_account = await user_account_repository.read_by_id_or_none_async(account_id)
         if user_account is None:
             return GetMyEventsResponse(
                 events=[],
@@ -424,33 +400,23 @@ class EventUsecase(IUsecase):
 
         user_id = user_account.user_id
 
-        events = await event_repository.read_with_recurrence_by_user_ids_async(
-            {user_id}
-        )
+        events = await event_repository.read_with_recurrence_by_user_ids_async({user_id})
 
         return GetMyEventsResponse(events=serialize_events(events), error_codes=[])
 
     @rollbackable
-    async def get_following_events_async(
-        self, follower_id: UUID
-    ) -> GetFollowingEventsResponse:
+    async def get_following_events_async(self, follower_id: UUID) -> GetFollowingEventsResponse:
         user_account_repository = UserAccountRepository(self.uow)
         event_repository = EventRepository(self.uow)
 
-        follower = (
-            await user_account_repository.read_with_followees_by_id_or_none_async(
-                follower_id
-            )
-        )
+        follower = await user_account_repository.read_with_followees_by_id_or_none_async(follower_id)
         if follower is None:
             return GetFollowingEventsResponse(
                 events=[],
                 error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
             )
 
-        user_ids = {followee.user_id for followee in follower.followees} | {
-            follower.user_id
-        }
+        user_ids = {followee.user_id for followee in follower.followees} | {follower.user_id}
 
         events = await event_repository.read_with_recurrence_by_user_ids_async(user_ids)
 
@@ -465,9 +431,7 @@ class EventUsecase(IUsecase):
     ) -> GetGuestAttendanceStatusResponse:
         user_account_repository = UserAccountRepository(self.uow)
         event_repository = EventRepository(self.uow)
-        event_attendance_action_log_repository = EventAttendanceActionLogRepository(
-            self.uow
-        )
+        event_attendance_action_log_repository = EventAttendanceActionLogRepository(self.uow)
 
         event_id = str_to_uuid(event_id_str)
 
@@ -487,8 +451,10 @@ class EventUsecase(IUsecase):
                 error_codes=[ErrorCode.EVENT_NOT_FOUND],
             )
 
-        event_attendance_action_log = await event_attendance_action_log_repository.read_latest_by_user_id_and_event_id_and_start_or_none_async(
-            user_id=user_id, event_id=event_id, start=start
+        event_attendance_action_log = (
+            await event_attendance_action_log_repository.read_latest_by_user_id_and_event_id_and_start_or_none_async(
+                user_id=user_id, event_id=event_id, start=start
+            )
         )
         if event_attendance_action_log is None:
             return GetGuestAttendanceStatusResponse(attend=False, error_codes=[])
@@ -502,19 +468,13 @@ class EventUsecase(IUsecase):
     async def forecast_attendance_time_async(
         self,
     ) -> ForecastAttendanceTimeResponse:
-        event_attendance_action_log_repository = EventAttendanceActionLogRepository(
-            self.uow
-        )
+        event_attendance_action_log_repository = EventAttendanceActionLogRepository(self.uow)
         event_repository = EventRepository(self.uow)
         user_account_repository = UserAccountRepository(self.uow)
-        event_attendance_forecast_repository = EventAttendanceForecastRepository(
-            self.uow
-        )
+        event_attendance_forecast_repository = EventAttendanceForecastRepository(self.uow)
 
         earliest_attend_data = await event_attendance_action_log_repository.read_all_earliest_attend_async()
-        latest_leave_data = (
-            await event_attendance_action_log_repository.read_all_latest_leave_async()
-        )
+        latest_leave_data = await event_attendance_action_log_repository.read_all_latest_leave_async()
         event_data = await event_repository.read_all_with_recurrence_async(where=[])
         user_data = await user_account_repository.read_all_async(where=[])
 
@@ -580,9 +540,7 @@ class EventUsecase(IUsecase):
                     timeout=600,  # Set reasonable timeout
                 )
                 response.raise_for_status()  # Raise exception for 4xx/5xx status codes
-                forecast_result = ForecastAttendanceTimeResponse.model_validate(
-                    response.json()
-                )
+                forecast_result = ForecastAttendanceTimeResponse.model_validate(response.json())
         except (httpx.TimeoutException, httpx.NetworkError):
             # Handle network timeouts and connection errors
             return ForecastAttendanceTimeResponse(
@@ -615,50 +573,34 @@ class EventUsecase(IUsecase):
             for event_id, forecasts in events.items()
             for forecast in forecasts
         }
-        await event_attendance_forecast_repository.bulk_delete_insert_event_attendance_forecasts_async(
-            forecasts
-        )
+        await event_attendance_forecast_repository.bulk_delete_insert_event_attendance_forecasts_async(forecasts)
 
         return forecast_result
 
     @rollbackable
-    async def get_attendance_time_forecasts_async(
-        self, account_id: UUID
-    ) -> GetAttendanceTimeForecastsResponse:
+    async def get_attendance_time_forecasts_async(self, account_id: UUID) -> GetAttendanceTimeForecastsResponse:
         user_account_repository = UserAccountRepository(self.uow)
         event_repository = EventRepository(self.uow)
-        event_attendance_forecast_repository = EventAttendanceForecastRepository(
-            self.uow
-        )
+        event_attendance_forecast_repository = EventAttendanceForecastRepository(self.uow)
 
-        user_account = (
-            await user_account_repository.read_with_followees_by_id_or_none_async(
-                account_id
-            )
-        )
+        user_account = await user_account_repository.read_with_followees_by_id_or_none_async(account_id)
         if user_account is None:
             return GetAttendanceTimeForecastsResponse(
                 attendance_time_forecasts_with_username={},
                 error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
             )
 
-        user_ids = {followee.user_id for followee in user_account.followees} | {
-            user_account.user_id
-        }
+        user_ids = {followee.user_id for followee in user_account.followees} | {user_account.user_id}
         events = await event_repository.read_with_recurrence_by_user_ids_async(user_ids)
-        forecasts = (
-            await event_attendance_forecast_repository.read_all_by_event_ids_async(
-                {event.id for event in events}
-            )
+        forecasts = await event_attendance_forecast_repository.read_all_by_event_ids_async(
+            {event.id for event in events}
         )
 
-        attendance_time_forecasts: defaultdict[
-            str, defaultdict[int, list[AttendanceTimeForecastDto]]
-        ] = defaultdict(lambda: defaultdict(list))
+        attendance_time_forecasts: defaultdict[str, defaultdict[int, list[AttendanceTimeForecastDto]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
         for forecast in forecasts:
-            attendance_time_forecasts[uuid_to_str(forecast.event_id)][
-                forecast.user_id
-            ].append(
+            attendance_time_forecasts[uuid_to_str(forecast.event_id)][forecast.user_id].append(
                 AttendanceTimeForecastDto(
                     start=forecast.start,
                     attended_at=forecast.forecasted_attended_at,

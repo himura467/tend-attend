@@ -8,9 +8,7 @@ from app.core.infrastructure.sqlalchemy.repositories.base import AbstractReposit
 from app.core.utils.uuid import UUID
 
 
-class EmailVerificationRepository(
-    AbstractRepository[EmailVerificationEntity, EmailVerification]
-):
+class EmailVerificationRepository(AbstractRepository[EmailVerificationEntity, EmailVerification]):
     @property
     def _model(self) -> type[EmailVerification]:
         return EmailVerification
@@ -30,9 +28,7 @@ class EmailVerificationRepository(
         )
         return await self.create_async(email_verification)
 
-    async def read_latest_by_email_or_none_async(
-        self, email: EmailStr
-    ) -> EmailVerificationEntity | None:
+    async def read_latest_by_email_or_none_async(self, email: EmailStr) -> EmailVerificationEntity | None:
         email_verifications = await self.read_order_by_limit_async(
             where=[self._model.email == email],
             order_by=self._model.token_expires_at.desc(),

@@ -15,9 +15,7 @@ from app.core.usecase.account import AccountUsecase
 router = APIRouter()
 
 
-@router.post(
-    path="/create", name="Create User Account", response_model=CreateUserAccountResponse
-)
+@router.post(path="/create", name="Create User Account", response_model=CreateUserAccountResponse)
 async def create_user_account(
     req: CreateUserAccountRequest, session: AsyncSession = Depends(get_db_async)
 ) -> CreateUserAccountResponse:

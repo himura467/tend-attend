@@ -59,9 +59,7 @@ class JWTCryptography:
             token_type="bearer",
         )
 
-    def get_subject_and_group_from_token(
-        self, token: str, token_type: TokenType
-    ) -> tuple[UUID, Group] | None:
+    def get_subject_and_group_from_token(self, token: str, token_type: TokenType) -> tuple[UUID, Group] | None:
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             if payload.get("type") != token_type:

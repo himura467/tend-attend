@@ -19,9 +19,7 @@ class EmailVerification(AbstractCommonDynamicBase):
         ForeignKey("user_account.email", ondelete="CASCADE"),
         nullable=False,
     )
-    verification_token: Mapped[bytes] = mapped_column(
-        BINARY(16), nullable=False, comment="Verification Token"
-    )
+    verification_token: Mapped[bytes] = mapped_column(BINARY(16), nullable=False, comment="Verification Token")
     token_expires_at: Mapped[datetime] = mapped_column(
         DATETIME(timezone=True), nullable=False, comment="Token Expires At"
     )

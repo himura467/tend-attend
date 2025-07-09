@@ -15,9 +15,7 @@ from app.core.infrastructure.db.settings import (
 )
 
 
-def shard_chooser[T](
-    mapper: Optional[Mapper[T]], instance: Any, clause: Optional[ClauseElement] = None
-) -> Any:
+def shard_chooser[T](mapper: Optional[Mapper[T]], instance: Any, clause: Optional[ClauseElement] = None) -> Any:
     shard_ids: set[str] = mapper.local_table.info.get("shard_ids") if mapper else set()  # type: ignore[attr-defined]
     if shard_ids == {COMMON_DB_CONNECTION_KEY}:
         return COMMON_DB_CONNECTION_KEY

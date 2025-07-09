@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
+
 from app.core.dtos.verify import (
     RequestEmailVerificationRequest,
     RequestEmailVerificationResponse,
@@ -45,6 +46,4 @@ async def verify_email(
     uow = SqlalchemyUnitOfWork(session=session)
     usecase = VerifyUsecase(uow=uow)
 
-    return await usecase.verify_email_async(
-        email=email, verification_token=verification_token
-    )
+    return await usecase.verify_email_async(email=email, verification_token=verification_token)
