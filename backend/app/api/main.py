@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from app.api.routes import account, admin, auth, event, verify
+
+from app.api.routes import account, auth, event, verify
 
 api_router = APIRouter()
 
@@ -7,12 +8,6 @@ api_router.include_router(
     account.router,
     prefix="/accounts",
     tags=["accounts"],
-)
-
-api_router.include_router(
-    admin.router,
-    prefix="/admin",
-    tags=["admin"],
 )
 
 api_router.include_router(
