@@ -3,6 +3,11 @@
     {
       "path": ".",
     },
+    {
+      "path": "frontend",
+    },
+    {
+      "path": "backend",
+    },
   ],
-  "settings": {},
 }
