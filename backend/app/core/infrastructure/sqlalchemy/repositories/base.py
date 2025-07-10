@@ -45,7 +45,8 @@ class AbstractRepository[TEntity: IEntity, TModel: ModelProtocol[Any]](IReposito
     async def read_by_id_async(self, record_id: UUID) -> TEntity:
         stmt = select(self._model).where(self._model.id == uuid_to_bin(record_id))
         result = await self._uow.execute_async(stmt)
-        return result.scalar_one().to_entity()
+        entity: TEntity = result.scalar_one().to_entity()
+        return entity
 
     async def read_by_id_or_none_async(self, record_id: UUID) -> TEntity | None:
         stmt = select(self._model).where(self._model.id == uuid_to_bin(record_id))
@@ -61,7 +62,8 @@ class AbstractRepository[TEntity: IEntity, TModel: ModelProtocol[Any]](IReposito
     async def read_one_async(self, where: list[Any]) -> TEntity:
         stmt = select(self._model).where(*where)
         result = await self._uow.execute_async(stmt)
-        return result.scalar_one().to_entity()
+        entity: TEntity = result.scalar_one().to_entity()
+        return entity
 
     async def read_one_or_none_async(self, where: list[Any]) -> TEntity | None:
         stmt = select(self._model).where(*where)

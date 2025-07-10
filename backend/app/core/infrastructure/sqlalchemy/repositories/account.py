@@ -34,7 +34,8 @@ class UserAccountRepository(AbstractRepository[UserAccountEntity, UserAccount]):
         async def read_models_by_ids_async(record_ids: set[UUID]) -> list[UserAccount]:
             stmt = select(self._model).where(self._model.id.in_(uuid_to_bin(record_id) for record_id in record_ids))
             result = await self._uow.execute_async(stmt)
-            return result.scalars().all()
+            models: list[UserAccount] = result.scalars().all()
+            return models
 
         followees = await read_models_by_ids_async(followee_ids)
         followers = await read_models_by_ids_async(follower_ids)
