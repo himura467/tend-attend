@@ -64,10 +64,12 @@ class JWTCryptography:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             if payload.get("type") != token_type:
                 return None
-            subject: UUID = str_to_uuid(payload.get("sub"))
-            group: Group = payload.get("group")
-            if not subject or not group:
+            sub_str = payload.get("sub")
+            group_str = payload.get("group")
+            if not sub_str or not group_str:
                 return None
+            subject: UUID = str_to_uuid(sub_str)
+            group: Group = group_str
         except JWTError:
             return None
         return subject, group
