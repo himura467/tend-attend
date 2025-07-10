@@ -21,7 +21,7 @@ class Event(BaseModel):
     start: datetime
     end: datetime
     timezone: str
-    recurrence: Recurrence
+    recurrence: Recurrence | None
 
     @field_serializer("start")
     def serialize_start(self, start: datetime) -> str:

@@ -514,7 +514,9 @@ class EventUsecase(IUsecase):
                             id=uuid_to_str(event.recurrence.rrule.id),
                             freq=event.recurrence.rrule.freq,
                         ),
-                    ),
+                    )
+                    if event.recurrence
+                    else None,
                 )
                 for event in event_data
             ]
