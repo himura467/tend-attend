@@ -31,6 +31,10 @@ strict = true
 exclude = [".venv", "alembic"]
 
 [[tool.mypy.overrides]]
+module = "aws_advanced_python_wrapper"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = "app.core.infrastructure.sqlalchemy.models.*"
 disallow_untyped_calls = false
 
