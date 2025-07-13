@@ -6,7 +6,7 @@ ROOT_DIR=$(cd "$(dirname "$0")"/..; pwd)
 
 PYTHON_VERSION=$(cat "$ROOT_DIR/backend/.python-version")
 rm -f backend-python.zip backend.zip backend-dependencies.zip
-source "$ROOT_DIR/scripts/export_requirements.sh"
+"$ROOT_DIR/scripts/export_requirements.sh"
 docker build -f "$ROOT_DIR/docker/backend/Dockerfile" \
   --build-arg PYTHON_VERSION="$PYTHON_VERSION" \
   --platform linux/amd64 \
