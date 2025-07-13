@@ -2,7 +2,6 @@ const ignoreFiles = [];
 
 const eslintRules = {
   "prefer-const": "error",
-  "@typescript-eslint/explicit-function-return-type": "error",
 };
 
 const eslintConfig = [
