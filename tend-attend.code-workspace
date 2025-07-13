@@ -1,16 +1,19 @@
 {
   "folders": [
     {
-      "path": ".",
+      "path": "."
     },
     {
-      "path": "frontend",
+      "path": "frontend"
     },
     {
-      "path": "backend",
+      "path": "backend"
     },
     {
-      "path": "docker",
+      "path": "docker"
     },
+    {
+      "path": "scripts"
+    }
   ],
 }
