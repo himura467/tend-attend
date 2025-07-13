@@ -1,5 +1,9 @@
 {
   "recommendations": [
-    "docker.docker"
+    // Spell checking
+    "docker.docker",
+    "streetsidesoftware.code-spell-checker",
+    // Showing todo comments
+    "gruntfuggly.todo-tree"
   ]
 }
