@@ -10,6 +10,9 @@
       "path": "backend"
     },
     {
+      "path": "qrcode"
+    },
+    {
       "path": "docker"
     },
     {
