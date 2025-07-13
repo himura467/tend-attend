@@ -3,19 +3,19 @@ import { JSDOM } from "jsdom";
 import QRCodeStyling, { Options as QRCodeOptions } from "qr-code-styling";
 
 /**
- * カスタマイズ可能な QR コードを生成する関数
- * @param options QR コード生成オプション
- * @param outputType 生成する QR コードの出力形式 ('png' または 'svg')
- * @returns 生成された QR コードの Buffer
+ * Function to generate customizable QR codes
+ * @param options QR code generation options
+ * @param outputType Output format of QR code to generate ('png' or 'svg')
+ * @returns Buffer of generated QR code
  */
 export async function generateQRCode(options: QRCodeOptions, outputType: "png" | "svg" = "png"): Promise<Buffer> {
   const defaultOptions: QRCodeOptions = {
-    type: outputType === "svg" ? "svg" : "canvas", // 出力タイプに応じて 'svg' または 'canvas' を設定
+    type: outputType === "svg" ? "svg" : "canvas", // Set 'svg' or 'canvas' based on output type
     shape: "square",
     width: 300,
     height: 300,
     imageOptions: {
-      saveAsBlob: true, // Lambda で Buffer として扱うために必要
+      saveAsBlob: true, // Required to handle as Buffer in Lambda
       hideBackgroundDots: true,
       imageSize: 0.4,
       crossOrigin: "anonymous",
@@ -47,14 +47,14 @@ export async function generateQRCode(options: QRCodeOptions, outputType: "png" |
     },
   };
 
-  // qr-code-styling ライブラリの要件に応じて JSDOM と nodeCanvas を渡す
+  // Pass JSDOM and nodeCanvas according to qr-code-styling library requirements
   const qrCode = new QRCodeStyling({
     nodeCanvas: nodeCanvas,
     jsdom: JSDOM,
     ...mergedOptions,
   });
 
-  // 指定された outputType に応じて RawData を取得
+  // Get RawData according to specified outputType
   const rawData = await qrCode.getRawData(outputType);
   if (!rawData) {
     throw new Error("Failed to generate QR code: getRawData returned null");

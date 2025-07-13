@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { handler } from "./index";
 import * as qrCodeGenerator from "./qrCodeGenerator";
 
-// qrCodeGenerator モジュールをモック
+// Mock qrCodeGenerator module
 vi.mock("./qrCodeGenerator", () => ({
   generateQRCode: vi.fn(),
 }));
@@ -13,7 +13,7 @@ const mockGenerateQRCode = vi.mocked(qrCodeGenerator.generateQRCode);
 describe("Lambda handler", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // 環境変数をモック
+    // Mock environment variables
     process.env.DOMAIN_NAME = "example.com";
   });
 

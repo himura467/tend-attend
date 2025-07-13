@@ -8,13 +8,13 @@ describe("generateQRCode", () => {
     const options = {
       data: "https://vitest.dev",
     };
-    const buffer = await generateQRCode(options, "png"); // outputType を 'png' に指定
+    const buffer = await generateQRCode(options, "png"); // Specify outputType as 'png'
     expect(buffer).toBeInstanceOf(Buffer);
-    expect(buffer.length).toBeGreaterThan(1000); // ある程度のサイズがあることを確認
+    expect(buffer.length).toBeGreaterThan(1000); // Verify that it has a reasonable size
 
-    // デバッグ用にファイルを保存する場合 (テスト実行後に手動で削除)
+    // To save file for debugging (manually delete after test execution)
     // fs.writeFileSync(path.resolve(__dirname, './test-default.png'), buffer);
-  }, 10000); // タイムアウトを 10 秒に設定
+  }, 10000); // Set timeout to 10 seconds
 
   it("should generate a PNG QR code with custom colors and image", async () => {
     const options: QRCodeOptions = {
@@ -30,11 +30,11 @@ describe("generateQRCode", () => {
         color: "#FFFFCC",
       },
     };
-    const buffer = await generateQRCode(options, "png"); // outputType を 'png' に指定
+    const buffer = await generateQRCode(options, "png"); // Specify outputType as 'png'
     expect(buffer).toBeInstanceOf(Buffer);
     expect(buffer.length).toBeGreaterThan(1000);
 
-    // デバッグ用にファイルを保存する場合
+    // To save file for debugging
     // fs.writeFileSync(path.resolve(__dirname, "./test-custom.png"), buffer);
   }, 10000);
 
@@ -45,18 +45,18 @@ describe("generateQRCode", () => {
         color: "#007ACC",
       },
     };
-    const buffer = await generateQRCode(options, "svg"); // outputType を 'svg' に指定
+    const buffer = await generateQRCode(options, "svg"); // Specify outputType as 'svg'
     expect(buffer).toBeInstanceOf(Buffer);
     expect(buffer.length).toBeGreaterThan(500);
-    expect(buffer.toString()).toContain("<svg"); // SVG であることを確認
+    expect(buffer.toString()).toContain("<svg"); // Verify that it is SVG
 
-    // デバッグ用にファイルを保存する場合
+    // To save file for debugging
     // fs.writeFileSync(path.resolve(__dirname, "./test-svg.svg"), buffer);
   }, 10000);
 
   it("should handle missing data gracefully", async () => {
-    const options = {}; // data が不足している
-    // generateQRCode が `data` の不足でエラーをスローすることを期待
+    const options = {}; // Missing data
+    // Expect generateQRCode to throw error due to missing `data`
     await expect(generateQRCode(options, "png")).rejects.toThrow();
   }, 10000);
 });
