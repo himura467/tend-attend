@@ -9,7 +9,7 @@ import { z } from "zod";
 
 export const formSchema = z.object({
   summary: z.string({
-    required_error: "A summary is required.",
+    error: (issue) => (issue.input === undefined ? "This field is required" : "Not a string"),
   }),
   location: z.string().nullable(),
 });
