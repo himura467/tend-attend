@@ -25,17 +25,21 @@ describe("Lambda handler", () => {
       version: "2.0",
       routeKey: "$default",
       rawPath: "/qrcode/test",
-      rawQueryString: "",
+      rawQueryString: "width=256&height=256&outputType=png",
       cookies: [],
       headers: {},
-      queryStringParameters: {},
+      queryStringParameters: {
+        width: "256",
+        height: "256",
+        outputType: "png",
+      },
       requestContext: {
         accountId: "123456789012",
         apiId: "api-id",
         domainName: "example.com",
         domainPrefix: "api",
         http: {
-          method: "POST",
+          method: "GET",
           path: "/qrcode/test",
           protocol: "HTTP/1.1",
           sourceIp: "127.0.0.1",
@@ -47,13 +51,7 @@ describe("Lambda handler", () => {
         time: "12/Mar/2020:19:03:58 +0000",
         timeEpoch: 1583348638390,
       },
-      body: JSON.stringify({
-        qrCodeOptions: {
-          width: 256,
-          height: 256,
-        },
-        outputType: "png",
-      }),
+      body: undefined,
       pathParameters: {},
       isBase64Encoded: false,
       stageVariables: {},
@@ -83,17 +81,20 @@ describe("Lambda handler", () => {
       version: "2.0",
       routeKey: "$default",
       rawPath: "/qrcode/svg-test",
-      rawQueryString: "",
+      rawQueryString: "dotsColor=%23FF0000&outputType=svg",
       cookies: [],
       headers: {},
-      queryStringParameters: {},
+      queryStringParameters: {
+        dotsColor: "#FF0000",
+        outputType: "svg",
+      },
       requestContext: {
         accountId: "123456789012",
         apiId: "api-id",
         domainName: "example.com",
         domainPrefix: "api",
         http: {
-          method: "POST",
+          method: "GET",
           path: "/qrcode/svg-test",
           protocol: "HTTP/1.1",
           sourceIp: "127.0.0.1",
@@ -105,14 +106,7 @@ describe("Lambda handler", () => {
         time: "12/Mar/2020:19:03:58 +0000",
         timeEpoch: 1583348638390,
       },
-      body: JSON.stringify({
-        qrCodeOptions: {
-          dotsOptions: {
-            color: "#FF0000",
-          },
-        },
-        outputType: "svg",
-      }),
+      body: undefined,
       pathParameters: {},
       isBase64Encoded: false,
       stageVariables: {},
@@ -135,54 +129,6 @@ describe("Lambda handler", () => {
     );
   });
 
-  it("should handle empty body gracefully", async () => {
-    const mockBuffer = Buffer.from("mock-default-data");
-    mockGenerateQRCode.mockResolvedValue(mockBuffer);
-
-    const event: LambdaFunctionURLEvent = {
-      version: "2.0",
-      routeKey: "$default",
-      rawPath: "/qrcode/empty-body",
-      rawQueryString: "",
-      cookies: [],
-      headers: {},
-      queryStringParameters: {},
-      requestContext: {
-        accountId: "123456789012",
-        apiId: "api-id",
-        domainName: "example.com",
-        domainPrefix: "api",
-        http: {
-          method: "POST",
-          path: "/qrcode/empty-body",
-          protocol: "HTTP/1.1",
-          sourceIp: "127.0.0.1",
-          userAgent: "Custom User Agent String",
-        },
-        requestId: "id",
-        routeKey: "$default",
-        stage: "$default",
-        time: "12/Mar/2020:19:03:58 +0000",
-        timeEpoch: 1583348638390,
-      },
-      body: undefined,
-      pathParameters: {},
-      isBase64Encoded: false,
-      stageVariables: {},
-    };
-
-    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
-
-    expect(result.statusCode).toBe(200);
-    expect(result.headers?.["Content-Type"]).toBe("image/png");
-    expect(mockGenerateQRCode).toHaveBeenCalledWith(
-      {
-        data: "https://example.com/empty-body",
-      },
-      "png",
-    );
-  });
-
   it("should return 400 error when path doesn't contain /qrcode", async () => {
     const event: LambdaFunctionURLEvent = {
       version: "2.0",
@@ -198,7 +144,7 @@ describe("Lambda handler", () => {
         domainName: "example.com",
         domainPrefix: "api",
         http: {
-          method: "POST",
+          method: "GET",
           path: "/invalid/path",
           protocol: "HTTP/1.1",
           sourceIp: "127.0.0.1",
@@ -241,7 +187,7 @@ describe("Lambda handler", () => {
         domainName: "example.com",
         domainPrefix: "api",
         http: {
-          method: "POST",
+          method: "GET",
           path: "/qrcodeabc",
           protocol: "HTTP/1.1",
           sourceIp: "127.0.0.1",
@@ -284,7 +230,7 @@ describe("Lambda handler", () => {
         domainName: "example.com",
         domainPrefix: "api",
         http: {
-          method: "POST",
+          method: "GET",
           path: "/abc/qrcode/test",
           protocol: "HTTP/1.1",
           sourceIp: "127.0.0.1",
@@ -330,7 +276,7 @@ describe("Lambda handler", () => {
         domainName: "example.com",
         domainPrefix: "api",
         http: {
-          method: "POST",
+          method: "GET",
           path: "/qrcode/error-test",
           protocol: "HTTP/1.1",
           sourceIp: "127.0.0.1",
@@ -363,11 +309,11 @@ describe("Lambda handler", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it("should handle invalid JSON in body gracefully", async () => {
+  it("should handle empty query parameters gracefully", async () => {
     const event: LambdaFunctionURLEvent = {
       version: "2.0",
       routeKey: "$default",
-      rawPath: "/qrcode/invalid-json",
+      rawPath: "/qrcode/empty-params",
       rawQueryString: "",
       cookies: [],
       headers: {},
@@ -378,8 +324,8 @@ describe("Lambda handler", () => {
         domainName: "example.com",
         domainPrefix: "api",
         http: {
-          method: "POST",
-          path: "/qrcode/invalid-json",
+          method: "GET",
+          path: "/qrcode/empty-params",
           protocol: "HTTP/1.1",
           sourceIp: "127.0.0.1",
           userAgent: "Custom User Agent String",
@@ -390,24 +336,25 @@ describe("Lambda handler", () => {
         time: "12/Mar/2020:19:03:58 +0000",
         timeEpoch: 1583348638390,
       },
-      body: "invalid json {",
+      body: undefined,
       pathParameters: {},
       isBase64Encoded: false,
       stageVariables: {},
     };
 
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const mockBuffer = Buffer.from("mock-default-data");
+    mockGenerateQRCode.mockResolvedValue(mockBuffer);
 
     const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
 
-    expect(result.statusCode).toBe(500);
-    expect(result.headers?.["Content-Type"]).toBe("application/json");
-    expect(JSON.parse(result.body as string)).toEqual({
-      message: "Failed to generate QR code",
-      error: expect.stringContaining("Unexpected token"),
-    });
-
-    consoleErrorSpy.mockRestore();
+    expect(result.statusCode).toBe(200);
+    expect(result.headers?.["Content-Type"]).toBe("image/png");
+    expect(mockGenerateQRCode).toHaveBeenCalledWith(
+      {
+        data: "https://example.com/empty-params",
+      },
+      "png",
+    );
   });
 
   it("should construct correct URL when rawPath has complex path after /qrcode/", async () => {
@@ -428,7 +375,7 @@ describe("Lambda handler", () => {
         domainName: "example.com",
         domainPrefix: "api",
         http: {
-          method: "POST",
+          method: "GET",
           path: "/qrcode/user/123/profile",
           protocol: "HTTP/1.1",
           sourceIp: "127.0.0.1",
@@ -452,6 +399,190 @@ describe("Lambda handler", () => {
     expect(mockGenerateQRCode).toHaveBeenCalledWith(
       {
         data: "https://example.com/user/123/profile",
+      },
+      "png",
+    );
+  });
+
+  it("should generate QR code with custom styling options via query parameters", async () => {
+    const mockBuffer = Buffer.from("mock-styled-data");
+    mockGenerateQRCode.mockResolvedValue(mockBuffer);
+
+    const event: LambdaFunctionURLEvent = {
+      version: "2.0",
+      routeKey: "$default",
+      rawPath: "/qrcode/styled-test",
+      rawQueryString:
+        "width=300&dotsType=rounded&dotsColor=%23FF0000&cornersSquareType=extra-rounded&cornersSquareColor=%230000FF&backgroundColor=%23FFFFFF",
+      cookies: [],
+      headers: {},
+      queryStringParameters: {
+        width: "300",
+        dotsType: "rounded",
+        dotsColor: "#FF0000",
+        cornersSquareType: "extra-rounded",
+        cornersSquareColor: "#0000FF",
+        backgroundColor: "#FFFFFF",
+      },
+      requestContext: {
+        accountId: "123456789012",
+        apiId: "api-id",
+        domainName: "example.com",
+        domainPrefix: "api",
+        http: {
+          method: "GET",
+          path: "/qrcode/styled-test",
+          protocol: "HTTP/1.1",
+          sourceIp: "127.0.0.1",
+          userAgent: "Custom User Agent String",
+        },
+        requestId: "id",
+        routeKey: "$default",
+        stage: "$default",
+        time: "12/Mar/2020:19:03:58 +0000",
+        timeEpoch: 1583348638390,
+      },
+      body: undefined,
+      pathParameters: {},
+      isBase64Encoded: false,
+      stageVariables: {},
+    };
+
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+
+    expect(result.statusCode).toBe(200);
+    expect(result.headers?.["Content-Type"]).toBe("image/png");
+    expect(mockGenerateQRCode).toHaveBeenCalledWith(
+      {
+        width: 300,
+        dotsOptions: {
+          type: "rounded",
+          color: "#FF0000",
+        },
+        cornersSquareOptions: {
+          type: "extra-rounded",
+          color: "#0000FF",
+        },
+        backgroundOptions: {
+          color: "#FFFFFF",
+        },
+        data: "https://example.com/styled-test",
+      },
+      "png",
+    );
+  });
+
+  it("should generate QR code with QR options via query parameters", async () => {
+    const mockBuffer = Buffer.from("mock-qr-options-data");
+    mockGenerateQRCode.mockResolvedValue(mockBuffer);
+
+    const event: LambdaFunctionURLEvent = {
+      version: "2.0",
+      routeKey: "$default",
+      rawPath: "/qrcode/qr-options-test",
+      rawQueryString: "errorCorrectionLevel=H&mode=Byte&typeNumber=10",
+      cookies: [],
+      headers: {},
+      queryStringParameters: {
+        errorCorrectionLevel: "H",
+        mode: "Byte",
+        typeNumber: "10",
+      },
+      requestContext: {
+        accountId: "123456789012",
+        apiId: "api-id",
+        domainName: "example.com",
+        domainPrefix: "api",
+        http: {
+          method: "GET",
+          path: "/qrcode/qr-options-test",
+          protocol: "HTTP/1.1",
+          sourceIp: "127.0.0.1",
+          userAgent: "Custom User Agent String",
+        },
+        requestId: "id",
+        routeKey: "$default",
+        stage: "$default",
+        time: "12/Mar/2020:19:03:58 +0000",
+        timeEpoch: 1583348638390,
+      },
+      body: undefined,
+      pathParameters: {},
+      isBase64Encoded: false,
+      stageVariables: {},
+    };
+
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+
+    expect(result.statusCode).toBe(200);
+    expect(result.headers?.["Content-Type"]).toBe("image/png");
+    expect(mockGenerateQRCode).toHaveBeenCalledWith(
+      {
+        qrOptions: {
+          errorCorrectionLevel: "H",
+          mode: "Byte",
+          typeNumber: 10,
+        },
+        data: "https://example.com/qr-options-test",
+      },
+      "png",
+    );
+  });
+
+  it("should generate QR code with image options via query parameters", async () => {
+    const mockBuffer = Buffer.from("mock-image-options-data");
+    mockGenerateQRCode.mockResolvedValue(mockBuffer);
+
+    const event: LambdaFunctionURLEvent = {
+      version: "2.0",
+      routeKey: "$default",
+      rawPath: "/qrcode/image-options-test",
+      rawQueryString: "image=https%3A%2F%2Fexample.com%2Flogo.png&hideBackgroundDots=true&imageSize=0.4&imageMargin=5",
+      cookies: [],
+      headers: {},
+      queryStringParameters: {
+        image: "https://example.com/logo.png",
+        hideBackgroundDots: "true",
+        imageSize: "0.4",
+        imageMargin: "5",
+      },
+      requestContext: {
+        accountId: "123456789012",
+        apiId: "api-id",
+        domainName: "example.com",
+        domainPrefix: "api",
+        http: {
+          method: "GET",
+          path: "/qrcode/image-options-test",
+          protocol: "HTTP/1.1",
+          sourceIp: "127.0.0.1",
+          userAgent: "Custom User Agent String",
+        },
+        requestId: "id",
+        routeKey: "$default",
+        stage: "$default",
+        time: "12/Mar/2020:19:03:58 +0000",
+        timeEpoch: 1583348638390,
+      },
+      body: undefined,
+      pathParameters: {},
+      isBase64Encoded: false,
+      stageVariables: {},
+    };
+
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+
+    expect(result.statusCode).toBe(200);
+    expect(result.headers?.["Content-Type"]).toBe("image/png");
+    expect(mockGenerateQRCode).toHaveBeenCalledWith(
+      {
+        image: "https://example.com/logo.png",
+        imageOptions: {
+          hideBackgroundDots: true,
+          imageSize: 0.4,
+          margin: 5,
+        },
+        data: "https://example.com/image-options-test",
       },
       "png",
     );
