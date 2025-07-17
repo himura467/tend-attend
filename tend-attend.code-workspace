@@ -16,6 +16,9 @@
       "path": "docker"
     },
     {
+      "path": "terraform"
+    },
+    {
       "path": "scripts"
     }
   ],
