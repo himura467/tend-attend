@@ -16,7 +16,7 @@ module "lambda" {
   sequence_dbname            = module.op.sequence_dbname
   shard_dbname_prefix        = module.op.shard_dbname_prefix
   ml_server_url              = "" # TODO: Set this to the actual ML server URL after implementation
-  qrcode_ecr_repository_url  = module.ecr.qrcode_ecr_repository_url
+  qrcode_ecr_repository_url  = module.ecr.qrcode_server_url
   qrcode_lambda_timeout      = 60
   qrcode_lambda_memory_size  = 128
   domain_name                = module.op.domain_name
