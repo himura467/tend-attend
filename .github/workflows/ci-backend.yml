@@ -60,5 +60,6 @@ jobs:
       # https://docs.astral.sh/ruff/integrations/#github-actions
       - name: Run Ruff
         run: uv run ruff check --output-format=github .
+      # TODO: Run tests
       - name: Minimize uv cache
         run: uv cache prune --ci
