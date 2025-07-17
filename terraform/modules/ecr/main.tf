@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "qrcode_server" {
-  name                 = var.qrcode_server_repository_name
+  name                 = "tend-attend-qrcode"
   image_tag_mutability = "IMMUTABLE"
 }
 
