@@ -35,11 +35,11 @@ jobs:
       - name: Initialize MySQL databases
         run: |
           # Execute initialization scripts
-          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < docker/docker-entrypoint-initdb.d/create-sequence-database.sql
-          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < docker/docker-entrypoint-initdb.d/create-shard-databases.sql
-          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < docker/docker-entrypoint-initdb.d/create-test-common-db.sql
-          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < docker/docker-entrypoint-initdb.d/create-test-sequence-db.sql
-          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < docker/docker-entrypoint-initdb.d/create-test-shard-dbs.sql
+          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-sequence-database.sql
+          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-shard-databases.sql
+          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-test-common-db.sql
+          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-test-sequence-db.sql
+          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-test-shard-dbs.sql
       - name: Install uv based on the config files in the working-directory
         uses: astral-sh/setup-uv@bd01e18f51369d5a26f1651c3cb451d3417e3bba # v6.3.1
       - name: Install the project
