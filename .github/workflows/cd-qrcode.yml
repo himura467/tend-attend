@@ -74,17 +74,17 @@ jobs:
           docker push "$REGISTRY/$QRCODE_ECR_REPOSITORY_NAME:$IMAGE_TAG"
 
           echo 'Successfully pushed docker image to Amazon ECR'
-      - name: Update Lambda function image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          echo "Updating Lambda function $QRCODE_FUNCTION_NAME with new image..."
-          aws lambda update-function-code \
-            --function-name "$QRCODE_FUNCTION_NAME" \
-            --image-uri "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/tend-attend-qrcode:$IMAGE_TAG"
+      # - name: Update Lambda function image
+      #   env:
+      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     IMAGE_TAG: ${{ github.sha }}
+      #   run: |
+      #     echo "Updating Lambda function $QRCODE_FUNCTION_NAME with new image..."
+      #     aws lambda update-function-code \
+      #       --function-name "$QRCODE_FUNCTION_NAME" \
+      #       --image-uri "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/tend-attend-qrcode:$IMAGE_TAG"
 
-          echo 'Waiting for Lambda function update to complete...'
-          aws lambda wait function-updated --function-name "$QRCODE_FUNCTION_NAME"
+      #     echo 'Waiting for Lambda function update to complete...'
+      #     aws lambda wait function-updated --function-name "$QRCODE_FUNCTION_NAME"
 
-          echo "Successfully updated Lambda function $QRCODE_FUNCTION_NAME"
+      #     echo "Successfully updated Lambda function $QRCODE_FUNCTION_NAME"
