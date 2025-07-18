@@ -13,7 +13,7 @@ variable "qrcode_server_ecr_arn" {
   type        = string
 }
 
-# variable "qrcode_lambda_arn" {
-#   description = "ARN of the Lambda function for QR code generation"
-#   type        = string
-# }
+variable "qrcode_lambda_arn" {
+  description = "ARN of the Lambda function for QR code generation"
+  type        = string
+}
