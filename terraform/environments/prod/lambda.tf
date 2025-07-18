@@ -20,5 +20,4 @@ module "lambda" {
   qrcode_lambda_timeout      = 60
   qrcode_lambda_memory_size  = 128
   domain_name                = module.op.domain_name
-  depends_on                 = [module.ecr]
 }
