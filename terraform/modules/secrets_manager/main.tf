@@ -27,4 +27,5 @@ resource "aws_secretsmanager_secret_version" "aurora_credentials" {
 
 data "aws_secretsmanager_secret_version" "data_aurora_credentials" {
   secret_id = data.aws_secretsmanager_secret.data_aurora_credentials.id
+  depends_on = [aws_secretsmanager_secret_version.aurora_credentials]
 }
