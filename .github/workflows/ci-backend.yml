@@ -1,0 +1,54 @@
+name: ci-backend
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    paths:
+      - .github/workflows/ci-backend.yml
+      - backend/**
+
+defaults:
+  run:
+    working-directory: ./backend
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_DATABASE: tend_attend_common
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+        ports:
+          - 13306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Initialize MySQL databases
+        run: |
+          # Execute initialization scripts
+          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-sequence-database.sql
+          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-shard-databases.sql
+          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-test-common-db.sql
+          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-test-sequence-db.sql
+          mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-test-shard-dbs.sql
+      - name: Install uv based on the config files in the working-directory
+        uses: astral-sh/setup-uv@bd01e18f51369d5a26f1651c3cb451d3417e3bba # v6.3.1
+        with:
+          enable-cache: true
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+      - name: Run mypy
+        run: uv run mypy .
+      # https://docs.astral.sh/ruff/integrations/#github-actions
+      - name: Run Ruff
+        run: uv run ruff check --output-format=github .
+      # TODO: Run tests

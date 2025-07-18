@@ -1,0 +1,13 @@
+**/__pycache__
+**/.mypy_cache
+**/.ruff_cache
+**/.pytest_cache
+
+**/.python-version
+**/.venv
+**/tests
+
+**/.vscode
+**/.idea
+
+**/.git

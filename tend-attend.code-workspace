@@ -1,13 +1,25 @@
 {
   "folders": [
     {
-      "path": ".",
+      "path": "."
     },
     {
-      "path": "frontend",
+      "path": "frontend"
     },
     {
-      "path": "backend",
+      "path": "backend"
     },
+    {
+      "path": "qrcode"
+    },
+    {
+      "path": "docker"
+    },
+    {
+      "path": "terraform"
+    },
+    {
+      "path": "scripts"
+    }
   ],
 }

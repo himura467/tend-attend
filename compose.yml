@@ -1,0 +1,17 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=tend_attend_common
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    volumes:
+      - mysql_data_persist:/var/lib/mysql
+      - ./docker//mysql/conf.d:/etc/mysql/conf.d
+      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - "13306:3306"
+volumes:
+  mysql_data_persist:
+    driver: local

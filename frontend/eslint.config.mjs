@@ -12,6 +12,7 @@ const compat = new FlatCompat({
 const ignoreFiles = ["src/components/ui/*.tsx"];
 
 const eslintRules = {
+  "prefer-const": "error",
   "@typescript-eslint/explicit-function-return-type": "error",
 };
 
