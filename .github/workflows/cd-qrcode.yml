@@ -39,9 +39,6 @@ jobs:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
       QRCODE_ECR_REPOSITORY_NAME: ${{ secrets.QRCODE_ECR_REPOSITORY_NAME }}
       QRCODE_FUNCTION_NAME: ${{ secrets.QRCODE_FUNCTION_NAME }}
-    defaults:
-      run:
-        working-directory: ./qrcode
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df # v4.2.1
