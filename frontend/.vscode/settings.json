@@ -23,6 +23,9 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true
   },
+  "[markdown]": {
+    "editor.formatOnSave": true
+  },
   // Linting using ESLint.
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   // Ensure enough terminal history is preserved when running tests
