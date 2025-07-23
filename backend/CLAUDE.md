@@ -4,8 +4,8 @@
 - `uv run mypy .`: Type checking
 - `uv run ruff check`: Linting
 - `uv run ruff format`: Code formatting
-- `uv run alembic upgrade head`: Apply database migrations
-- `uv run alembic revision --autogenerate -m "description"`: Create migration
+- `OP_VAULT_NAME="Tend Attend" OP_APP_ENV="Local" op run --env-file app.env -- uv run alembic upgrade head`: Apply database migrations
+- `OP_VAULT_NAME="Tend Attend" OP_APP_ENV="Local" op run --env-file app.env -- uv run alembic revision --autogenerate -m "description"`: Create migration
 
 # Code style guidelines
 
