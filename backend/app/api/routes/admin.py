@@ -1,6 +1,7 @@
 from alembic import command
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.api.deps import verify_admin_credentials
 from app.core.dtos.admin import (
     ResetAuroraResponse,
     StampRevisionRequest,
@@ -18,7 +19,7 @@ router = APIRouter()
     name="Reset Aurora DB",
     response_model=ResetAuroraResponse,
 )
-def reset_aurora() -> ResetAuroraResponse:
+def reset_aurora(_: bool = Depends(verify_admin_credentials)) -> ResetAuroraResponse:
     reset_aurora_db()
     return ResetAuroraResponse(error_codes=[])
 
@@ -28,7 +29,7 @@ def reset_aurora() -> ResetAuroraResponse:
     name="Upgrade DB",
     response_model=UpgradeDbResponse,
 )
-def upgrade_db() -> UpgradeDbResponse:
+def upgrade_db(_: bool = Depends(verify_admin_credentials)) -> UpgradeDbResponse:
     alembic_config = get_alembic_config()
     command.upgrade(alembic_config, "head")
 
@@ -40,7 +41,7 @@ def upgrade_db() -> UpgradeDbResponse:
     name="Stamp Revision",
     response_model=StampRevisionResponse,
 )
-def stamp_revision(req: StampRevisionRequest) -> StampRevisionResponse:
+def stamp_revision(req: StampRevisionRequest, _: bool = Depends(verify_admin_credentials)) -> StampRevisionResponse:
     revision = req.revision
 
     alembic_config = get_alembic_config()
