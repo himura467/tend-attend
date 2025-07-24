@@ -1,8 +1,8 @@
 from alembic import command
 from fastapi import APIRouter
 
-from app.core.dtos.admin import ResetAuroraResponse
-from app.core.dtos.admin_dto.migration import (
+from app.core.dtos.admin import (
+    ResetAuroraResponse,
     StampRevisionRequest,
     StampRevisionResponse,
     UpgradeDbResponse,
