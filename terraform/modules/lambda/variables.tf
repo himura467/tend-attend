@@ -33,6 +33,18 @@ variable "cookie_domain" {
   type        = string
 }
 
+variable "admin_username" {
+  description = "Admin username"
+  type        = string
+  sensitive   = true
+}
+
+variable "admin_password" {
+  description = "Admin password"
+  type        = string
+  sensitive   = true
+}
+
 variable "jwt_secret_key" {
   description = "JWT secret key (openssl rand -hex 32)"
   type        = string
