@@ -1,10 +1,12 @@
+import secrets
 from dataclasses import dataclass
 
 from fastapi import Depends, HTTPException, Request, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from app.core.constants.constants import ACCESS_TOKEN_NAME
+from app.core.constants.secrets import ADMIN_PASSWORD, ADMIN_USERNAME
 from app.core.features.account import Account, Role, groupRoleMap
 from app.core.features.auth import TokenType
 from app.core.infrastructure.sqlalchemy.db import get_db_async
@@ -57,3 +59,26 @@ class AccessControl:
     def has_compatible_role(self, account: Account) -> bool:
         roles = set(groupRoleMap[account.group])
         return len(self.permit.intersection(roles)) > 0
+
+
+security = HTTPBasic()
+
+
+def verify_admin_credentials(credentials: HTTPBasicCredentials = Depends(security)) -> bool:
+    if not ADMIN_USERNAME or not ADMIN_PASSWORD:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Admin credentials not configured",
+        )
+
+    is_username_correct = secrets.compare_digest(credentials.username, ADMIN_USERNAME)
+    is_password_correct = secrets.compare_digest(credentials.password, ADMIN_PASSWORD)
+
+    if not (is_username_correct and is_password_correct):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid admin credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+    return True

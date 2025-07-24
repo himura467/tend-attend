@@ -13,6 +13,18 @@ output "domain_name" {
   value       = local.fields["Domain Name"]
 }
 
+output "admin_username" {
+  description = "Admin username for the application"
+  value       = local.fields["Admin Username"]
+  sensitive   = true
+}
+
+output "admin_password" {
+  description = "Admin password for the application"
+  value       = local.fields["Admin Password"]
+  sensitive   = true
+}
+
 output "jwt_secret_key" {
   description = "JWT secret key used for signing tokens"
   value       = local.fields["JWT Secret Key"]
