@@ -7,6 +7,8 @@ module "lambda" {
   subnet_ids                 = module.vpc.private_subnets[*].id
   security_group_ids         = [module.private_sg.aurora_sg_id]
   cookie_domain              = module.op.domain_name
+  admin_username             = module.op.admin_username
+  admin_password             = module.op.admin_password
   jwt_secret_key             = module.op.jwt_secret_key
   aurora_credentials         = module.secrets_manager.aurora_credentials
   aws_region                 = var.aws_region

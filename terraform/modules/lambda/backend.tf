@@ -42,6 +42,8 @@ resource "aws_lambda_function" "backend" {
   environment {
     variables = {
       COOKIE_DOMAIN                   = var.cookie_domain
+      ADMIN_USERNAME                  = var.admin_username
+      ADMIN_PASSWORD                  = var.admin_password
       JWT_SECRET_KEY                  = var.jwt_secret_key
       AWS_SECRETSMANAGER_SECRET_ID    = var.aurora_credentials.secret_id
       AWS_SECRETSMANAGER_REGION       = var.aws_region

@@ -8,3 +8,8 @@ export interface AuthToken {
   refresh_token: string;
   token_type: string;
 }
+
+export interface BasicAuthCredentials {
+  username: string;
+  password: string;
+}
