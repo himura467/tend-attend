@@ -10,7 +10,7 @@ resource "aws_cloudfront_cache_policy" "backend" {
     headers_config {
       header_behavior = "whitelist"
       headers {
-        items = ["content-type"]
+        items = ["authorization", "content-type"]
       }
     }
     query_strings_config {
@@ -47,7 +47,7 @@ resource "aws_cloudfront_cache_policy" "qrcode" {
 resource "aws_cloudfront_origin_access_control" "this" {
   name                              = "tend-attend-lambda-oac"
   origin_access_control_origin_type = "lambda"
-  signing_behavior                  = "always"
+  signing_behavior                  = "no-override"
   signing_protocol                  = "sigv4"
 }
 
