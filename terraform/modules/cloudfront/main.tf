@@ -47,7 +47,7 @@ resource "aws_cloudfront_cache_policy" "qrcode" {
 resource "aws_cloudfront_origin_access_control" "this" {
   name                              = "tend-attend-lambda-oac"
   origin_access_control_origin_type = "lambda"
-  signing_behavior                  = "always"
+  signing_behavior                  = "no-override"
   signing_protocol                  = "sigv4"
 }
 
