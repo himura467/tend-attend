@@ -13,7 +13,7 @@
     "lint-fix:prettier": "prettier --cache --write .",
     "ci:lint": "run-s lint:eslint lint:prettier"
   },
-  "packageManager": "pnpm@10.12.4",
+  "packageManager": "pnpm@10.13.1",
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
     "@fullcalendar/core": "^6.1.18",
