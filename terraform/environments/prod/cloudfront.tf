@@ -6,5 +6,4 @@ module "cloudfront" {
   qrcode_function_url_domain  = module.lambda.qrcode_function_url_domain
   domain_name                 = "aws.${module.op.domain_name}"
   certificate_arn             = module.route53.certificate_arn
-  logs_bucket_domain_name     = module.logs.bucket_domain_name
 }
