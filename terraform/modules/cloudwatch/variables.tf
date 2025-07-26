@@ -3,3 +3,8 @@ variable "log_retention_days" {
   type        = number
   default     = 30
 }
+
+variable "cloudfront_distribution_arn" {
+  description = "ARN of the CloudFront distribution"
+  type        = string
+}
