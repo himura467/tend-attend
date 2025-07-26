@@ -30,8 +30,8 @@ importers:
         specifier: ^6.1.18
         version: 6.1.18(@fullcalendar/core@6.1.18)
       '@hookform/resolvers':
-        specifier: ^5.1.1
-        version: 5.1.1(react-hook-form@7.61.1(react@19.1.0))
+        specifier: ^5.2.0
+        version: 5.2.0(react-hook-form@7.61.1(react@19.1.0))
       '@radix-ui/react-label':
         specifier: ^2.1.7
         version: 2.1.7(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -251,8 +251,8 @@ packages:
     peerDependencies:
       '@fullcalendar/core': ~6.1.18
 
-  '@hookform/resolvers@5.1.1':
-    resolution: {integrity: sha512-J/NVING3LMAEvexJkyTLjruSm7aOFx7QX21pzkiJfMoNG0wl5aFEjLTl7ay7IQb9EWY6AkrBy7tHL2Alijpdcg==}
+  '@hookform/resolvers@5.2.0':
+    resolution: {integrity: sha512-3YI+VqxJQH6ryRWG+j3k+M19Wf37LeSKJDg6Vdjq6makLOqZGYn77iTaYLMLpVi/uHc1N6OTCmcxJwhOQV979g==}
     peerDependencies:
       react-hook-form: ^7.55.0
 
@@ -2643,7 +2643,7 @@ snapshots:
       '@fullcalendar/core': 6.1.18
       '@fullcalendar/daygrid': 6.1.18(@fullcalendar/core@6.1.18)
 
-  '@hookform/resolvers@5.1.1(react-hook-form@7.61.1(react@19.1.0))':
+  '@hookform/resolvers@5.2.0(react-hook-form@7.61.1(react@19.1.0))':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.61.1(react@19.1.0)
