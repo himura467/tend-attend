@@ -8,3 +8,8 @@ variable "cloudfront_distribution_arn" {
   description = "ARN of the CloudFront distribution"
   type        = string
 }
+
+variable "lambda_function_names" {
+  description = "List of Lambda function names to create log groups for"
+  type        = list(string)
+}
