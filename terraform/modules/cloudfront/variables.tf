@@ -29,8 +29,3 @@ variable "certificate_arn" {
   description = "ACM certificate ARN for SSL/TLS"
   type        = string
 }
-
-variable "logs_bucket_domain_name" {
-  description = "Domain name of the S3 bucket for logs"
-  type        = string
-}
