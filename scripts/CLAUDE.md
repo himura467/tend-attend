@@ -20,7 +20,7 @@
 
 - Takes environment parameter (currently only `prod` supported)
 - Runs in `/terraform/environments/{env}/` directory
-- Uses 1Password CLI integration: `OP_VAULT_NAME='Tend Attend' OP_APP_ENV='Production'`
+- Uses 1Password CLI integration: `OP_VAULT_NAME="Tend Attend" OP_APP_ENV="Production"`
 - Executes `terraform init` and `terraform apply`
 
 ### `build_backend.sh`
