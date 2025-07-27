@@ -4,7 +4,7 @@ const BASE_URL = process.env.BACKEND_API_URL || "http://localhost:8000";
 
 async function addSHA256Header(init?: RequestInit): Promise<Headers> {
   const headers = new Headers(init?.headers);
-  if (init && ["POST", "PUT"].includes(init.method?.toUpperCase() || "") && init.body) {
+  if (init && ["POST", "PUT"].includes(init.method?.toUpperCase() || "")) {
     const contentType = headers.get("Content-Type") || "";
     const bodyToHash = prepareBody(init.body, contentType);
     headers.set(SHA256_HEADER, await getPayloadHash(bodyToHash));
