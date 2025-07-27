@@ -12,7 +12,7 @@ export const resetAurora = async (credentials: BasicAuthCredentials): Promise<Re
   return fetchWithSHA256Header<ResetAuroraResponse>("/admin/aurora/reset", {
     method: "POST",
     headers: {
-      Authorization: createBasicAuthHeader(credentials),
+      "X-Basic-Auth": createBasicAuthHeader(credentials),
     },
   });
 };
@@ -21,7 +21,7 @@ export const upgradeDb = async (credentials: BasicAuthCredentials): Promise<Upgr
   return fetchWithSHA256Header<UpgradeDbResponse>("/admin/migration/upgrade", {
     method: "POST",
     headers: {
-      Authorization: createBasicAuthHeader(credentials),
+      "X-Basic-Auth": createBasicAuthHeader(credentials),
     },
   });
 };
@@ -33,7 +33,7 @@ export const stampRevision = async (
   return fetchWithSHA256Header<StampRevisionResponse>("/admin/migration/stamp", {
     method: "POST",
     headers: {
-      Authorization: createBasicAuthHeader(credentials),
+      "X-Basic-Auth": createBasicAuthHeader(credentials),
     },
     body: JSON.stringify(request),
   });

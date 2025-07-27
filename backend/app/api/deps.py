@@ -1,8 +1,9 @@
 import secrets
+from base64 import b64decode
 from dataclasses import dataclass
 
 from fastapi import Depends, HTTPException, Request, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer
+from fastapi.security import HTTPBasicCredentials, OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from app.core.constants.constants import ACCESS_TOKEN_NAME
@@ -61,10 +62,35 @@ class AccessControl:
         return len(self.permit.intersection(roles)) > 0
 
 
-security = HTTPBasic()
+def parse_basic_auth_header(request: Request) -> HTTPBasicCredentials:
+    auth_header = request.headers.get("X-Basic-Auth")
+    if not auth_header:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="X-Basic-Auth header missing",
+        )
+    if not auth_header.startswith("Basic "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid X-Basic-Auth header format",
+        )
+
+    invalid_basic_credentials_exc = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid X-Basic-Auth header",
+    )
+    try:
+        encoded_credentials = auth_header[6:]  # Remove "Basic " prefix
+        decoded_credentials = b64decode(encoded_credentials).decode("ascii")
+    except (ValueError, UnicodeDecodeError):
+        raise invalid_basic_credentials_exc
+    username, separator, password = decoded_credentials.partition(":")
+    if not separator:
+        raise invalid_basic_credentials_exc
+    return HTTPBasicCredentials(username=username, password=password)
 
 
-def verify_admin_credentials(credentials: HTTPBasicCredentials = Depends(security)) -> bool:
+def verify_admin_credentials(credentials: HTTPBasicCredentials = Depends(parse_basic_auth_header)) -> bool:
     if not ADMIN_USERNAME or not ADMIN_PASSWORD:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
