@@ -3,7 +3,10 @@ import { isArrayBuffer } from "@/lib/utils/arrayBuffer";
 export const prepareBody = (
   data: unknown,
   contentType: string,
-): string | ArrayBuffer | ArrayBufferView | URLSearchParams => {
+): string | ArrayBuffer | ArrayBufferView | URLSearchParams | undefined => {
+  if (data === undefined) {
+    return undefined;
+  }
   if (typeof data === "string" || isArrayBuffer(data) || ArrayBuffer.isView(data)) {
     return data;
   }
