@@ -24,9 +24,10 @@ RUN yum update -y && \
   yum clean all
 RUN ln -s ${PYTHON_HOME}/bin/python$(echo ${PYTHON_VERSION} | cut -d. -f1-2) ${PYTHON_HOME}/bin/python
 ENV PATH="${PYTHON_HOME}/bin:${PATH}"
-COPY ../backend/app/main.py ../requirements.txt ../backend/alembic.ini ./
+COPY ../backend/app/main.py ../requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt --target python && \
   rm requirements.txt
+COPY ../backend/alembic.ini ./dependencies/python/
 COPY ../backend/app/alembic/ ./dependencies/python/app/alembic/
 COPY ../backend/app/api/ ./dependencies/python/app/api/
 COPY ../backend/app/core/ ./dependencies/python/app/core/
