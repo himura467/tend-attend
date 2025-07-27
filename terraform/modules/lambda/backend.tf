@@ -65,7 +65,7 @@ resource "aws_lambda_function_url" "backend" {
   authorization_type = "AWS_IAM"
   cors {
     allow_credentials = true
-    allow_headers     = ["content-type"]
+    allow_headers     = ["content-type", "x-basic-auth"]
     allow_methods     = ["*"]
     allow_origins     = var.allow_origins
     expose_headers    = []

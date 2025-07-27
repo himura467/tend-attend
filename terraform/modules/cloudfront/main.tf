@@ -10,7 +10,7 @@ resource "aws_cloudfront_cache_policy" "backend" {
     headers_config {
       header_behavior = "whitelist"
       headers {
-        items = ["content-type"]
+        items = ["content-type", "x-basic-auth"]
       }
     }
     query_strings_config {
