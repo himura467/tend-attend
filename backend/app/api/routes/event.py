@@ -17,6 +17,8 @@ from app.core.dtos.event import (
     GetMyEventsResponse,
     UpdateAttendancesRequest,
     UpdateAttendancesResponse,
+    UpdateEventRequest,
+    UpdateEventResponse,
 )
 from app.core.features.account import Account, Role
 from app.core.infrastructure.sqlalchemy.db import get_db_async
@@ -43,6 +45,29 @@ async def create_event(
 
     return await usecase.create_event_async(
         host_id=account.account_id,
+        event_dto=event,
+    )
+
+
+@router.put(
+    path="/{event_id}",
+    name="Update Event",
+    response_model=UpdateEventResponse,
+)
+async def update_event(
+    event_id: str,
+    req: UpdateEventRequest,
+    session: AsyncSession = Depends(get_db_async),
+    account: Account = Depends(AccessControl(permit={Role.HOST})),
+) -> UpdateEventResponse:
+    event = req.event
+
+    uow = SqlalchemyUnitOfWork(session=session)
+    usecase = EventUsecase(uow=uow)
+
+    return await usecase.update_event_async(
+        host_id=account.account_id,
+        event_id_str=event_id,
         event_dto=event,
     )
 
