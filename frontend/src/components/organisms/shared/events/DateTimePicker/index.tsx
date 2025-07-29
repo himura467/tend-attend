@@ -84,28 +84,28 @@ export const DateTimePicker = ({
       },
       {
         label: "Every day",
-        value: [`RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute}`],
-        regExps: [/^RRULE:FREQ=DAILY;BYHOUR=\d{1,2};BYMINUTE=\d{1,2}$/],
+        value: [`RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        regExps: [/^RRULE:FREQ=DAILY;BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
       },
       {
         label: "Every week",
-        value: [`RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute}`],
-        regExps: [/^RRULE:FREQ=WEEKLY;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2}$/],
+        value: [`RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        regExps: [/^RRULE:FREQ=WEEKLY;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
       },
       {
         label: "Every 2 weeks",
-        value: [`RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute}`],
-        regExps: [/^RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2}$/],
+        value: [`RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        regExps: [/^RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
       },
       {
         label: "Every month",
-        value: [`RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute}`],
-        regExps: [/^RRULE:FREQ=MONTHLY;BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2}$/],
+        value: [`RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        regExps: [/^RRULE:FREQ=MONTHLY;BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
       },
       {
         label: "Every year",
-        value: [`RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute}`],
-        regExps: [/^RRULE:FREQ=YEARLY;BYMONTH=\d{1,2};BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2}$/],
+        value: [`RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        regExps: [/^RRULE:FREQ=YEARLY;BYMONTH=\d{1,2};BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
       },
     ];
   }, [startDate, timezone]);
