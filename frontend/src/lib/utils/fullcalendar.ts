@@ -62,7 +62,7 @@ export const mapEventsToFullCalendar = (events: Event[]): (BaseFullCalendarEvent
           id: baseEvent.id,
           title: baseEvent.title,
           allDay: baseEvent.allDay,
-          rrule: { ...rruleSet._rrule[0].options, dtstart: baseEvent.start.toISOString().split("T")[0] },
+          rrule: { ...rruleSet._rrule[0].options, dtstart: baseEvent.start },
           exdate: rruleSet._exdate.map((date) => date.toISOString().split("T")[0]),
           duration: baseEvent.allDay
             ? {
