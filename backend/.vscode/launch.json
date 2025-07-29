@@ -9,7 +9,9 @@
       "args": [
         "app.main:app",
         "--reload"
-      ]
+      ],
+      "envFile": "${workspaceFolder}/debug.env",
+      "preLaunchTask": "Generate env from 1Password"
     }
   ]
 }
