@@ -56,13 +56,14 @@ export const mapEventsToFullCalendar = (events: Event[]): (BaseFullCalendarEvent
         : applyTimezone(event.end, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
       allDay: event.isAllDay,
     };
-    const rrule = parseRecurrence(event.recurrences);
-    return rrule
+    const rruleSet = parseRecurrence(event.recurrences);
+    return rruleSet
       ? {
           id: baseEvent.id,
           title: baseEvent.title,
           allDay: baseEvent.allDay,
-          rrule: { ...rrule.options, dtstart: baseEvent.start },
+          rrule: { ...rruleSet._rrule[0].options, dtstart: baseEvent.start.toISOString().split("T")[0] },
+          exdate: rruleSet._exdate.map((date) => date.toISOString().split("T")[0]),
           duration: baseEvent.allDay
             ? {
                 days: getYmdDeltaDays(
