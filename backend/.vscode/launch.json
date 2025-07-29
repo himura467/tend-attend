@@ -11,7 +11,8 @@
         "--reload"
       ],
       "envFile": "${workspaceFolder}/debug.env",
-      "preLaunchTask": "Generate env from 1Password"
+      "preLaunchTask": "Generate env from 1Password",
+      "postDebugTask": "Cleanup env file"
     }
   ]
 }

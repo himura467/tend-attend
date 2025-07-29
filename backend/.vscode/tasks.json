@@ -5,6 +5,11 @@
       "label": "Generate env from 1Password",
       "type": "shell",
       "command": "OP_VAULT_NAME=\"Tend Attend\" OP_APP_ENV=\"Local\" op inject -i app.env -o debug.env"
+    },
+    {
+      "label": "Cleanup env file",
+      "type": "shell",
+      "command": "rm -f debug.env"
     }
   ]
 }
