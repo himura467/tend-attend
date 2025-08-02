@@ -29,6 +29,7 @@ from app.core.dtos.event import (
     GetGuestAttendanceStatusResponse,
     GetMyEventsResponse,
     UpdateAttendancesResponse,
+    UpdateEventResponse,
 )
 from app.core.dtos.event import Event as EventDto
 from app.core.dtos.event import EventWithId as EventWithIdDto
@@ -223,6 +224,125 @@ class EventUsecase(IUsecase):
             raise ValueError("Failed to create event")
 
         return CreateEventResponse(error_codes=[])
+
+    @rollbackable
+    async def update_event_async(
+        self,
+        host_id: UUID,
+        event_id_str: str,
+        event_dto: EventDto,
+    ) -> UpdateEventResponse:
+        user_account_repository = UserAccountRepository(self.uow)
+        recurrence_rule_repository = RecurrenceRuleRepository(self.uow)
+        recurrence_repository = RecurrenceRepository(self.uow)
+        event_repository = EventRepository(self.uow)
+
+        assert event_dto.start.tzname() == "UTC"
+        assert event_dto.end.tzname() == "UTC"
+        validate_date(
+            is_all_day=event_dto.is_all_day,
+            date_value=event_dto.start,
+            timezone=event_dto.timezone,
+        )
+        validate_date(
+            is_all_day=event_dto.is_all_day,
+            date_value=event_dto.end,
+            timezone=event_dto.timezone,
+        )
+
+        event_id = str_to_uuid(event_id_str)
+
+        host = await user_account_repository.read_by_id_or_none_async(host_id)
+        if host is None:
+            return UpdateEventResponse(error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        user_id = host.user_id
+
+        existing_event = await event_repository.read_with_recurrence_by_id_or_none_async(event_id)
+        if existing_event is None:
+            return UpdateEventResponse(error_codes=[ErrorCode.EVENT_NOT_FOUND])
+        if existing_event.user_id != user_id:
+            return UpdateEventResponse(error_codes=[ErrorCode.EVENT_ACCESS_DENIED])
+
+        recurrence = parse_recurrence(event_dto.recurrence_list, event_dto.is_all_day)
+
+        recurrence_id: UUID | None = None
+        if recurrence is not None:
+            if existing_event.recurrence_id is not None:
+                existing_recurrence = existing_event.recurrence
+                if existing_recurrence is not None:
+                    await recurrence_rule_repository.update_recurrence_rule_async(
+                        entity_id=existing_recurrence.rrule_id,
+                        freq=recurrence.rrule.freq,
+                        until=recurrence.rrule.until,
+                        count=recurrence.rrule.count,
+                        interval=recurrence.rrule.interval,
+                        bysecond=recurrence.rrule.bysecond,
+                        byminute=recurrence.rrule.byminute,
+                        byhour=recurrence.rrule.byhour,
+                        byday=listify_byday(recurrence.rrule.byday),
+                        bymonthday=recurrence.rrule.bymonthday,
+                        byyearday=recurrence.rrule.byyearday,
+                        byweekno=recurrence.rrule.byweekno,
+                        bymonth=recurrence.rrule.bymonth,
+                        bysetpos=recurrence.rrule.bysetpos,
+                        wkst=recurrence.rrule.wkst,
+                    )
+                    await recurrence_repository.update_recurrence_async(
+                        entity_id=existing_event.recurrence_id,
+                        rdate=stringify_dates(recurrence.rdate),
+                        exdate=stringify_dates(recurrence.exdate),
+                    )
+                    recurrence_id = existing_event.recurrence_id
+                else:
+                    raise ValueError("Although recurrence_id is not None, recurrence is None")
+            else:
+                recurrence_rule = await recurrence_rule_repository.create_recurrence_rule_async(
+                    entity_id=generate_uuid(),
+                    user_id=user_id,
+                    freq=recurrence.rrule.freq,
+                    until=recurrence.rrule.until,
+                    count=recurrence.rrule.count,
+                    interval=recurrence.rrule.interval,
+                    bysecond=recurrence.rrule.bysecond,
+                    byminute=recurrence.rrule.byminute,
+                    byhour=recurrence.rrule.byhour,
+                    byday=listify_byday(recurrence.rrule.byday),
+                    bymonthday=recurrence.rrule.bymonthday,
+                    byyearday=recurrence.rrule.byyearday,
+                    byweekno=recurrence.rrule.byweekno,
+                    bymonth=recurrence.rrule.bymonth,
+                    bysetpos=recurrence.rrule.bysetpos,
+                    wkst=recurrence.rrule.wkst,
+                )
+                if recurrence_rule is None:
+                    raise ValueError("Failed to create recurrence rule")
+
+                recurrence_entity = await recurrence_repository.create_recurrence_async(
+                    entity_id=generate_uuid(),
+                    user_id=user_id,
+                    rrule_id=recurrence_rule.id,
+                    rrule=recurrence_rule,
+                    rdate=stringify_dates(recurrence.rdate),
+                    exdate=stringify_dates(recurrence.exdate),
+                )
+                if recurrence_entity is None:
+                    raise ValueError("Failed to create recurrence")
+
+                recurrence_id = recurrence_entity.id
+
+        await event_repository.update_event_async(
+            entity_id=event_id,
+            summary=event_dto.summary,
+            location=event_dto.location,
+            start=event_dto.start,
+            end=event_dto.end,
+            is_all_day=event_dto.is_all_day,
+            recurrence_id=recurrence_id,
+            timezone=event_dto.timezone,
+        )
+
+        return UpdateEventResponse(error_codes=[])
 
     @rollbackable
     async def attend_event_async(

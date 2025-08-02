@@ -50,6 +50,14 @@ class CreateEventResponse(BaseModelWithErrorCodes):
     pass
 
 
+class UpdateEventRequest(BaseModel):
+    event: Event = Field(..., title="Event")
+
+
+class UpdateEventResponse(BaseModelWithErrorCodes):
+    pass
+
+
 class AttendEventRequest(BaseModel):
     action: AttendanceAction = Field(..., title="Attendance Action")
 
