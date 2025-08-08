@@ -14,6 +14,13 @@ interface CalendarProps {
 }
 
 export const Calendar = ({ events, onEventClick }: CalendarProps): React.JSX.Element => {
+  const handleEventClick = (eventInfo: EventClickArg): void => {
+    if (eventInfo.event.extendedProps.originalId) {
+      eventInfo.event.setProp("id", eventInfo.event.extendedProps.originalId);
+    }
+    onEventClick(eventInfo);
+  };
+
   return (
     <Card>
       <CardContent className="p-4">
@@ -26,7 +33,7 @@ export const Calendar = ({ events, onEventClick }: CalendarProps): React.JSX.Ele
             right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
           events={events}
-          eventClick={onEventClick}
+          eventClick={handleEventClick}
           height="auto"
         />
       </CardContent>
