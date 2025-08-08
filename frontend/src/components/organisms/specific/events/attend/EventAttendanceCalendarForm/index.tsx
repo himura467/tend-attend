@@ -82,7 +82,7 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       if (eventStart <= now) {
-        // イベント開始時刻が現在時刻以前の場合、履歴から取得
+        // If event start time is before current time, retrieve from history
         setIsForecast(false);
 
         const response = await getAttendanceHistory(eventId, applyTimezone(eventStart, tz, "UTC").toISOString());
@@ -90,7 +90,7 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
         const attendLogs = response.attendances_with_username.attendances.filter((a) => a.action === "attend");
         const leaveLogs = response.attendances_with_username.attendances.filter((a) => a.action === "leave");
 
-        // action == "attend" である中で最も早い acted_at を attended_at とする
+        // Set the earliest acted_at that satisfies the condition `action === "attend"` as attended_at
         const attended_at =
           attendLogs.length > 0
             ? applyTimezone(
@@ -106,8 +106,8 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
               )
             : null;
 
-        // action == "leave" である中で最も遅い acted_at を left_at とする
-        // leave ログが存在しない場合は event.end を用いる
+        // Set the latest acted_at that satisfies the condition `action === "leave"` as left_at
+        // If leave log doesn't exist, use event.end
         const left_at =
           leaveLogs.length > 0
             ? applyTimezone(
@@ -141,7 +141,7 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
           setCurrentAttendances([]);
         }
       } else {
-        // イベント開始時刻が現在時刻より後の場合、予測から取得
+        // If event start time is after current time, retrieve from forecast
         setIsForecast(true);
         setAttendanceHistory([]);
 

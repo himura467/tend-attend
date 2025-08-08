@@ -91,7 +91,7 @@ export const EventAttendanceForm = ({
             await onAttendanceUpdate(eventId, eventStart, eventEnd);
           }
         } else {
-          // TODO: 本来はエラーコードからエラーメッセージを取得するべき
+          // TODO: Error message should be received from backend
           toast.error("Request outside of available time");
         }
       } catch {

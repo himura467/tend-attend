@@ -117,7 +117,7 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
         <Calendar
           events={mapEventsToFullCalendar(events)}
           onEventClick={(info) => {
-            // TODO: イベント更新フォームを表示する
+            // TODO: Display event update form
             console.log(info);
           }}
         />

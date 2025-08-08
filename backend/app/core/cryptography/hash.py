@@ -3,7 +3,7 @@ from logging import ERROR, getLogger
 
 from passlib.context import CryptContext
 
-# https://github.com/pyca/bcrypt/issues/684 への対応
+# Workaround for https://github.com/pyca/bcrypt/issues/684
 getLogger("passlib").setLevel(ERROR)
 
 

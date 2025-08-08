@@ -106,7 +106,7 @@ class DevelopUsecase(IUsecase):
                 follower_ids=set(),
             )
 
-            for i in range(30):  # 30 日分のデータを生成
+            for i in range(30):  # Generate 30 days worth of data
                 start = today - timedelta(days=i)
                 attend_log = EventAttendanceActionLogEntity(
                     entity_id=generate_uuid(),
