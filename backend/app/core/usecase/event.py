@@ -734,7 +734,7 @@ class EventUsecase(IUsecase):
             ua.user_id: ua.username
             for ua in await user_account_repository.read_all_async(
                 where=[],
-            )  # TODO: user_account テーブルに対する read_all_async はまずそう
+            )  # TODO: read_all_async for user_account table is probably bad
         }
         attendance_time_forecasts_with_username = {
             event_id: {

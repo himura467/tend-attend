@@ -1,6 +1,6 @@
 resource "aws_rds_cluster_parameter_group" "aurora" {
   name = "tend-attend-cluster-parameter-group"
-  # Aurora MySQL 8.4 がリリースされたら変更する
+  # Change when Aurora MySQL 8.4 is released
   family = "aurora-mysql8.0"
   parameter {
     name  = "character_set_server"
