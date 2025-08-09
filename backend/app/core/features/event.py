@@ -92,7 +92,8 @@ class RecurrenceRule:
     bysetpos: list[int] | None
 
     # The WKST rule part specifies the day on which the workweek starts.
-    wkst: Weekday
+    # RFC 5545: Default is MO (Monday) if not specified
+    wkst: Weekday | None
 
 
 @dataclass(frozen=True)

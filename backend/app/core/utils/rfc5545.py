@@ -32,7 +32,7 @@ def parse_rrule(rrule_str: str, is_all_day: bool) -> RecurrenceRule:
     byweekno = list(map(int, rrules["BYWEEKNO"].split(","))) if "BYWEEKNO" in rrules else None
     bymonth = list(map(int, rrules["BYMONTH"].split(","))) if "BYMONTH" in rrules else None
     bysetpos = list(map(int, rrules["BYSETPOS"].split(","))) if "BYSETPOS" in rrules else None
-    wkst = Weekday(rrules["WKST"]) if "WKST" in rrules else Weekday.MO
+    wkst = Weekday(rrules["WKST"]) if "WKST" in rrules else None
 
     return RecurrenceRule(
         freq=freq,
@@ -111,7 +111,8 @@ def serialize_recurrence(recurrence: Recurrence | None, is_all_day: bool) -> lis
         rrule_str += f";BYMONTH={','.join(map(str, recurrence.rrule.bymonth))}"
     if recurrence.rrule.bysetpos:
         rrule_str += f";BYSETPOS={','.join(map(str, recurrence.rrule.bysetpos))}"
-    rrule_str += f";WKST={recurrence.rrule.wkst.value}"
+    if recurrence.rrule.wkst:
+        rrule_str += f";WKST={recurrence.rrule.wkst.value}"
 
     recurrence_list = [rrule_str]
     if recurrence.rdate:

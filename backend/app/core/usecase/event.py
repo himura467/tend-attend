@@ -109,7 +109,7 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                     byweekno=event.recurrence.rrule.byweekno,
                     bymonth=event.recurrence.rrule.bymonth,
                     bysetpos=event.recurrence.rrule.bysetpos,
-                    wkst=event.recurrence.rrule.wkst,
+                    wkst=event.recurrence.rrule.wkst or Weekday.MO,
                 ),
                 rdate=(parse_dates(event.recurrence.rdate) if event.is_all_day else []),
                 exdate=(parse_dates(event.recurrence.exdate) if event.is_all_day else []),
@@ -191,7 +191,7 @@ class EventUsecase(IUsecase):
                 byweekno=event.recurrence.rrule.byweekno,
                 bymonth=event.recurrence.rrule.bymonth,
                 bysetpos=event.recurrence.rrule.bysetpos,
-                wkst=event.recurrence.rrule.wkst,
+                wkst=event.recurrence.rrule.wkst or Weekday.MO,
             )
             if recurrence_rule is None:
                 raise ValueError("Failed to create recurrence rule")
@@ -286,7 +286,7 @@ class EventUsecase(IUsecase):
                         byweekno=recurrence.rrule.byweekno,
                         bymonth=recurrence.rrule.bymonth,
                         bysetpos=recurrence.rrule.bysetpos,
-                        wkst=recurrence.rrule.wkst,
+                        wkst=recurrence.rrule.wkst or Weekday.MO,
                     )
                     await recurrence_repository.update_recurrence_async(
                         entity_id=existing_event.recurrence_id,
@@ -313,7 +313,7 @@ class EventUsecase(IUsecase):
                     byweekno=recurrence.rrule.byweekno,
                     bymonth=recurrence.rrule.bymonth,
                     bysetpos=recurrence.rrule.bysetpos,
-                    wkst=recurrence.rrule.wkst,
+                    wkst=recurrence.rrule.wkst or Weekday.MO,
                 )
                 if recurrence_rule is None:
                     raise ValueError("Failed to create recurrence rule")

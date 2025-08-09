@@ -29,7 +29,7 @@ class RecurrenceRule(IEntity):
         byweekno: list[int] | None,
         bymonth: list[int] | None,
         bysetpos: list[int] | None,
-        wkst: Weekday,
+        wkst: Weekday | None,
     ) -> None:
         super().__init__(entity_id)
         self.user_id = user_id

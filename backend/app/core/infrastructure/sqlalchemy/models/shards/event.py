@@ -52,7 +52,7 @@ class RecurrenceRule(AbstractShardStaticBase):
     byweekno: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYWEEKNO")
     bymonth: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYMONTH")
     bysetpos: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYSETPOS")
-    wkst: Mapped[Weekday] = mapped_column(ENUM(Weekday), nullable=False, comment="WKST")
+    wkst: Mapped[Weekday | None] = mapped_column(ENUM(Weekday), nullable=True, comment="WKST")
 
     def to_entity(self) -> RecurrenceRuleEntity:
         return RecurrenceRuleEntity(
