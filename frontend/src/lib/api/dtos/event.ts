@@ -3,8 +3,8 @@ import { AttendanceActionType } from "@/lib/types/event/attendance";
 interface Event {
   summary: string;
   location: string | null;
-  start: string;
-  end: string;
+  dtstart: string;
+  dtend: string;
   is_all_day: boolean;
   recurrence_list: string[];
   timezone: string;
