@@ -11,7 +11,9 @@
     "lint:prettier": "prettier --cache --check .",
     "lint-fix:eslint": "next lint --fix",
     "lint-fix:prettier": "prettier --cache --write .",
-    "ci:lint": "run-s lint:eslint lint:prettier"
+    "ci:lint": "run-s lint:eslint lint:prettier",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "packageManager": "pnpm@10.13.1",
   "dependencies": {
