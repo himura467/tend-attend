@@ -25,19 +25,19 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
       if (response.error_codes.length === 0) {
         setEvents(
           response.events.map((event) => {
-            const start = new Date(Date.parse(event.start));
-            const end = new Date(Date.parse(event.end));
+            const dtstart = new Date(Date.parse(event.dtstart));
+            const dtend = new Date(Date.parse(event.dtend));
 
             return {
               id: event.id,
               summary: event.summary,
               location: event.location,
-              start: event.is_all_day
-                ? parseYmdDate(start, "UTC", event.timezone)
-                : parseYmdHm15Date(start, "UTC", event.timezone),
-              end: event.is_all_day
-                ? parseYmdDate(end, "UTC", event.timezone)
-                : parseYmdHm15Date(end, "UTC", event.timezone),
+              dtstart: event.is_all_day
+                ? parseYmdDate(dtstart, "UTC", event.timezone)
+                : parseYmdHm15Date(dtstart, "UTC", event.timezone),
+              dtend: event.is_all_day
+                ? parseYmdDate(dtend, "UTC", event.timezone)
+                : parseYmdHm15Date(dtend, "UTC", event.timezone),
               isAllDay: event.is_all_day,
               recurrences: event.recurrence_list,
               timezone: event.timezone,
@@ -62,8 +62,8 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
         event: {
           summary: values.summary,
           location: values.location,
-          start: applyTimezone(startDate, timezone, "UTC").toISOString(),
-          end: applyTimezone(endDate, timezone, "UTC").toISOString(),
+          dtstart: applyTimezone(startDate, timezone, "UTC").toISOString(),
+          dtend: applyTimezone(endDate, timezone, "UTC").toISOString(),
           is_all_day: isAllDay,
           recurrence_list: recurrences,
           timezone: timezone,

@@ -35,7 +35,7 @@ class RecurrenceRule:
     # If the value specified by UNTIL is synchronized with the specified recurrence,
     # this DATE or DATE-TIME becomes the last instance of the recurrence.
 
-    # The value of the UNTIL rule part MUST have the same value type as the "start" property.
+    # The value of the UNTIL rule part MUST have the same value type as the "DTSTART" property.
 
     # If not present, and the COUNT rule part is also not present, the "RRULE" is considered to repeat forever.
     until: datetime | None
@@ -47,10 +47,10 @@ class RecurrenceRule:
     interval: int
 
     # The BYSECOND, BYMINUTE and BYHOUR rule parts MUST NOT be specified
-    # when the associated "start" property has a DATE value type.
+    # when the associated "DTSTART" property has a DATE value type.
 
     # If the BYSECOND, BYMINUTE, BYHOUR, BYDAY, BYMONTHDAY, or BYMONTH rule part were missing,
-    # the appropriate second, minute, hour, day, or month would have been retrieved from the "start" property.
+    # the appropriate second, minute, hour, day, or month would have been retrieved from the "DTSTART" property.
 
     # The BYSECOND rule part specifies a COMMA-separated list of seconds within a minute.
     bysecond: list[int] | None
@@ -92,7 +92,8 @@ class RecurrenceRule:
     bysetpos: list[int] | None
 
     # The WKST rule part specifies the day on which the workweek starts.
-    wkst: Weekday
+    # RFC 5545: Default is MO (Monday) if not specified
+    wkst: Weekday | None
 
 
 @dataclass(frozen=True)
@@ -113,8 +114,8 @@ class Recurrence:
 class Event:
     summary: str
     location: str | None
-    start: datetime
-    end: datetime
+    dtstart: datetime
+    dtend: datetime
     timezone: str
     recurrence: Recurrence | None
     is_all_day: bool

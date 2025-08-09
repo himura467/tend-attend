@@ -65,7 +65,7 @@ from app.core.infrastructure.sqlalchemy.repositories.event import (
     RecurrenceRuleRepository,
 )
 from app.core.utils.datetime import validate_date
-from app.core.utils.rfc5545 import parse_recurrence, serialize_recurrence
+from app.core.utils.icalendar import parse_recurrence, serialize_recurrence
 from app.core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
 
 
@@ -109,7 +109,7 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                     byweekno=event.recurrence.rrule.byweekno,
                     bymonth=event.recurrence.rrule.bymonth,
                     bysetpos=event.recurrence.rrule.bysetpos,
-                    wkst=event.recurrence.rrule.wkst,
+                    wkst=event.recurrence.rrule.wkst or Weekday.MO,
                 ),
                 rdate=(parse_dates(event.recurrence.rdate) if event.is_all_day else []),
                 exdate=(parse_dates(event.recurrence.exdate) if event.is_all_day else []),
@@ -119,8 +119,8 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                 id=uuid_to_str(event.id),
                 summary=event.summary,
                 location=event.location,
-                start=event.start,
-                end=event.end,
+                dtstart=event.dtstart,
+                dtend=event.dtend,
                 is_all_day=event.is_all_day,
                 recurrence_list=serialize_recurrence(recurrence, event.is_all_day),
                 timezone=event.timezone,
@@ -141,16 +141,16 @@ class EventUsecase(IUsecase):
         recurrence_repository = RecurrenceRepository(self.uow)
         event_repository = EventRepository(self.uow)
 
-        assert event_dto.start.tzname() == "UTC"
-        assert event_dto.end.tzname() == "UTC"
+        assert event_dto.dtstart.tzname() == "UTC"
+        assert event_dto.dtend.tzname() == "UTC"
         validate_date(
             is_all_day=event_dto.is_all_day,
-            date_value=event_dto.start,
+            date_value=event_dto.dtstart,
             timezone=event_dto.timezone,
         )
         validate_date(
             is_all_day=event_dto.is_all_day,
-            date_value=event_dto.end,
+            date_value=event_dto.dtend,
             timezone=event_dto.timezone,
         )
 
@@ -158,8 +158,8 @@ class EventUsecase(IUsecase):
         event = Event(
             summary=event_dto.summary,
             location=event_dto.location,
-            start=event_dto.start,
-            end=event_dto.end,
+            dtstart=event_dto.dtstart,
+            dtend=event_dto.dtend,
             timezone=event_dto.timezone,
             recurrence=recurrence,
             is_all_day=event_dto.is_all_day,
@@ -191,7 +191,7 @@ class EventUsecase(IUsecase):
                 byweekno=event.recurrence.rrule.byweekno,
                 bymonth=event.recurrence.rrule.bymonth,
                 bysetpos=event.recurrence.rrule.bysetpos,
-                wkst=event.recurrence.rrule.wkst,
+                wkst=event.recurrence.rrule.wkst or Weekday.MO,
             )
             if recurrence_rule is None:
                 raise ValueError("Failed to create recurrence rule")
@@ -214,8 +214,8 @@ class EventUsecase(IUsecase):
             user_id=user_id,
             summary=event.summary,
             location=event.location,
-            start=event.start,
-            end=event.end,
+            dtstart=event.dtstart,
+            dtend=event.dtend,
             is_all_day=event.is_all_day,
             recurrence_id=recurrence_id,
             timezone=event.timezone,
@@ -237,16 +237,16 @@ class EventUsecase(IUsecase):
         recurrence_repository = RecurrenceRepository(self.uow)
         event_repository = EventRepository(self.uow)
 
-        assert event_dto.start.tzname() == "UTC"
-        assert event_dto.end.tzname() == "UTC"
+        assert event_dto.dtstart.tzname() == "UTC"
+        assert event_dto.dtend.tzname() == "UTC"
         validate_date(
             is_all_day=event_dto.is_all_day,
-            date_value=event_dto.start,
+            date_value=event_dto.dtstart,
             timezone=event_dto.timezone,
         )
         validate_date(
             is_all_day=event_dto.is_all_day,
-            date_value=event_dto.end,
+            date_value=event_dto.dtend,
             timezone=event_dto.timezone,
         )
 
@@ -286,7 +286,7 @@ class EventUsecase(IUsecase):
                         byweekno=recurrence.rrule.byweekno,
                         bymonth=recurrence.rrule.bymonth,
                         bysetpos=recurrence.rrule.bysetpos,
-                        wkst=recurrence.rrule.wkst,
+                        wkst=recurrence.rrule.wkst or Weekday.MO,
                     )
                     await recurrence_repository.update_recurrence_async(
                         entity_id=existing_event.recurrence_id,
@@ -313,7 +313,7 @@ class EventUsecase(IUsecase):
                     byweekno=recurrence.rrule.byweekno,
                     bymonth=recurrence.rrule.bymonth,
                     bysetpos=recurrence.rrule.bysetpos,
-                    wkst=recurrence.rrule.wkst,
+                    wkst=recurrence.rrule.wkst or Weekday.MO,
                 )
                 if recurrence_rule is None:
                     raise ValueError("Failed to create recurrence rule")
@@ -335,8 +335,8 @@ class EventUsecase(IUsecase):
             entity_id=event_id,
             summary=event_dto.summary,
             location=event_dto.location,
-            start=event_dto.start,
-            end=event_dto.end,
+            dtstart=event_dto.dtstart,
+            dtend=event_dto.dtend,
             is_all_day=event_dto.is_all_day,
             recurrence_id=recurrence_id,
             timezone=event_dto.timezone,
@@ -625,8 +625,8 @@ class EventUsecase(IUsecase):
                 EventMLDto(
                     id=uuid_to_str(event.id),
                     user_id=event.user_id,
-                    start=event.start,
-                    end=event.end,
+                    dtstart=event.dtstart,
+                    dtend=event.dtend,
                     timezone=event.timezone,
                     recurrence=RecurrenceMLDto(
                         id=uuid_to_str(event.recurrence.id),

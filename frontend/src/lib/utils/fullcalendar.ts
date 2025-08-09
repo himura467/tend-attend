@@ -6,7 +6,7 @@ import {
   YmdDate,
   YmdHm15Date,
 } from "@/lib/utils/date";
-import { parseRecurrence } from "@/lib/utils/rfc5545";
+import { parseRecurrence } from "@/lib/utils/icalendar";
 import { applyTimezone } from "@/lib/utils/timezone";
 import { endOfDay } from "date-fns";
 import { Options as RRuleOptions } from "rrule";
@@ -15,8 +15,8 @@ export interface Event {
   id: string;
   summary: string;
   location: string | null;
-  start: YmdDate | YmdHm15Date;
-  end: YmdDate | YmdHm15Date;
+  dtstart: YmdDate | YmdHm15Date;
+  dtend: YmdDate | YmdHm15Date;
   isAllDay: boolean;
   recurrences: string[];
   timezone: string;
@@ -25,8 +25,8 @@ export interface Event {
 interface BaseFullCalendarEvent {
   id: string;
   title: string;
-  start: Date;
-  end: Date;
+  dtstart: Date;
+  dtend: Date;
   allDay: boolean;
   extendedProps?: {
     originalId?: string;
@@ -52,12 +52,12 @@ export const mapEventsToFullCalendar = (events: Event[]): (BaseFullCalendarEvent
     const baseEvent = {
       id: event.id,
       title: event.summary,
-      start: event.isAllDay
-        ? event.start
-        : applyTimezone(event.start, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-      end: event.isAllDay
-        ? endOfDay(event.end)
-        : applyTimezone(event.end, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
+      dtstart: event.isAllDay
+        ? event.dtstart
+        : applyTimezone(event.dtstart, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
+      dtend: event.isAllDay
+        ? endOfDay(event.dtend)
+        : applyTimezone(event.dtend, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
       allDay: event.isAllDay,
     };
 
@@ -71,19 +71,19 @@ export const mapEventsToFullCalendar = (events: Event[]): (BaseFullCalendarEvent
         id: baseEvent.id,
         title: baseEvent.title,
         allDay: baseEvent.allDay,
-        rrule: { ...rruleSet._rrule[0].options, dtstart: baseEvent.start },
+        rrule: { ...rruleSet._rrule[0].options, dtstart: baseEvent.dtstart },
         exdate: rruleSet._exdate.map((date) => date.toISOString().split("T")[0]),
         duration: baseEvent.allDay
           ? {
               days: getYmdDeltaDays(
-                parseYmdDate(event.start, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-                parseYmdDate(event.end, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
+                parseYmdDate(event.dtstart, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
+                parseYmdDate(event.dtend, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
               ),
             }
           : {
               minutes: getYmdHm15DeltaMinutes(
-                parseYmdHm15Date(event.start, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-                parseYmdHm15Date(event.end, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
+                parseYmdHm15Date(event.dtstart, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
+                parseYmdHm15Date(event.dtend, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
               ),
             },
       });
@@ -91,14 +91,14 @@ export const mapEventsToFullCalendar = (events: Event[]): (BaseFullCalendarEvent
 
     rruleSet._rdate.forEach((rdate, index) => {
       const rdateStart = new Date(rdate);
-      const originalDurationMs = baseEvent.end.getTime() - baseEvent.start.getTime();
+      const originalDurationMs = baseEvent.dtend.getTime() - baseEvent.dtstart.getTime();
       const rdateEnd = new Date(rdateStart.getTime() + originalDurationMs);
 
       results.push({
         id: `${baseEvent.id}-rdate-${index}`,
         title: baseEvent.title,
-        start: rdateStart,
-        end: baseEvent.allDay ? rdateStart : rdateEnd,
+        dtstart: rdateStart,
+        dtend: baseEvent.allDay ? rdateStart : rdateEnd,
         allDay: baseEvent.allDay,
         extendedProps: {
           originalId: baseEvent.id,
