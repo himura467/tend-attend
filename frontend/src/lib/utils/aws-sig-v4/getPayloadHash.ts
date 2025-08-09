@@ -1,13 +1,21 @@
 import { isArrayBuffer } from "@/lib/utils/arrayBuffer";
 import { UNSIGNED_PAYLOAD } from "./constants";
 
-const toUint8Array = (data: string | ArrayBuffer | ArrayBufferView | URLSearchParams): Uint8Array => {
+const toUint8Array = (data: string | ArrayBuffer | ArrayBufferView | URLSearchParams): Uint8Array<ArrayBuffer> => {
   if (typeof data === "string") {
     return new TextEncoder().encode(data);
   } else if (isArrayBuffer(data)) {
     return new Uint8Array(data);
   } else if (ArrayBuffer.isView(data)) {
-    return new Uint8Array(data.buffer, data.byteOffset, data.byteLength / Uint8Array.BYTES_PER_ELEMENT);
+    if (data.buffer instanceof ArrayBuffer) {
+      return new Uint8Array(data.buffer, data.byteOffset, data.byteLength / Uint8Array.BYTES_PER_ELEMENT);
+    }
+    // Fallback for SharedArrayBuffer
+    const copy = new ArrayBuffer(data.byteLength);
+    const view = new Uint8Array(copy);
+    const sourceView = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+    view.set(sourceView);
+    return view;
   }
   // URLSearchParams case
   return new TextEncoder().encode(data.toString());
