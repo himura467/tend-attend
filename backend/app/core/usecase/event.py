@@ -65,7 +65,7 @@ from app.core.infrastructure.sqlalchemy.repositories.event import (
     RecurrenceRuleRepository,
 )
 from app.core.utils.datetime import validate_date
-from app.core.utils.rfc5545 import parse_recurrence, serialize_recurrence
+from app.core.utils.icalendar import parse_recurrence, serialize_recurrence
 from app.core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
 
 

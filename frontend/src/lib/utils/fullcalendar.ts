@@ -6,7 +6,7 @@ import {
   YmdDate,
   YmdHm15Date,
 } from "@/lib/utils/date";
-import { parseRecurrence } from "@/lib/utils/rfc5545";
+import { parseRecurrence } from "@/lib/utils/icalendar";
 import { applyTimezone } from "@/lib/utils/timezone";
 import { endOfDay } from "date-fns";
 import { Options as RRuleOptions } from "rrule";
