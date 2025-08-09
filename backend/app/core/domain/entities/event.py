@@ -74,8 +74,8 @@ class Event(IEntity):
         user_id: int,
         summary: str,
         location: str | None,
-        start: datetime,
-        end: datetime,
+        dtstart: datetime,
+        dtend: datetime,
         is_all_day: bool,
         recurrence_id: UUID | None,
         timezone: str,
@@ -85,8 +85,8 @@ class Event(IEntity):
         self.user_id = user_id
         self.summary = summary
         self.location = location
-        self.start = start
-        self.end = end
+        self.dtstart = dtstart
+        self.dtend = dtend
         self.is_all_day = is_all_day
         self.recurrence_id = recurrence_id
         self.timezone = timezone
@@ -95,7 +95,7 @@ class Event(IEntity):
     def is_attendable(self, start: datetime, current_time: datetime) -> bool:
         zoned_current = apply_timezone(current_time, self.timezone)
         zoned_start = apply_timezone(start, self.timezone)
-        duration = self.end - self.start
+        duration = self.dtend - self.dtstart
         zoned_end = zoned_start + duration
 
         if self.is_all_day:
@@ -110,7 +110,7 @@ class Event(IEntity):
     def is_leaveable(self, start: datetime, current_time: datetime) -> bool:
         zoned_current = apply_timezone(current_time, self.timezone)
         zoned_start = apply_timezone(start, self.timezone)
-        duration = self.end - self.start
+        duration = self.dtend - self.dtstart
         zoned_end = zoned_start + duration
 
         if self.is_all_day:

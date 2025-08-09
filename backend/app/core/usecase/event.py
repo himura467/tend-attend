@@ -119,8 +119,8 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                 id=uuid_to_str(event.id),
                 summary=event.summary,
                 location=event.location,
-                start=event.start,
-                end=event.end,
+                dtstart=event.dtstart,
+                dtend=event.dtend,
                 is_all_day=event.is_all_day,
                 recurrence_list=serialize_recurrence(recurrence, event.is_all_day),
                 timezone=event.timezone,
@@ -141,16 +141,16 @@ class EventUsecase(IUsecase):
         recurrence_repository = RecurrenceRepository(self.uow)
         event_repository = EventRepository(self.uow)
 
-        assert event_dto.start.tzname() == "UTC"
-        assert event_dto.end.tzname() == "UTC"
+        assert event_dto.dtstart.tzname() == "UTC"
+        assert event_dto.dtend.tzname() == "UTC"
         validate_date(
             is_all_day=event_dto.is_all_day,
-            date_value=event_dto.start,
+            date_value=event_dto.dtstart,
             timezone=event_dto.timezone,
         )
         validate_date(
             is_all_day=event_dto.is_all_day,
-            date_value=event_dto.end,
+            date_value=event_dto.dtend,
             timezone=event_dto.timezone,
         )
 
@@ -158,8 +158,8 @@ class EventUsecase(IUsecase):
         event = Event(
             summary=event_dto.summary,
             location=event_dto.location,
-            start=event_dto.start,
-            end=event_dto.end,
+            dtstart=event_dto.dtstart,
+            dtend=event_dto.dtend,
             timezone=event_dto.timezone,
             recurrence=recurrence,
             is_all_day=event_dto.is_all_day,
@@ -214,8 +214,8 @@ class EventUsecase(IUsecase):
             user_id=user_id,
             summary=event.summary,
             location=event.location,
-            start=event.start,
-            end=event.end,
+            dtstart=event.dtstart,
+            dtend=event.dtend,
             is_all_day=event.is_all_day,
             recurrence_id=recurrence_id,
             timezone=event.timezone,
@@ -237,16 +237,16 @@ class EventUsecase(IUsecase):
         recurrence_repository = RecurrenceRepository(self.uow)
         event_repository = EventRepository(self.uow)
 
-        assert event_dto.start.tzname() == "UTC"
-        assert event_dto.end.tzname() == "UTC"
+        assert event_dto.dtstart.tzname() == "UTC"
+        assert event_dto.dtend.tzname() == "UTC"
         validate_date(
             is_all_day=event_dto.is_all_day,
-            date_value=event_dto.start,
+            date_value=event_dto.dtstart,
             timezone=event_dto.timezone,
         )
         validate_date(
             is_all_day=event_dto.is_all_day,
-            date_value=event_dto.end,
+            date_value=event_dto.dtend,
             timezone=event_dto.timezone,
         )
 
@@ -335,8 +335,8 @@ class EventUsecase(IUsecase):
             entity_id=event_id,
             summary=event_dto.summary,
             location=event_dto.location,
-            start=event_dto.start,
-            end=event_dto.end,
+            dtstart=event_dto.dtstart,
+            dtend=event_dto.dtend,
             is_all_day=event_dto.is_all_day,
             recurrence_id=recurrence_id,
             timezone=event_dto.timezone,
@@ -625,8 +625,8 @@ class EventUsecase(IUsecase):
                 EventMLDto(
                     id=uuid_to_str(event.id),
                     user_id=event.user_id,
-                    start=event.start,
-                    end=event.end,
+                    dtstart=event.dtstart,
+                    dtend=event.dtend,
                     timezone=event.timezone,
                     recurrence=RecurrenceMLDto(
                         id=uuid_to_str(event.recurrence.id),

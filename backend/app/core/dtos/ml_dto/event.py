@@ -18,18 +18,18 @@ class Recurrence(BaseModel):
 class Event(BaseModel):
     id: str
     user_id: int
-    start: datetime
-    end: datetime
+    dtstart: datetime
+    dtend: datetime
     timezone: str
     recurrence: Recurrence | None
 
-    @field_serializer("start")
-    def serialize_start(self, start: datetime) -> str:
-        return start.isoformat()
+    @field_serializer("dtstart")
+    def serialize_dtstart(self, dtstart: datetime) -> str:
+        return dtstart.isoformat()
 
-    @field_serializer("end")
-    def serialize_end(self, end: datetime) -> str:
-        return end.isoformat()
+    @field_serializer("dtend")
+    def serialize_dtend(self, dtend: datetime) -> str:
+        return dtend.isoformat()
 
 
 class EventAttendanceActionLog(BaseModel):
