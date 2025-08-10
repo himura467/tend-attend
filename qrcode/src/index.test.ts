@@ -10,7 +10,7 @@ vi.mock("./qrCodeGenerator", () => ({
 
 const mockGenerateQRCode = vi.mocked(qrCodeGenerator.generateQRCode);
 
-describe("Lambda handler", () => {
+describe(handler, () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock environment variables

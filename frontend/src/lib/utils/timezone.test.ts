@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyTimezone } from "./timezone";
 
-describe("applyTimezone", () => {
+describe(applyTimezone, () => {
   it("returns the same date when source and destination timezones are the same", () => {
     const date = new Date(2024, 0, 1, 12, 0, 0, 500);
     const result = applyTimezone(date, "UTC", "UTC");
