@@ -47,7 +47,7 @@ export const parseYmdHm15Date = (date: Date | string, srcTz: string, dstTz: stri
 };
 
 export const getCurrentYmdDate = (date: Date | string): YmdDate => {
-  if (!(date instanceof Date)) {
+  if (typeof date === "string") {
     date = new Date(date);
   }
   date.setHours(0, 0, 0, 0);
