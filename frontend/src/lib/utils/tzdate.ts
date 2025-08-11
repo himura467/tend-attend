@@ -104,6 +104,18 @@ export class TZDate extends TZDateMini {
     return this;
   }
 
+  startOfDay(): TZDate {
+    const newDate = new TZDate(this, this.timeZone);
+    newDate.setHours(0, 0, 0, 0);
+    return newDate;
+  }
+
+  endOfDay(): TZDate {
+    const newDate = new TZDate(this, this.timeZone);
+    newDate.setHours(23, 59, 59, 999);
+    return newDate;
+  }
+
   static localNow(): TZDate {
     return applyTimezone(new TZDate(), Intl.DateTimeFormat().resolvedOptions().timeZone);
   }

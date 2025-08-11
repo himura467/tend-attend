@@ -274,6 +274,130 @@ describe(TZDate, () => {
     });
   });
 
+  describe("startOfDay method", () => {
+    it("sets time to start of day (00:00:00.000)", () => {
+      const date = new TZDate("2024-01-15T14:30:45.123");
+      const result = date.startOfDay();
+
+      expect(result).not.toBe(date); // Returns new instance (immutable)
+      expect(result).toBeInstanceOf(TZDate);
+      expect(result.getFullYear()).toBe(2024);
+      expect(result.getMonth()).toBe(0);
+      expect(result.getDate()).toBe(15);
+      expect(result.getHours()).toBe(0);
+      expect(result.getMinutes()).toBe(0);
+      expect(result.getSeconds()).toBe(0);
+      expect(result.getMilliseconds()).toBe(0);
+      expect(result.timeZone).toBe("UTC");
+    });
+
+    it("preserves original instance unchanged", () => {
+      const date = new TZDate("2024-01-15T14:30:45.123", "Asia/Tokyo");
+      const originalTime = date.getTime();
+      date.startOfDay();
+
+      expect(date.getTime()).toBe(originalTime); // Original unchanged
+      expect(date.getFullYear()).toBe(2024);
+      expect(date.getMonth()).toBe(0);
+      expect(date.getDate()).toBe(15);
+      expect(date.getHours()).toBe(14);
+      expect(date.getMinutes()).toBe(30);
+      expect(date.getSeconds()).toBe(45);
+      expect(date.getMilliseconds()).toBe(123);
+      expect(date.timeZone).toBe("Asia/Tokyo");
+    });
+
+    it("preserves timezone information", () => {
+      const date = new TZDate("2024-01-15T14:30:45", "Europe/Paris");
+      const result = date.startOfDay();
+
+      expect(result.timeZone).toBe("Europe/Paris");
+      expect(date.timeZone).toBe("Europe/Paris");
+    });
+
+    it("works with different timezones", () => {
+      const utcDate = new TZDate("2024-06-15T18:45:30");
+      const tokyoDate = new TZDate("2024-06-15T18:45:30", "Asia/Tokyo");
+
+      const utcStart = utcDate.startOfDay();
+      const tokyoStart = tokyoDate.startOfDay();
+
+      expect(utcStart.getHours()).toBe(0);
+      expect(tokyoStart.getHours()).toBe(0);
+      expect(utcStart.timeZone).toBe("UTC");
+      expect(tokyoStart.timeZone).toBe("Asia/Tokyo");
+    });
+  });
+
+  describe("endOfDay method", () => {
+    it("sets time to end of day (23:59:59.999)", () => {
+      const date = new TZDate("2024-01-15T14:30:45.123");
+      const result = date.endOfDay();
+
+      expect(result).not.toBe(date); // Returns new instance (immutable)
+      expect(result).toBeInstanceOf(TZDate);
+      expect(result.getFullYear()).toBe(2024);
+      expect(result.getMonth()).toBe(0);
+      expect(result.getDate()).toBe(15);
+      expect(result.getHours()).toBe(23);
+      expect(result.getMinutes()).toBe(59);
+      expect(result.getSeconds()).toBe(59);
+      expect(result.getMilliseconds()).toBe(999);
+      expect(result.timeZone).toBe("UTC");
+    });
+
+    it("preserves original instance unchanged", () => {
+      const date = new TZDate("2024-01-15T14:30:45.123", "Asia/Tokyo");
+      const originalTime = date.getTime();
+      date.endOfDay();
+
+      expect(date.getTime()).toBe(originalTime); // Original unchanged
+      expect(date.getFullYear()).toBe(2024);
+      expect(date.getMonth()).toBe(0);
+      expect(date.getDate()).toBe(15);
+      expect(date.getHours()).toBe(14);
+      expect(date.getMinutes()).toBe(30);
+      expect(date.getSeconds()).toBe(45);
+      expect(date.getMilliseconds()).toBe(123);
+    });
+
+    it("preserves timezone information", () => {
+      const date = new TZDate("2024-01-15T14:30:45", "Europe/London");
+      const result = date.endOfDay();
+
+      expect(result.timeZone).toBe("Europe/London");
+      expect(date.timeZone).toBe("Europe/London");
+    });
+
+    it("works with different timezones", () => {
+      const utcDate = new TZDate("2024-06-15T06:15:30");
+      const parisDate = new TZDate("2024-06-15T06:15:30", "Europe/Paris");
+
+      const utcEnd = utcDate.endOfDay();
+      const parisEnd = parisDate.endOfDay();
+
+      expect(utcEnd.getHours()).toBe(23);
+      expect(utcEnd.getMinutes()).toBe(59);
+      expect(parisEnd.getHours()).toBe(23);
+      expect(parisEnd.getMinutes()).toBe(59);
+      expect(utcEnd.timeZone).toBe("UTC");
+      expect(parisEnd.timeZone).toBe("Europe/Paris");
+    });
+
+    it("can be chained with other methods", () => {
+      const date = new TZDate("2024-01-15T14:30:45");
+      const result = date.endOfDay().addDays(1);
+
+      expect(result.getFullYear()).toBe(2024);
+      expect(result.getMonth()).toBe(0);
+      expect(result.getDate()).toBe(16);
+      expect(result.getHours()).toBe(23);
+      expect(result.getMinutes()).toBe(59);
+      expect(result.getSeconds()).toBe(59);
+      expect(result.getMilliseconds()).toBe(999);
+    });
+  });
+
   describe("localNow static method", () => {
     let originalDateTimeFormat: typeof Intl.DateTimeFormat;
 
