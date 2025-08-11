@@ -1,13 +1,5 @@
-import { TZDateMini } from "@date-fns/tz";
+import { TZDate } from "@/lib/utils/tzdate";
 
-export const applyTimezone = (date: Date, srcTz: string, dstTz: string): Date => {
-  if (srcTz === dstTz) return date;
-  return new TZDateMini(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    date.getHours(),
-    date.getMinutes(),
-    srcTz,
-  ).withTimeZone(dstTz);
+export const applyTimezone = (date: TZDate, timezone: string): TZDate => {
+  return date.withTimeZone(timezone);
 };
