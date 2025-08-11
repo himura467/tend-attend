@@ -1,8 +1,9 @@
 import { applyTimezone } from "@/lib/utils/timezone";
+import { TZDate } from "@/lib/utils/tzdate";
 import { z } from "zod";
 
 const ymdDateSchema = z
-  .date()
+  .instanceof(TZDate)
   .refine(
     (date) => {
       const hours = date.getHours();
@@ -17,7 +18,7 @@ const ymdDateSchema = z
 export type YmdDate = z.infer<typeof ymdDateSchema>;
 
 const ymdHm15DateSchema = z
-  .date()
+  .instanceof(TZDate)
   .refine(
     (date) => {
       const minutes = date.getMinutes();
@@ -30,25 +31,25 @@ const ymdHm15DateSchema = z
   .brand<"YmdHm15Date">();
 export type YmdHm15Date = z.infer<typeof ymdHm15DateSchema>;
 
-export const parseYmdDate = (date: Date | string, srcTz: string, dstTz: string): YmdDate => {
+export const parseYmdDate = (date: TZDate | string, timezone?: string): YmdDate => {
   if (typeof date === "string") {
-    date = new Date(date);
+    date = new TZDate(date);
   }
-  const zonedDate = applyTimezone(date, srcTz, dstTz);
+  const zonedDate = timezone ? applyTimezone(date, timezone) : date;
   return ymdDateSchema.parse(zonedDate);
 };
 
-export const parseYmdHm15Date = (date: Date | string, srcTz: string, dstTz: string): YmdHm15Date => {
+export const parseYmdHm15Date = (date: TZDate | string, timezone?: string): YmdHm15Date => {
   if (typeof date === "string") {
-    date = new Date(date);
+    date = new TZDate(date);
   }
-  const zonedDate = applyTimezone(date, srcTz, dstTz);
+  const zonedDate = timezone ? applyTimezone(date, timezone) : date;
   return ymdHm15DateSchema.parse(zonedDate);
 };
 
-export const getCurrentYmdDate = (date: Date | string): YmdDate => {
+export const getCurrentYmdDate = (date: TZDate | string): YmdDate => {
   if (typeof date === "string") {
-    date = new Date(date);
+    date = new TZDate(date);
   }
   date.setHours(0, 0, 0, 0);
   return ymdDateSchema.parse(date);
@@ -62,8 +63,8 @@ export const getYmdHm15DeltaMinutes = (before: YmdHm15Date, after: YmdHm15Date):
   return (after.getTime() - before.getTime()) / (1000 * 60);
 };
 
-export const formatToLocaleYmdHm = (date: Date, srcTz?: string, dstTz?: string): string => {
-  const zonedDate = srcTz && dstTz ? applyTimezone(date, srcTz, dstTz) : date;
+export const formatToLocaleYmdHm = (date: TZDate, timezone?: string): string => {
+  const zonedDate = timezone ? applyTimezone(date, timezone) : date;
   return zonedDate.toLocaleString([], {
     year: "numeric",
     month: "2-digit",
