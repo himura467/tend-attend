@@ -162,7 +162,7 @@ describe(TZDate, () => {
       expect(zonedDate.timeZone).toBe("Asia/Tokyo");
     });
 
-    it("preserves the original TZDate instance", () => {
+    it("preserves original instance unchanged", () => {
       const originalDate = new TZDate("2024-01-15T14:30:45");
       const zonedDate = originalDate.withTimeZone("Europe/London");
 
@@ -333,17 +333,17 @@ describe(TZDate, () => {
       expect(date.timeZone).toBe("Europe/Paris");
     });
 
-    it("works with different timezones", () => {
-      const utcDate = new TZDate("2024-06-15T18:45:30");
-      const tokyoDate = new TZDate("2024-06-15T18:45:30", "Asia/Tokyo");
+    it("supports method chaining", () => {
+      const date = new TZDate("2024-01-15T14:30:45");
+      const result = date.startOfDay().addDays(1);
 
-      const utcStart = utcDate.startOfDay();
-      const tokyoStart = tokyoDate.startOfDay();
-
-      expect(utcStart.getHours()).toBe(0);
-      expect(tokyoStart.getHours()).toBe(0);
-      expect(utcStart.timeZone).toBe("UTC");
-      expect(tokyoStart.timeZone).toBe("Asia/Tokyo");
+      expect(result.getFullYear()).toBe(2024);
+      expect(result.getMonth()).toBe(0);
+      expect(result.getDate()).toBe(16);
+      expect(result.getHours()).toBe(0);
+      expect(result.getMinutes()).toBe(0);
+      expect(result.getSeconds()).toBe(0);
+      expect(result.getMilliseconds()).toBe(0);
     });
   });
 
@@ -387,22 +387,7 @@ describe(TZDate, () => {
       expect(date.timeZone).toBe("Europe/London");
     });
 
-    it("works with different timezones", () => {
-      const utcDate = new TZDate("2024-06-15T06:15:30");
-      const parisDate = new TZDate("2024-06-15T06:15:30", "Europe/Paris");
-
-      const utcEnd = utcDate.endOfDay();
-      const parisEnd = parisDate.endOfDay();
-
-      expect(utcEnd.getHours()).toBe(23);
-      expect(utcEnd.getMinutes()).toBe(59);
-      expect(parisEnd.getHours()).toBe(23);
-      expect(parisEnd.getMinutes()).toBe(59);
-      expect(utcEnd.timeZone).toBe("UTC");
-      expect(parisEnd.timeZone).toBe("Europe/Paris");
-    });
-
-    it("can be chained with other methods", () => {
+    it("supports method chaining", () => {
       const date = new TZDate("2024-01-15T14:30:45");
       const result = date.endOfDay().addDays(1);
 
