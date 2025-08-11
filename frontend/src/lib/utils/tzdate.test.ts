@@ -172,6 +172,108 @@ describe(TZDate, () => {
     });
   });
 
+  describe("addDays method", () => {
+    it("adds positive days to date", () => {
+      const date = new TZDate("2024-01-15T14:30:45");
+      const result = date.addDays(5);
+
+      expect(result).toBe(date); // Returns same instance (mutable)
+      expect(date.getFullYear()).toBe(2024);
+      expect(date.getMonth()).toBe(0);
+      expect(date.getDate()).toBe(20);
+      expect(date.getHours()).toBe(14);
+      expect(date.getMinutes()).toBe(30);
+      expect(date.getSeconds()).toBe(45);
+      expect(date.getMilliseconds()).toBe(0);
+      expect(date.timeZone).toBe("UTC");
+    });
+
+    it("adds negative days (subtracts) from date", () => {
+      const date = new TZDate("2024-01-15T14:30:45");
+      date.addDays(-10);
+
+      expect(date.getFullYear()).toBe(2024);
+      expect(date.getMonth()).toBe(0);
+      expect(date.getDate()).toBe(5);
+      expect(date.getHours()).toBe(14);
+      expect(date.getMinutes()).toBe(30);
+      expect(date.getSeconds()).toBe(45);
+      expect(date.getMilliseconds()).toBe(0);
+    });
+
+    it("handles month boundaries correctly", () => {
+      const date = new TZDate("2024-01-30T12:00:00");
+      date.addDays(5);
+
+      expect(date.getFullYear()).toBe(2024);
+      expect(date.getMonth()).toBe(1);
+      expect(date.getDate()).toBe(4);
+      expect(date.getHours()).toBe(12);
+      expect(date.getMinutes()).toBe(0);
+      expect(date.getSeconds()).toBe(0);
+      expect(date.getMilliseconds()).toBe(0);
+    });
+
+    it("handles year boundaries correctly", () => {
+      const date = new TZDate("2023-12-30T12:00:00");
+      date.addDays(5);
+
+      expect(date.getFullYear()).toBe(2024);
+      expect(date.getMonth()).toBe(0);
+      expect(date.getDate()).toBe(4);
+      expect(date.getHours()).toBe(12);
+      expect(date.getMinutes()).toBe(0);
+      expect(date.getSeconds()).toBe(0);
+      expect(date.getMilliseconds()).toBe(0);
+    });
+
+    it("handles leap year correctly", () => {
+      const date = new TZDate("2024-02-28T12:00:00");
+      date.addDays(1);
+
+      expect(date.getFullYear()).toBe(2024);
+      expect(date.getMonth()).toBe(1);
+      expect(date.getDate()).toBe(29);
+      expect(date.getHours()).toBe(12);
+      expect(date.getMinutes()).toBe(0);
+      expect(date.getSeconds()).toBe(0);
+      expect(date.getMilliseconds()).toBe(0);
+    });
+
+    it("preserves timezone when adding days", () => {
+      const date = new TZDate("2024-01-15T14:30:45", "Asia/Tokyo");
+      date.addDays(7);
+
+      expect(date.getDate()).toBe(22);
+      expect(date.timeZone).toBe("Asia/Tokyo");
+    });
+
+    it("supports method chaining", () => {
+      const date = new TZDate("2024-01-15T14:30:45", "Asia/Tokyo");
+      const result = date.addDays(5).withTimeZone("Africa/Windhoek");
+
+      expect(result).toBeInstanceOf(TZDate);
+      expect(result.getFullYear()).toBe(2024);
+      expect(result.getMonth()).toBe(0);
+      expect(result.getDate()).toBe(20);
+      expect(result.getHours()).toBe(7);
+      expect(result.getMinutes()).toBe(30);
+      expect(result.getSeconds()).toBe(45);
+      expect(result.getMilliseconds()).toBe(0);
+      expect(result.timeZone).toBe("Africa/Windhoek");
+    });
+
+    it("handles zero days correctly", () => {
+      const originalDate = new TZDate("2024-01-15T14:30:45");
+      const originalTime = originalDate.getTime();
+
+      originalDate.addDays(0);
+
+      expect(originalDate.getTime()).toBe(originalTime);
+      expect(originalDate.getDate()).toBe(15);
+    });
+  });
+
   describe("localNow static method", () => {
     let originalDateTimeFormat: typeof Intl.DateTimeFormat;
 

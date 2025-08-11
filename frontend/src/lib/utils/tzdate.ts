@@ -99,6 +99,11 @@ export class TZDate extends TZDateMini {
     return new TZDate(zonedDate, timeZone);
   }
 
+  addDays(days: number): TZDate {
+    this.setDate(this.getDate() + days);
+    return this;
+  }
+
   static localNow(): TZDate {
     return applyTimezone(new TZDate(), Intl.DateTimeFormat().resolvedOptions().timeZone);
   }
