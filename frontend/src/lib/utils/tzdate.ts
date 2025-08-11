@@ -92,4 +92,9 @@ export class TZDate extends TZDateMini {
       );
     }
   }
+
+  withTimeZone(timeZone: string): TZDate {
+    const zonedDate = super.withTimeZone(timeZone);
+    return new TZDate(zonedDate, timeZone);
+  }
 }

@@ -146,22 +146,29 @@ describe(TZDate, () => {
     });
   });
 
-  describe("inheritance from TZDateMini", () => {
-    it("inherits all TZDateMini methods and properties", () => {
-      const date = new TZDate("2024-01-15T14:30:45", "UTC");
-      expect(typeof date.withTimeZone).toBe("function");
+  describe("withTimeZone method", () => {
+    it("returns TZDate instance with new timezone", () => {
+      const originalDate = new TZDate("2024-01-15T14:30:45", "Pacific/Auckland");
+      const zonedDate = originalDate.withTimeZone("Asia/Tokyo");
+
+      expect(zonedDate).toBeInstanceOf(TZDate);
+      expect(zonedDate.getFullYear()).toBe(2024);
+      expect(zonedDate.getMonth()).toBe(0);
+      expect(zonedDate.getDate()).toBe(15);
+      expect(zonedDate.getHours()).toBe(10);
+      expect(zonedDate.getMinutes()).toBe(30);
+      expect(zonedDate.getSeconds()).toBe(45);
+      expect(zonedDate.getMilliseconds()).toBe(0);
+      expect(zonedDate.timeZone).toBe("Asia/Tokyo");
     });
 
-    it("behaves like a regular Date for standard operations", () => {
-      const date = new TZDate("2024-01-15T14:30:45");
-      const regularDate = new Date("2024-01-15T14:30:45");
-      expect(date.getFullYear()).toBe(regularDate.getFullYear());
-      expect(date.getMonth()).toBe(regularDate.getMonth());
-      expect(date.getDate()).toBe(regularDate.getDate());
-      expect(date.getHours()).toBe(regularDate.getHours());
-      expect(date.getMinutes()).toBe(regularDate.getMinutes());
-      expect(date.getSeconds()).toBe(regularDate.getSeconds());
-      expect(date.getMilliseconds()).toBe(regularDate.getMilliseconds());
+    it("preserves the original TZDate instance", () => {
+      const originalDate = new TZDate("2024-01-15T14:30:45");
+      const zonedDate = originalDate.withTimeZone("Europe/London");
+
+      expect(originalDate.timeZone).toBe("UTC");
+      expect(zonedDate.timeZone).toBe("Europe/London");
+      expect(originalDate).not.toBe(zonedDate);
     });
   });
 });
