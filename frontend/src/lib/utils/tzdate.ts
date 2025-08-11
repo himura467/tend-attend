@@ -100,8 +100,9 @@ export class TZDate extends TZDateMini {
   }
 
   addDays(days: number): TZDate {
-    this.setDate(this.getDate() + days);
-    return this;
+    const newDate = new TZDate(this, this.timeZone);
+    newDate.setDate(newDate.getDate() + days);
+    return newDate;
   }
 
   startOfDay(): TZDate {
