@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { TZDate } from "./tzdate";
 
 describe(TZDate, () => {
@@ -398,43 +398,6 @@ describe(TZDate, () => {
       expect(result.getMinutes()).toBe(59);
       expect(result.getSeconds()).toBe(59);
       expect(result.getMilliseconds()).toBe(999);
-    });
-  });
-
-  describe("localNow static method", () => {
-    let originalDateTimeFormat: typeof Intl.DateTimeFormat;
-
-    beforeEach(() => {
-      originalDateTimeFormat = Intl.DateTimeFormat;
-    });
-
-    afterEach(() => {
-      Intl.DateTimeFormat = originalDateTimeFormat;
-    });
-
-    it("creates TZDate with current time in mocked local timezone", () => {
-      // Mock Intl.DateTimeFormat to return a specific timezone
-      Intl.DateTimeFormat = vi.fn(
-        (): Partial<Intl.DateTimeFormat> => ({
-          resolvedOptions: (): Intl.ResolvedDateTimeFormatOptions => ({
-            locale: "en-US",
-            calendar: "gregory",
-            numberingSystem: "latn",
-            timeZone: "America/New_York",
-          }),
-        }),
-      ) as unknown as typeof Intl.DateTimeFormat;
-
-      const before = Date.now();
-      const localDate = TZDate.localNow();
-      const after = Date.now();
-
-      expect(localDate).toBeInstanceOf(TZDate);
-      expect(localDate.timeZone).toBe("America/New_York");
-
-      // Check that the date is within the time range of test execution
-      expect(localDate.getTime()).toBeGreaterThanOrEqual(before);
-      expect(localDate.getTime()).toBeLessThanOrEqual(after);
     });
   });
 });

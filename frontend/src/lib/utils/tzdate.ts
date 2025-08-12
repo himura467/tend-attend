@@ -1,4 +1,3 @@
-import { applyTimezone } from "@/lib/utils/timezone";
 import { TZDateMini } from "@date-fns/tz";
 import { z } from "zod";
 
@@ -115,9 +114,5 @@ export class TZDate extends TZDateMini {
     const newDate = new TZDate(this, this.timeZone);
     newDate.setHours(23, 59, 59, 999);
     return newDate;
-  }
-
-  static localNow(): TZDate {
-    return applyTimezone(new TZDate(), Intl.DateTimeFormat().resolvedOptions().timeZone);
   }
 }
