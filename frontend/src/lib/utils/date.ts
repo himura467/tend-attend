@@ -2,64 +2,63 @@ import { applyTimezone } from "@/lib/utils/timezone";
 import { TZDate } from "@/lib/utils/tzdate";
 import { z } from "zod";
 
-const ymdDateSchema = z
-  .instanceof(TZDate)
-  .refine(
-    (date) => {
-      const hours = date.getHours();
-      const minutes = date.getMinutes();
-      const seconds = date.getSeconds();
-      const milliseconds = date.getMilliseconds();
-      return hours === 0 && minutes === 0 && seconds === 0 && milliseconds === 0;
-    },
-    { message: "Date must only contain YYYY-MM-DD (time part must be 00:00:00.000)." },
-  )
-  .brand<"YmdDate">();
-export type YmdDate = z.infer<typeof ymdDateSchema>;
+const ymdDateSchema = z.instanceof(TZDate).refine(
+  (date) => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+    const milliseconds = date.getMilliseconds();
+    return hours === 0 && minutes === 0 && seconds === 0 && milliseconds === 0;
+  },
+  { message: "Date must only contain YYYY-MM-DD (time part must be 00:00:00.000)." },
+);
 
-const ymdHm15DateSchema = z
-  .instanceof(TZDate)
-  .refine(
-    (date) => {
-      const minutes = date.getMinutes();
-      const seconds = date.getSeconds();
-      const milliseconds = date.getMilliseconds();
-      return [0, 15, 30, 45].includes(minutes) && seconds === 0 && milliseconds === 0;
-    },
-    { message: "Minutes must be 0, 15, 30, or 45, and seconds/milliseconds must be 0." },
-  )
-  .brand<"YmdHm15Date">();
-export type YmdHm15Date = z.infer<typeof ymdHm15DateSchema>;
+const ymdHm15DateSchema = z.instanceof(TZDate).refine(
+  (date) => {
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+    const milliseconds = date.getMilliseconds();
+    return [0, 15, 30, 45].includes(minutes) && seconds === 0 && milliseconds === 0;
+  },
+  { message: "Minutes must be 0, 15, 30, or 45, and seconds/milliseconds must be 0." },
+);
 
-export const parseYmdDate = (date: TZDate | string, timezone?: string): YmdDate => {
+export const parseYmdDate = (date: TZDate | string, timezone?: string): TZDate => {
   if (typeof date === "string") {
     date = new TZDate(date);
   }
   const zonedDate = timezone ? applyTimezone(date, timezone) : date;
-  return ymdDateSchema.parse(zonedDate);
+  ymdDateSchema.parse(zonedDate);
+  return zonedDate;
 };
 
-export const parseYmdHm15Date = (date: TZDate | string, timezone?: string): YmdHm15Date => {
+export const parseYmdHm15Date = (date: TZDate | string, timezone?: string): TZDate => {
   if (typeof date === "string") {
     date = new TZDate(date);
   }
   const zonedDate = timezone ? applyTimezone(date, timezone) : date;
-  return ymdHm15DateSchema.parse(zonedDate);
+  ymdHm15DateSchema.parse(zonedDate);
+  return zonedDate;
 };
 
-export const getCurrentYmdDate = (date: TZDate | string): YmdDate => {
+export const getCurrentYmdDate = (date: TZDate | string): TZDate => {
   if (typeof date === "string") {
     date = new TZDate(date);
   }
-  date.setHours(0, 0, 0, 0);
-  return ymdDateSchema.parse(date);
+  const current = date.startOfDay();
+  ymdDateSchema.parse(current);
+  return current;
 };
 
-export const getYmdDeltaDays = (before: YmdDate, after: YmdDate): number => {
+export const getYmdDeltaDays = (before: TZDate, after: TZDate): number => {
+  ymdDateSchema.parse(before);
+  ymdDateSchema.parse(after);
   return (after.getTime() - before.getTime()) / (1000 * 60 * 60 * 24);
 };
 
-export const getYmdHm15DeltaMinutes = (before: YmdHm15Date, after: YmdHm15Date): number => {
+export const getYmdHm15DeltaMinutes = (before: TZDate, after: TZDate): number => {
+  ymdHm15DateSchema.parse(before);
+  ymdHm15DateSchema.parse(after);
   return (after.getTime() - before.getTime()) / (1000 * 60);
 };
 
