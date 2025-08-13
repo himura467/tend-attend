@@ -1,13 +1,6 @@
 import { TZDate } from "@/lib/utils/tzdate";
 import { describe, expect, it } from "vitest";
-import {
-  formatToLocaleYmdHm,
-  getCurrentYmdDate,
-  getYmdDeltaDays,
-  getYmdHm15DeltaMinutes,
-  parseYmdDate,
-  parseYmdHm15Date,
-} from "./date";
+import { formatToLocaleYmdHm, getYmdDeltaDays, getYmdHm15DeltaMinutes, parseYmdDate, parseYmdHm15Date } from "./date";
 
 describe(parseYmdDate, () => {
   it("accepts TZDate with midnight time", () => {
@@ -107,44 +100,6 @@ describe(parseYmdHm15Date, () => {
   });
 });
 
-describe(getCurrentYmdDate, () => {
-  it("sets time to midnight for Date object", () => {
-    const date = new TZDate(2024, 0, 15, 14, 30, 45, 123);
-    const result = getCurrentYmdDate(date);
-    expect(result.getFullYear()).toBe(2024);
-    expect(result.getMonth()).toBe(0);
-    expect(result.getDate()).toBe(15);
-    expect(result.getHours()).toBe(0);
-    expect(result.getMinutes()).toBe(0);
-    expect(result.getSeconds()).toBe(0);
-    expect(result.getMilliseconds()).toBe(0);
-  });
-
-  it("sets time to midnight for string input", () => {
-    const result = getCurrentYmdDate("2024-01-15T14:30:45.123");
-    expect(result.getFullYear()).toBe(2024);
-    expect(result.getMonth()).toBe(0);
-    expect(result.getDate()).toBe(15);
-    expect(result.getHours()).toBe(0);
-    expect(result.getMinutes()).toBe(0);
-    expect(result.getSeconds()).toBe(0);
-    expect(result.getMilliseconds()).toBe(0);
-  });
-
-  it("preserves timezone information", () => {
-    const date = new TZDate("2024-01-15T14:30:45.123", "Asia/Tokyo");
-    const result = getCurrentYmdDate(date);
-    expect(result.getFullYear()).toBe(2024);
-    expect(result.getMonth()).toBe(0);
-    expect(result.getDate()).toBe(15);
-    expect(result.getHours()).toBe(0);
-    expect(result.getMinutes()).toBe(0);
-    expect(result.getSeconds()).toBe(0);
-    expect(result.getMilliseconds()).toBe(0);
-    expect(result.timeZone).toBe("Asia/Tokyo");
-  });
-});
-
 describe(getYmdDeltaDays, () => {
   it("calculates positive day difference correctly", () => {
     const before = parseYmdDate(new TZDate(2024, 0, 10, 0, 0, 0, 0));
@@ -170,13 +125,17 @@ describe(getYmdDeltaDays, () => {
   it("validates before date using ymdDateSchema", () => {
     const before = new TZDate(2024, 0, 10, 14, 30, 0, 0); // Invalid: non-midnight time
     const after = parseYmdDate(new TZDate(2024, 0, 15, 0, 0, 0, 0));
-    expect(() => getYmdDeltaDays(before, after)).toThrow("Date must only contain YYYY-MM-DD (time part must be 00:00:00.000).");
+    expect(() => getYmdDeltaDays(before, after)).toThrow(
+      "Date must only contain YYYY-MM-DD (time part must be 00:00:00.000).",
+    );
   });
 
   it("validates after date using ymdDateSchema", () => {
     const before = parseYmdDate(new TZDate(2024, 0, 10, 0, 0, 0, 0));
     const after = new TZDate(2024, 0, 15, 14, 30, 0, 0); // Invalid: non-midnight time
-    expect(() => getYmdDeltaDays(before, after)).toThrow("Date must only contain YYYY-MM-DD (time part must be 00:00:00.000).");
+    expect(() => getYmdDeltaDays(before, after)).toThrow(
+      "Date must only contain YYYY-MM-DD (time part must be 00:00:00.000).",
+    );
   });
 });
 
@@ -205,13 +164,17 @@ describe(getYmdHm15DeltaMinutes, () => {
   it("validates before time using ymdHm15DateSchema", () => {
     const before = new TZDate(2024, 0, 15, 14, 20, 0, 0); // Invalid: not 15-minute interval
     const after = parseYmdHm15Date(new TZDate(2024, 0, 15, 14, 30, 0, 0));
-    expect(() => getYmdHm15DeltaMinutes(before, after)).toThrow("Minutes must be 0, 15, 30, or 45, and seconds/milliseconds must be 0.");
+    expect(() => getYmdHm15DeltaMinutes(before, after)).toThrow(
+      "Minutes must be 0, 15, 30, or 45, and seconds/milliseconds must be 0.",
+    );
   });
 
   it("validates after time using ymdHm15DateSchema", () => {
     const before = parseYmdHm15Date(new TZDate(2024, 0, 15, 14, 15, 0, 0));
     const after = new TZDate(2024, 0, 15, 14, 35, 0, 0); // Invalid: not 15-minute interval
-    expect(() => getYmdHm15DeltaMinutes(before, after)).toThrow("Minutes must be 0, 15, 30, or 45, and seconds/milliseconds must be 0.");
+    expect(() => getYmdHm15DeltaMinutes(before, after)).toThrow(
+      "Minutes must be 0, 15, 30, or 45, and seconds/milliseconds must be 0.",
+    );
   });
 });
 

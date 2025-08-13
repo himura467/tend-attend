@@ -41,15 +41,6 @@ export const parseYmdHm15Date = (date: TZDate | string, timezone?: string): TZDa
   return zonedDate;
 };
 
-export const getCurrentYmdDate = (date: TZDate | string): TZDate => {
-  if (typeof date === "string") {
-    date = new TZDate(date);
-  }
-  const current = date.startOfDay();
-  ymdDateSchema.parse(current);
-  return current;
-};
-
 export const getYmdDeltaDays = (before: TZDate, after: TZDate): number => {
   ymdDateSchema.parse(before);
   ymdDateSchema.parse(after);
