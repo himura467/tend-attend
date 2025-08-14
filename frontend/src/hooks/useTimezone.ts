@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import React from "react";
 
 export const useTimezone = (): string => {
-  const [timezone, setTimezone] = useState<string>("");
-
-  useEffect(() => {
-    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  return React.useMemo(() => {
+    if (typeof window === "undefined") {
+      return "UTC";
+    }
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
   }, []);
-
-  return timezone;
 };
