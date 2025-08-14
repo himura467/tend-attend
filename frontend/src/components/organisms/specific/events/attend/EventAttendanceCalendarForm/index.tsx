@@ -3,19 +3,30 @@
 import { Calendar } from "@/components/organisms/shared/events/Calendar";
 import { EventAttendanceForm } from "@/components/organisms/specific/events/attend/EventAttendanceForm";
 import { EventAttendanceSchedule } from "@/components/organisms/specific/events/attend/EventAttendanceSchedule";
+import { useLocalNow } from "@/hooks/useLocalNow";
+import { useTimezone } from "@/hooks/useTimezone";
 import { AttendanceTimeForecastsWithUsername } from "@/lib/api/dtos/event";
 import { getAttendanceHistory, getAttendanceTimeForecasts, getFollowingEvents } from "@/lib/api/events";
 import { Attendance } from "@/lib/types/event/attendance";
 import { parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
 import { Event, mapEventsToFullCalendar } from "@/lib/utils/fullcalendar";
 import { applyTimezone } from "@/lib/utils/timezone";
-import { EventClickArg } from "@fullcalendar/core";
+import { TZDate } from "@/lib/utils/tzdate";
 import React from "react";
 import { toast } from "sonner";
 
 export const EventAttendanceCalendarForm = (): React.JSX.Element => {
+  const timezone = useTimezone();
+  const localNow = useLocalNow();
+
   const [events, setEvents] = React.useState<Event[]>([]);
-  const [selectedEvent, setSelectedEvent] = React.useState<EventClickArg | null>(null);
+  const [selectedEvent, setSelectedEvent] = React.useState<{
+    id: string;
+    start: TZDate;
+    end: TZDate;
+    title: string;
+    allDay: boolean;
+  } | null>(null);
   const [currentAttendances, setCurrentAttendances] = React.useState<Attendance[]>([]);
   const [attendanceHistory, setAttendanceHistory] = React.useState<{ action: string; acted_at: string }[]>([]);
   const [isForecast, setIsForecast] = React.useState(false);
@@ -31,19 +42,17 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
       if (response.error_codes.length === 0) {
         setEvents(
           response.events.map((event) => {
-            const dtstart = new Date(Date.parse(event.dtstart));
-            const dtend = new Date(Date.parse(event.dtend));
+            const dtstart = new TZDate(event.dtstart);
+            const dtend = new TZDate(event.dtend);
 
             return {
               id: event.id,
               summary: event.summary,
               location: event.location,
               dtstart: event.is_all_day
-                ? parseYmdDate(dtstart, "UTC", event.timezone)
-                : parseYmdHm15Date(dtstart, "UTC", event.timezone),
-              dtend: event.is_all_day
-                ? parseYmdDate(dtend, "UTC", event.timezone)
-                : parseYmdHm15Date(dtend, "UTC", event.timezone),
+                ? parseYmdDate(dtstart, event.timezone)
+                : parseYmdHm15Date(dtstart, event.timezone),
+              dtend: event.is_all_day ? parseYmdDate(dtend, event.timezone) : parseYmdHm15Date(dtend, event.timezone),
               isAllDay: event.is_all_day,
               recurrences: event.recurrence_list,
               timezone: event.timezone,
@@ -77,15 +86,12 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
   }, [fetchEvents, fetchAttendanceTimeForecasts]);
 
   const fetchAttendances = React.useCallback(
-    async (eventId: string, eventStart: Date, eventEnd: Date): Promise<void> => {
-      const now = new Date();
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-      if (eventStart <= now) {
+    async (eventId: string, eventStart: TZDate, eventEnd: TZDate): Promise<void> => {
+      if (eventStart <= localNow) {
         // If event start time is before current time, retrieve from history
         setIsForecast(false);
 
-        const response = await getAttendanceHistory(eventId, applyTimezone(eventStart, tz, "UTC").toISOString());
+        const response = await getAttendanceHistory(eventId, applyTimezone(eventStart, "UTC").toISOString());
         setAttendanceHistory(response.attendances_with_username.attendances);
         const attendLogs = response.attendances_with_username.attendances.filter((a) => a.action === "attend");
         const leaveLogs = response.attendances_with_username.attendances.filter((a) => a.action === "leave");
@@ -94,15 +100,12 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
         const attended_at =
           attendLogs.length > 0
             ? applyTimezone(
-                new Date(
-                  Date.parse(
-                    attendLogs.reduce((earliest, current) =>
-                      new Date(current.acted_at) < new Date(earliest.acted_at) ? current : earliest,
-                    ).acted_at,
-                  ),
+                new TZDate(
+                  attendLogs.reduce((earliest, current) =>
+                    new Date(current.acted_at) < new Date(earliest.acted_at) ? current : earliest,
+                  ).acted_at,
                 ),
-                "UTC",
-                tz,
+                timezone,
               )
             : null;
 
@@ -111,15 +114,12 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
         const left_at =
           leaveLogs.length > 0
             ? applyTimezone(
-                new Date(
-                  Date.parse(
-                    leaveLogs.reduce((latest, current) =>
-                      new Date(current.acted_at) > new Date(latest.acted_at) ? current : latest,
-                    ).acted_at,
-                  ),
+                new TZDate(
+                  leaveLogs.reduce((latest, current) =>
+                    new Date(current.acted_at) > new Date(latest.acted_at) ? current : latest,
+                  ).acted_at,
                 ),
-                "UTC",
-                tz,
+                timezone,
               )
             : eventEnd;
 
@@ -157,60 +157,57 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
             userName: userForecast.username,
             userAttendances: userForecast.attendance_time_forecasts
               .filter(
-                (forecast) =>
-                  applyTimezone(new Date(Date.parse(forecast.start)), "UTC", tz).getTime() === eventStart.getTime(),
+                (forecast) => applyTimezone(new TZDate(forecast.start), timezone).getTime() === eventStart.getTime(),
               )
               .map((forecast) => ({
                 userId: parseInt(userId),
-                attendedAt: applyTimezone(new Date(Date.parse(forecast.attended_at)), "UTC", tz),
+                attendedAt: applyTimezone(new TZDate(forecast.attended_at), timezone),
                 leftAt: applyTimezone(
-                  new Date(new Date(Date.parse(forecast.attended_at)).getTime() + forecast.duration * 1000),
-                  "UTC",
-                  tz,
+                  new TZDate(new TZDate(forecast.attended_at).getTime() + forecast.duration * 1000),
+                  timezone,
                 ),
               })),
           })),
         );
       }
     },
-    [attendanceTimeForecastsWithUsername],
+    [attendanceTimeForecastsWithUsername, localNow, timezone],
   );
 
-  const onEventClick = (eventInfo: EventClickArg): void => {
+  const onEventClick = (eventInfo: {
+    id: string;
+    start: TZDate;
+    end: TZDate;
+    title: string;
+    allDay: boolean;
+  }): void => {
     setSelectedEvent(eventInfo);
-    if (eventInfo.event.id && eventInfo.event.start && eventInfo.event.end) {
-      void fetchAttendances(eventInfo.event.id, eventInfo.event.start, eventInfo.event.end);
-    }
+    void fetchAttendances(eventInfo.id, eventInfo.start, eventInfo.end);
   };
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <div className="md:col-span-2">
-        <Calendar events={mapEventsToFullCalendar(events)} onEventClick={onEventClick} />
+        <Calendar events={mapEventsToFullCalendar(events, timezone)} onEventClick={onEventClick} />
       </div>
       <div className="space-y-4">
         <EventAttendanceForm
-          eventId={selectedEvent?.event.id || null}
-          eventSummary={selectedEvent?.event.title || null}
-          eventStart={selectedEvent?.event.start || null}
-          eventEnd={selectedEvent?.event.end || null}
-          attendances={
-            selectedEvent?.event.id && selectedEvent?.event.start && selectedEvent?.event.end ? attendanceHistory : []
-          }
+          eventId={selectedEvent?.id || null}
+          eventSummary={selectedEvent?.title || null}
+          eventStart={selectedEvent?.start || null}
+          eventEnd={selectedEvent?.end || null}
+          attendances={selectedEvent?.id && selectedEvent?.start && selectedEvent?.end ? attendanceHistory : []}
           onAttendanceUpdate={fetchAttendances}
         />
-        {selectedEvent?.event.id &&
-          selectedEvent?.event.start &&
-          selectedEvent?.event.end &&
-          selectedEvent?.event.allDay && (
-            <EventAttendanceSchedule
-              eventStart={selectedEvent?.event.start}
-              eventEnd={selectedEvent?.event.end}
-              isEventAllDay={selectedEvent?.event.allDay}
-              attendances={currentAttendances}
-              isForecast={isForecast}
-            />
-          )}
+        {selectedEvent?.id && selectedEvent?.start && selectedEvent?.end && selectedEvent?.allDay && (
+          <EventAttendanceSchedule
+            eventStart={selectedEvent?.start}
+            eventEnd={selectedEvent?.end}
+            isEventAllDay={selectedEvent?.allDay}
+            attendances={currentAttendances}
+            isForecast={isForecast}
+          />
+        )}
       </div>
     </div>
   );
