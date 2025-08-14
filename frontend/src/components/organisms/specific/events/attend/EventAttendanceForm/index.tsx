@@ -207,13 +207,15 @@ export const EventAttendanceForm = ({
     <Card>
       <CardHeader>
         <CardTitle>
-          {eventSummary && eventStart ? `${eventSummary} at ${eventStart.toLocaleString([], {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}` : "Select an event"}
+          {eventSummary && eventStart
+            ? `${eventSummary} at ${eventStart.toLocaleString([], {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}`
+            : "Select an event"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -302,13 +304,15 @@ export const EventAttendanceForm = ({
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-sm">
-                        <span>{new TZDate(attendance.acted_at).withTimeZone(timezone).toLocaleString([], {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}</span>
+                        <span>
+                          {new TZDate(attendance.acted_at).withTimeZone(timezone).toLocaleString([], {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
                         <div className="flex items-center gap-2">
                           <span className={attendance.action === "attend" ? "text-green-600" : "text-red-600"}>
                             {attendance.action === "attend" ? "Attended" : "Left"}
