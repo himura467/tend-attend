@@ -7,7 +7,6 @@ import { useLocalNow } from "@/hooks/useLocalNow";
 import { useTimezone } from "@/hooks/useTimezone";
 import { attendEvent, getGuestAttendanceStatus, updateAttendances } from "@/lib/api/events";
 import { AttendanceAction, AttendanceActionType } from "@/lib/types/event/attendance";
-import { formatToLocaleYmdHm } from "@/lib/utils/date";
 import { TZDate } from "@/lib/utils/tzdate";
 import { Edit, Plus, Save, Trash2, X } from "lucide-react";
 import React from "react";
@@ -208,7 +207,13 @@ export const EventAttendanceForm = ({
     <Card>
       <CardHeader>
         <CardTitle>
-          {eventSummary && eventStart ? `${eventSummary} at ${formatToLocaleYmdHm(eventStart)}` : "Select an event"}
+          {eventSummary && eventStart ? `${eventSummary} at ${eventStart.toLocaleString([], {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}` : "Select an event"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -297,7 +302,13 @@ export const EventAttendanceForm = ({
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-sm">
-                        <span>{formatToLocaleYmdHm(new TZDate(attendance.acted_at), timezone)}</span>
+                        <span>{new TZDate(attendance.acted_at).withTimeZone(timezone).toLocaleString([], {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}</span>
                         <div className="flex items-center gap-2">
                           <span className={attendance.action === "attend" ? "text-green-600" : "text-red-600"}>
                             {attendance.action === "attend" ? "Attended" : "Left"}

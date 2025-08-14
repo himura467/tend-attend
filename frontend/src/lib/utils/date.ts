@@ -51,14 +51,3 @@ export const getYmdHm15DeltaMinutes = (before: TZDate, after: TZDate): number =>
   ymdHm15DateSchema.parse(after);
   return (after.getTime() - before.getTime()) / (1000 * 60);
 };
-
-export const formatToLocaleYmdHm = (date: TZDate, timezone?: string): string => {
-  const zonedDate = timezone ? date.withTimeZone(timezone) : date;
-  return zonedDate.toLocaleString([], {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
