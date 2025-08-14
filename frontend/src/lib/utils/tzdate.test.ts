@@ -158,6 +158,24 @@ describe(TZDate, () => {
     });
   });
 
+  describe("toISOString method", () => {
+    it("returns ISO string", () => {
+      const date = new TZDate("2024-01-15T14:30:45", "Pacific/Auckland");
+      const isoString = date.toISOString();
+
+      expect(isoString).toBe("2024-01-15T01:30:45.000Z");
+      expect(new Date(isoString).getTime()).toBe(date.getTime());
+    });
+
+    it("handles milliseconds correctly", () => {
+      const date = new TZDate("2024-01-15T14:30:45.123", "Asia/Tokyo");
+      const isoString = date.toISOString();
+
+      expect(isoString).toBe("2024-01-15T05:30:45.123Z");
+      expect(new Date(isoString).getTime()).toBe(date.getTime());
+    });
+  });
+
   describe("withTimeZone method", () => {
     it("returns TZDate instance with new timezone", () => {
       const originalDate = new TZDate("2024-01-15T14:30:45", "Pacific/Auckland");

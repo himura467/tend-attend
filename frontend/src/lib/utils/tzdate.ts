@@ -94,6 +94,10 @@ export class TZDate extends TZDateMini {
     }
   }
 
+  toISOString(): string {
+    return super.toISOString();
+  }
+
   withTimeZone(timeZone: string): TZDate {
     const zonedDate = super.withTimeZone(timeZone);
     return new TZDate(zonedDate, timeZone);
