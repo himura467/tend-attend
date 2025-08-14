@@ -10,7 +10,6 @@ import { getAttendanceHistory, getAttendanceTimeForecasts, getFollowingEvents } 
 import { Attendance } from "@/lib/types/event/attendance";
 import { parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
 import { Event, mapEventsToFullCalendar } from "@/lib/utils/fullcalendar";
-import { applyTimezone } from "@/lib/utils/timezone";
 import { TZDate } from "@/lib/utils/tzdate";
 import React from "react";
 import { toast } from "sonner";
@@ -91,7 +90,7 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
         // If event start time is before current time, retrieve from history
         setIsForecast(false);
 
-        const response = await getAttendanceHistory(eventId, applyTimezone(eventStart, "UTC").toISOString());
+        const response = await getAttendanceHistory(eventId, eventStart.withTimeZone("UTC").toISOString());
         setAttendanceHistory(response.attendances_with_username.attendances);
         const attendLogs = response.attendances_with_username.attendances.filter((a) => a.action === "attend");
         const leaveLogs = response.attendances_with_username.attendances.filter((a) => a.action === "leave");
@@ -99,28 +98,22 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
         // Set the earliest acted_at that satisfies the condition `action === "attend"` as attended_at
         const attended_at =
           attendLogs.length > 0
-            ? applyTimezone(
-                new TZDate(
-                  attendLogs.reduce((earliest, current) =>
-                    new Date(current.acted_at) < new Date(earliest.acted_at) ? current : earliest,
-                  ).acted_at,
-                ),
-                timezone,
-              )
+            ? new TZDate(
+                attendLogs.reduce((earliest, current) =>
+                  new Date(current.acted_at) < new Date(earliest.acted_at) ? current : earliest,
+                ).acted_at,
+              ).withTimeZone(timezone)
             : null;
 
         // Set the latest acted_at that satisfies the condition `action === "leave"` as left_at
         // If leave log doesn't exist, use event.end
         const left_at =
           leaveLogs.length > 0
-            ? applyTimezone(
-                new TZDate(
-                  leaveLogs.reduce((latest, current) =>
-                    new Date(current.acted_at) > new Date(latest.acted_at) ? current : latest,
-                  ).acted_at,
-                ),
-                timezone,
-              )
+            ? new TZDate(
+                leaveLogs.reduce((latest, current) =>
+                  new Date(current.acted_at) > new Date(latest.acted_at) ? current : latest,
+                ).acted_at,
+              ).withTimeZone(timezone)
             : eventEnd;
 
         if (attended_at) {
@@ -157,13 +150,12 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
             userName: userForecast.username,
             userAttendances: userForecast.attendance_time_forecasts
               .filter(
-                (forecast) => applyTimezone(new TZDate(forecast.start), timezone).getTime() === eventStart.getTime(),
+                (forecast) => new TZDate(forecast.start).withTimeZone(timezone).getTime() === eventStart.getTime(),
               )
               .map((forecast) => ({
                 userId: parseInt(userId),
-                attendedAt: applyTimezone(new TZDate(forecast.attended_at), timezone),
-                leftAt: applyTimezone(
-                  new TZDate(new TZDate(forecast.attended_at).getTime() + forecast.duration * 1000),
+                attendedAt: new TZDate(forecast.attended_at).withTimeZone(timezone),
+                leftAt: new TZDate(new TZDate(forecast.attended_at).getTime() + forecast.duration * 1000).withTimeZone(
                   timezone,
                 ),
               })),

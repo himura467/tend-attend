@@ -6,7 +6,6 @@ import { Switch } from "@/components/ui/switch";
 import { useTimezone } from "@/hooks/useTimezone";
 import { cn } from "@/lib/utils";
 import { areEqualByRegExps } from "@/lib/utils/array";
-import { applyTimezone } from "@/lib/utils/timezone";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { CalendarIcon, Clock, Repeat } from "lucide-react";
@@ -72,7 +71,7 @@ export const DateTimePicker = ({
   }, []);
 
   const recurrencesOptions = React.useMemo((): RecurrencesOption[] => {
-    const localStart = applyTimezone(startDate, browserTimezone);
+    const localStart = startDate.withTimeZone(browserTimezone);
     const month = (localStart.getMonth() + 1).toString();
     const day = localStart.getDate().toString();
     const hour = localStart.getHours().toString();

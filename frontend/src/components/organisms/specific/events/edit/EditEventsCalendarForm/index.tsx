@@ -7,7 +7,6 @@ import { useTimezone } from "@/hooks/useTimezone";
 import { createEvent, getMyEvents } from "@/lib/api/events";
 import { parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
 import { Event, mapEventsToFullCalendar } from "@/lib/utils/fullcalendar";
-import { applyTimezone } from "@/lib/utils/timezone";
 import { TZDate } from "@/lib/utils/tzdate";
 import React from "react";
 import { toast } from "sonner";
@@ -65,8 +64,8 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
         event: {
           summary: values.summary,
           location: values.location,
-          dtstart: applyTimezone(startDate, "UTC").toISOString(),
-          dtend: applyTimezone(endDate, "UTC").toISOString(),
+          dtstart: startDate.withTimeZone("UTC").toISOString(),
+          dtend: endDate.withTimeZone("UTC").toISOString(),
           is_all_day: isAllDay,
           recurrence_list: recurrences,
           timezone: timezone,

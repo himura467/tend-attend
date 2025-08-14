@@ -9,13 +9,6 @@ vi.mock("./useTimezone", () => ({
   useTimezone: vi.fn(),
 }));
 
-// Mock the applyTimezone function
-vi.mock("@/lib/utils/timezone", () => ({
-  applyTimezone: vi.fn((date: TZDate, timezone: string) => {
-    return date.withTimeZone(timezone);
-  }),
-}));
-
 describe(useLocalNow, () => {
   const mockUseTimezone = vi.mocked(useTimezone);
 

@@ -1,4 +1,3 @@
-import { applyTimezone } from "@/lib/utils/timezone";
 import { TZDate } from "@/lib/utils/tzdate";
 import { z } from "zod";
 
@@ -27,7 +26,7 @@ export const parseYmdDate = (date: TZDate | string, timezone?: string): TZDate =
   if (typeof date === "string") {
     date = new TZDate(date);
   }
-  const zonedDate = timezone ? applyTimezone(date, timezone) : date;
+  const zonedDate = timezone ? date.withTimeZone(timezone) : date;
   ymdDateSchema.parse(zonedDate);
   return zonedDate;
 };
@@ -36,7 +35,7 @@ export const parseYmdHm15Date = (date: TZDate | string, timezone?: string): TZDa
   if (typeof date === "string") {
     date = new TZDate(date);
   }
-  const zonedDate = timezone ? applyTimezone(date, timezone) : date;
+  const zonedDate = timezone ? date.withTimeZone(timezone) : date;
   ymdHm15DateSchema.parse(zonedDate);
   return zonedDate;
 };
@@ -54,7 +53,7 @@ export const getYmdHm15DeltaMinutes = (before: TZDate, after: TZDate): number =>
 };
 
 export const formatToLocaleYmdHm = (date: TZDate, timezone?: string): string => {
-  const zonedDate = timezone ? applyTimezone(date, timezone) : date;
+  const zonedDate = timezone ? date.withTimeZone(timezone) : date;
   return zonedDate.toLocaleString([], {
     year: "numeric",
     month: "2-digit",

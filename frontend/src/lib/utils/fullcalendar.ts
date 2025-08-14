@@ -1,6 +1,5 @@
 import { getYmdDeltaDays, getYmdHm15DeltaMinutes, parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
 import { parseRecurrence } from "@/lib/utils/icalendar";
-import { applyTimezone } from "@/lib/utils/timezone";
 import { TZDate } from "@/lib/utils/tzdate";
 import { Options as RRuleOptions } from "rrule";
 
@@ -48,8 +47,8 @@ export const mapEventsToFullCalendar = (
     const baseEvent = {
       id: event.id,
       title: event.summary,
-      start: event.isAllDay ? event.dtstart : applyTimezone(event.dtstart, timezone),
-      end: event.isAllDay ? event.dtend : applyTimezone(event.dtend, timezone),
+      start: event.isAllDay ? event.dtstart : event.dtstart.withTimeZone(timezone),
+      end: event.isAllDay ? event.dtend : event.dtend.withTimeZone(timezone),
       allDay: event.isAllDay,
     };
 
@@ -88,8 +87,8 @@ export const mapEventsToFullCalendar = (
       results.push({
         id: `${baseEvent.id}-rdate-${index}`,
         title: baseEvent.title,
-        start: baseEvent.allDay ? rdateStart : applyTimezone(rdateStart, timezone),
-        end: baseEvent.allDay ? rdateEnd : applyTimezone(rdateEnd, timezone),
+        start: baseEvent.allDay ? rdateStart : rdateStart.withTimeZone(timezone),
+        end: baseEvent.allDay ? rdateEnd : rdateEnd.withTimeZone(timezone),
         allDay: baseEvent.allDay,
         extendedProps: {
           originalId: baseEvent.id,

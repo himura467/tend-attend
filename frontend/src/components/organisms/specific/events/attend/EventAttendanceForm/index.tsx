@@ -8,7 +8,6 @@ import { useTimezone } from "@/hooks/useTimezone";
 import { attendEvent, getGuestAttendanceStatus, updateAttendances } from "@/lib/api/events";
 import { AttendanceAction, AttendanceActionType } from "@/lib/types/event/attendance";
 import { formatToLocaleYmdHm } from "@/lib/utils/date";
-import { applyTimezone } from "@/lib/utils/timezone";
 import { TZDate } from "@/lib/utils/tzdate";
 import { Edit, Plus, Save, Trash2, X } from "lucide-react";
 import React from "react";
@@ -46,7 +45,7 @@ export const EventAttendanceForm = ({
   const [editableAttendances, setEditableAttendances] = React.useState<EditableAttendance[]>([]);
   const [isEditMode, setIsEditMode] = React.useState(false);
 
-  const utcEventStart = eventStart ? applyTimezone(eventStart, "UTC") : null;
+  const utcEventStart = eventStart ? eventStart.withTimeZone("UTC") : null;
 
   const mapAttendancesToEditable = (attendances: { action: string; acted_at: string }[]): EditableAttendance[] => {
     return attendances.map((attendance) => ({
@@ -185,7 +184,7 @@ export const EventAttendanceForm = ({
 
   const formatDateForLocalInput = (date: TZDate, timezone: string): string => {
     // Apply the target timezone to the date first
-    const zonedDate = applyTimezone(date, timezone);
+    const zonedDate = date.withTimeZone(timezone);
     // Format date for datetime-local input
     // This maintains the actual local time values in the target timezone
     const year = zonedDate.getFullYear();
@@ -200,7 +199,7 @@ export const EventAttendanceForm = ({
     // inputDateTime is in format "2024-05-28T14:30" (datetime-local input)
     // We need to treat this as local time and convert to UTC
     const localDate = new TZDate(inputDateTime, timezone);
-    const utcDate = applyTimezone(localDate, "UTC");
+    const utcDate = localDate.withTimeZone("UTC");
     // Format to match existing API format: remove milliseconds and Z suffix
     return utcDate.toISOString().slice(0, 19);
   };

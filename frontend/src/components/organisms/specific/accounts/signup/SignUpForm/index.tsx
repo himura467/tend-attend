@@ -14,7 +14,6 @@ import { Gender, GenderRecord, GenderType } from "@/lib/types/account/gender";
 import { cn } from "@/lib/utils";
 import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
-import { applyTimezone } from "@/lib/utils/timezone";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { X } from "lucide-react";
@@ -61,7 +60,7 @@ export const SignUpForm = (): React.JSX.Element => {
         username: username,
         password: password,
         nickname: nickname,
-        birth_date: applyTimezone(birthDate!, "UTC").toISOString(),
+        birth_date: birthDate!.withTimeZone("UTC").toISOString(),
         gender: gender,
         email: email,
         followee_usernames: followeeUsernames,
