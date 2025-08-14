@@ -2,22 +2,27 @@
 
 import { Calendar } from "@/components/organisms/shared/events/Calendar";
 import { CreateEventForm, formSchema } from "@/components/organisms/specific/events/edit/CreateEventForm";
+import { useLocalNow } from "@/hooks/useLocalNow";
+import { useTimezone } from "@/hooks/useTimezone";
 import { createEvent, getMyEvents } from "@/lib/api/events";
-import { getCurrentYmdDate, parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
+import { parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
 import { Event, mapEventsToFullCalendar } from "@/lib/utils/fullcalendar";
 import { applyTimezone } from "@/lib/utils/timezone";
-import { addDays, startOfDay } from "date-fns";
+import { TZDate } from "@/lib/utils/tzdate";
 import React from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
 export const EditEventsCalendarForm = (): React.JSX.Element => {
+  const browserTimezone = useTimezone();
+  const localNow = useLocalNow();
+
   const [events, setEvents] = React.useState<Event[]>([]);
-  const [startDate, setStartDate] = React.useState<Date>(getCurrentYmdDate(new Date()));
-  const [endDate, setEndDate] = React.useState<Date>(addDays(getCurrentYmdDate(new Date()), 1));
+  const [startDate, setStartDate] = React.useState<TZDate>(localNow.startOfDay());
+  const [endDate, setEndDate] = React.useState<TZDate>(localNow.startOfDay().addDays(1));
   const [isAllDay, setIsAllDay] = React.useState<boolean>(true);
   const [recurrences, setRecurrences] = React.useState<string[]>([]);
-  const [timezone, setTimezone] = React.useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const [timezone, setTimezone] = React.useState<string>(browserTimezone);
 
   const fetchEvents = React.useCallback(async () => {
     try {
@@ -25,19 +30,17 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
       if (response.error_codes.length === 0) {
         setEvents(
           response.events.map((event) => {
-            const dtstart = new Date(Date.parse(event.dtstart));
-            const dtend = new Date(Date.parse(event.dtend));
+            const dtstart = new TZDate(event.dtstart);
+            const dtend = new TZDate(event.dtend);
 
             return {
               id: event.id,
               summary: event.summary,
               location: event.location,
               dtstart: event.is_all_day
-                ? parseYmdDate(dtstart, "UTC", event.timezone)
-                : parseYmdHm15Date(dtstart, "UTC", event.timezone),
-              dtend: event.is_all_day
-                ? parseYmdDate(dtend, "UTC", event.timezone)
-                : parseYmdHm15Date(dtend, "UTC", event.timezone),
+                ? parseYmdDate(dtstart, event.timezone)
+                : parseYmdHm15Date(dtstart, event.timezone),
+              dtend: event.is_all_day ? parseYmdDate(dtend, event.timezone) : parseYmdHm15Date(dtend, event.timezone),
               isAllDay: event.is_all_day,
               recurrences: event.recurrence_list,
               timezone: event.timezone,
@@ -62,8 +65,8 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
         event: {
           summary: values.summary,
           location: values.location,
-          dtstart: applyTimezone(startDate, timezone, "UTC").toISOString(),
-          dtend: applyTimezone(endDate, timezone, "UTC").toISOString(),
+          dtstart: applyTimezone(startDate, "UTC").toISOString(),
+          dtend: applyTimezone(endDate, "UTC").toISOString(),
           is_all_day: isAllDay,
           recurrence_list: recurrences,
           timezone: timezone,
@@ -81,23 +84,23 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
       toast.error("Failed to create event");
     }
 
-    setStartDate(getCurrentYmdDate(new Date()));
-    setEndDate(addDays(getCurrentYmdDate(new Date()), 1));
+    setStartDate(localNow.startOfDay());
+    setEndDate(localNow.startOfDay().addDays(1));
     setIsAllDay(true);
     setRecurrences([]);
-    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    setTimezone(browserTimezone);
 
     await fetchEvents();
   };
 
-  const handleStartDateChange = (date: Date): void => {
+  const handleStartDateChange = (date: TZDate): void => {
     setStartDate(date);
     if (date > endDate) {
-      setEndDate(addDays(date, 1));
+      setEndDate(date.addDays(1));
     }
   };
 
-  const handleEndDateChange = (date: Date): void => {
+  const handleEndDateChange = (date: TZDate): void => {
     if (date > startDate) {
       setEndDate(date);
     }
@@ -106,8 +109,8 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
   const handleIsAllDayChange = (allDay: boolean): void => {
     setIsAllDay(allDay);
     if (allDay) {
-      setStartDate(startOfDay(startDate));
-      setEndDate(startOfDay(endDate));
+      setStartDate(startDate.startOfDay());
+      setEndDate(endDate.startOfDay());
     }
   };
 
@@ -115,7 +118,7 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <div className="md:col-span-2">
         <Calendar
-          events={mapEventsToFullCalendar(events)}
+          events={mapEventsToFullCalendar(events, browserTimezone)}
           onEventClick={(info) => {
             // TODO: Display event update form
             console.log(info);
