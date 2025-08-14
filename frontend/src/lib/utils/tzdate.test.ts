@@ -27,6 +27,18 @@ describe(TZDate, () => {
       expect(date.timeZone).toBe("UTC");
     });
 
+    it("accepts valid YYYY-MM-DDTHH:mm format", () => {
+      const date = new TZDate("2024-01-15T14:30");
+      expect(date.getFullYear()).toBe(2024);
+      expect(date.getMonth()).toBe(0);
+      expect(date.getDate()).toBe(15);
+      expect(date.getHours()).toBe(14);
+      expect(date.getMinutes()).toBe(30);
+      expect(date.getSeconds()).toBe(0);
+      expect(date.getMilliseconds()).toBe(0);
+      expect(date.timeZone).toBe("UTC");
+    });
+
     it("accepts valid YYYY-MM-DDTHH:mm:ss format", () => {
       const date = new TZDate("2024-01-15T14:30:45");
       expect(date.getFullYear()).toBe(2024);

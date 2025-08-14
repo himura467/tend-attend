@@ -4,12 +4,13 @@ import { z } from "zod";
 // ISO-8601 compatible string schema
 const iso8601Schema = z.string().refine(
   (str) => {
-    // ISO-8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss.sss (no Z allowed as timeZone parameter handles timezone)
-    const iso8601Regex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?)?$/;
+    // ISO-8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:mm or YYYY-MM-DDTHH:mm:ss or YYYY-MM-DDTHH:mm:ss.sss (no Z allowed as timeZone parameter handles timezone)
+    const iso8601Regex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?)?$/;
     return iso8601Regex.test(str);
   },
   {
-    message: "String must be in ISO-8601 format (YYYY-MM-DD, YYYY-MM-DDTHH:mm:ss, YYYY-MM-DDTHH:mm:ss.sss).",
+    message:
+      "String must be in ISO-8601 format (YYYY-MM-DD, YYYY-MM-DDTHH:mm, YYYY-MM-DDTHH:mm:ss, YYYY-MM-DDTHH:mm:ss.sss).",
   },
 );
 
