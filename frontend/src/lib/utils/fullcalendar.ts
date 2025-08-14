@@ -1,22 +1,14 @@
-import {
-  getYmdDeltaDays,
-  getYmdHm15DeltaMinutes,
-  parseYmdDate,
-  parseYmdHm15Date,
-  YmdDate,
-  YmdHm15Date,
-} from "@/lib/utils/date";
+import { getYmdDeltaDays, getYmdHm15DeltaMinutes, parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
 import { parseRecurrence } from "@/lib/utils/icalendar";
-import { applyTimezone } from "@/lib/utils/timezone";
-import { endOfDay } from "date-fns";
+import { TZDate } from "@/lib/utils/tzdate";
 import { Options as RRuleOptions } from "rrule";
 
 export interface Event {
   id: string;
   summary: string;
   location: string | null;
-  dtstart: YmdDate | YmdHm15Date;
-  dtend: YmdDate | YmdHm15Date;
+  dtstart: TZDate;
+  dtend: TZDate;
   isAllDay: boolean;
   recurrences: string[];
   timezone: string;
@@ -25,8 +17,8 @@ export interface Event {
 interface BaseFullCalendarEvent {
   id: string;
   title: string;
-  dtstart: Date;
-  dtend: Date;
+  start: TZDate;
+  end: TZDate;
   allDay: boolean;
   extendedProps?: {
     originalId?: string;
@@ -38,7 +30,7 @@ interface RecurringFullCalendarEvent {
   title: string;
   allDay: boolean;
   rrule: Partial<RRuleOptions> & {
-    dtstart: Date;
+    dtstart: TZDate;
   };
   exdate: string[];
   duration: {
@@ -47,17 +39,16 @@ interface RecurringFullCalendarEvent {
   };
 }
 
-export const mapEventsToFullCalendar = (events: Event[]): (BaseFullCalendarEvent | RecurringFullCalendarEvent)[] => {
+export const mapEventsToFullCalendar = (
+  events: Event[],
+  timezone: string,
+): (BaseFullCalendarEvent | RecurringFullCalendarEvent)[] => {
   return events.flatMap((event) => {
     const baseEvent = {
       id: event.id,
       title: event.summary,
-      dtstart: event.isAllDay
-        ? event.dtstart
-        : applyTimezone(event.dtstart, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-      dtend: event.isAllDay
-        ? endOfDay(event.dtend)
-        : applyTimezone(event.dtend, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
+      start: event.isAllDay ? event.dtstart : event.dtstart.withTimeZone(timezone),
+      end: event.isAllDay ? event.dtend : event.dtend.withTimeZone(timezone),
       allDay: event.isAllDay,
     };
 
@@ -71,34 +62,33 @@ export const mapEventsToFullCalendar = (events: Event[]): (BaseFullCalendarEvent
         id: baseEvent.id,
         title: baseEvent.title,
         allDay: baseEvent.allDay,
-        rrule: { ...rruleSet._rrule[0].options, dtstart: baseEvent.dtstart },
+        rrule: { ...rruleSet._rrule[0].options, dtstart: baseEvent.start },
         exdate: rruleSet._exdate.map((date) => date.toISOString().split("T")[0]),
         duration: baseEvent.allDay
           ? {
-              days: getYmdDeltaDays(
-                parseYmdDate(event.dtstart, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-                parseYmdDate(event.dtend, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-              ),
+              days: getYmdDeltaDays(parseYmdDate(event.dtstart, timezone), parseYmdDate(event.dtend, timezone)),
             }
           : {
               minutes: getYmdHm15DeltaMinutes(
-                parseYmdHm15Date(event.dtstart, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-                parseYmdHm15Date(event.dtend, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
+                parseYmdHm15Date(event.dtstart, timezone),
+                parseYmdHm15Date(event.dtend, timezone),
               ),
             },
       });
     }
 
     rruleSet._rdate.forEach((rdate, index) => {
-      const rdateStart = new Date(rdate);
-      const originalDurationMs = baseEvent.dtend.getTime() - baseEvent.dtstart.getTime();
-      const rdateEnd = new Date(rdateStart.getTime() + originalDurationMs);
+      // Convert rdate from local timezone to UTC
+      const timezoneOffsetMs = new TZDate(rdate, timezone).getTimezoneOffset() * 60 * 1000;
+      const rdateStart = new TZDate(rdate.getTime() + timezoneOffsetMs);
+      const originalDurationMs = baseEvent.end.getTime() - baseEvent.start.getTime();
+      const rdateEnd = new TZDate(rdateStart.getTime() + originalDurationMs);
 
       results.push({
         id: `${baseEvent.id}-rdate-${index}`,
         title: baseEvent.title,
-        dtstart: rdateStart,
-        dtend: baseEvent.allDay ? rdateStart : rdateEnd,
+        start: baseEvent.allDay ? rdateStart : rdateStart.withTimeZone(timezone),
+        end: baseEvent.allDay ? rdateEnd : rdateEnd.withTimeZone(timezone),
         allDay: baseEvent.allDay,
         extendedProps: {
           originalId: baseEvent.id,

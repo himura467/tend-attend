@@ -2,6 +2,7 @@ import { DateTimePicker } from "@/components/organisms/shared/events/DateTimePic
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { TZDate } from "@/lib/utils/tzdate";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -16,10 +17,10 @@ export const formSchema = z.object({
 
 interface CreateEventFormProps {
   onSubmit: (values: z.infer<typeof formSchema>) => Promise<void>;
-  startDate: Date;
-  endDate: Date;
-  onStartDateChange: (date: Date) => void;
-  onEndDateChange: (date: Date) => void;
+  startDate: TZDate;
+  endDate: TZDate;
+  onStartDateChange: (date: TZDate) => void;
+  onEndDateChange: (date: TZDate) => void;
   isAllDay: boolean;
   onIsAllDayChange: (isAllDay: boolean) => void;
   recurrences: string[];
