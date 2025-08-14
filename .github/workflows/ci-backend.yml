@@ -41,7 +41,7 @@ jobs:
           mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-test-sequence-db.sql
           mysql -h 127.0.0.1 -P 13306 -u root -proot_password < ../docker/docker-entrypoint-initdb.d/create-test-shard-dbs.sql
       - name: Install uv based on the config files in the working-directory
-        uses: astral-sh/setup-uv@e92bafb6253dcd438e0484186d7669ea7a8ca1cc # v6.4.3
+        uses: astral-sh/setup-uv@d9e0f98d3fc6adb07d1e3d37f3043649ddad06a1 # v6.5.0
         with:
           enable-cache: true
       - name: Install the project
