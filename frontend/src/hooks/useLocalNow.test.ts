@@ -57,7 +57,7 @@ describe(useLocalNow, () => {
     expect(result.current.timeZone).toBe("UTC");
   });
 
-  it("should return updated time when hook is re-rendered", () => {
+  it("should return same memoized value when re-rendered with same timezone", () => {
     mockUseTimezone.mockReturnValue("UTC");
 
     const { result, rerender } = renderHook(() => useLocalNow());
@@ -67,9 +67,32 @@ describe(useLocalNow, () => {
     vi.advanceTimersByTime(60 * 60 * 1000);
     rerender();
 
-    const secondResult = useLocalNow();
+    const secondResult = result.current;
 
-    // Should be different instances representing different times
-    expect(secondResult.getTime()).toBeGreaterThan(firstResult.getTime());
+    // Should be the same memoized instance since timezone hasn't changed
+    expect(secondResult).toBe(firstResult);
+    expect(secondResult.getTime()).toBe(firstResult.getTime());
+  });
+
+  it("should return updated time when timezone changes", () => {
+    mockUseTimezone.mockReturnValue("UTC");
+
+    const { result, rerender } = renderHook(() => useLocalNow());
+    const firstResult = result.current;
+
+    // Advance time by 2 hours AND change timezone
+    vi.advanceTimersByTime(2 * 60 * 60 * 1000);
+    mockUseTimezone.mockReturnValue("America/New_York");
+    rerender();
+
+    const secondResult = result.current;
+
+    // Should be different instances since timezone changed
+    expect(secondResult).not.toBe(firstResult);
+    expect(secondResult.timeZone).toBe("America/New_York");
+    expect(firstResult.timeZone).toBe("UTC");
+
+    // Should reflect the advanced time (2 hours later)
+    expect(secondResult.getTime() - firstResult.getTime()).toBe(2 * 60 * 60 * 1000);
   });
 });
