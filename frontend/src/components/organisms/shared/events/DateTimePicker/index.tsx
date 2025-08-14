@@ -47,15 +47,15 @@ interface DateTimePickerProps {
 }
 
 export const DateTimePicker = ({
-  startDate = getCurrentYmdDate(new Date()),
-  endDate = addDays(getCurrentYmdDate(new Date()), 1),
+  startDate,
+  endDate,
   onStartDateChange,
   onEndDateChange,
   isAllDay,
   onIsAllDayChange,
   recurrences,
   onRecurrencesChange,
-  timezone = Intl.DateTimeFormat().resolvedOptions().timeZone,
+  timezone,
   onTimezoneChange,
 }: DateTimePickerProps): React.JSX.Element => {
   const timeOptions = React.useMemo(() => {
