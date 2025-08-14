@@ -1,6 +1,6 @@
 import { TZDate } from "@/lib/utils/tzdate";
 import { describe, expect, it } from "vitest";
-import { formatToLocaleYmdHm, getYmdDeltaDays, getYmdHm15DeltaMinutes, parseYmdDate, parseYmdHm15Date } from "./date";
+import { getYmdDeltaDays, getYmdHm15DeltaMinutes, parseYmdDate, parseYmdHm15Date } from "./date";
 
 describe(parseYmdDate, () => {
   it("accepts TZDate with midnight time", () => {
@@ -175,19 +175,5 @@ describe(getYmdHm15DeltaMinutes, () => {
     expect(() => getYmdHm15DeltaMinutes(before, after)).toThrow(
       "Minutes must be 0, 15, 30, or 45, and seconds/milliseconds must be 0.",
     );
-  });
-});
-
-describe(formatToLocaleYmdHm, () => {
-  it("formats date without timezone conversion", () => {
-    const date = new TZDate(2024, 0, 15, 14, 30, 45, 123);
-    const result = formatToLocaleYmdHm(date);
-    expect(result).toBe("01/15/2024, 11:30 PM");
-  });
-
-  it("formats date with timezone conversion when both timezones provided", () => {
-    const date = new TZDate(2024, 0, 15, 14, 30, 45, 123);
-    const result = formatToLocaleYmdHm(date, "Asia/Tokyo");
-    expect(result).toBe("01/15/2024, 11:30 PM");
   });
 });

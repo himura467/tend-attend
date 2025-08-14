@@ -98,6 +98,10 @@ export class TZDate extends TZDateMini {
     return super.toISOString();
   }
 
+  toLocaleString(locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string {
+    return super.toLocaleString(locales, options);
+  }
+
   withTimeZone(timeZone: string): TZDate {
     const zonedDate = super.withTimeZone(timeZone);
     return new TZDate(zonedDate, timeZone);

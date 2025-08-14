@@ -430,4 +430,47 @@ describe(TZDate, () => {
       expect(result.getMilliseconds()).toBe(999);
     });
   });
+
+  describe("toLocaleString method", () => {
+    it("accepts locales and options parameters", () => {
+      const date = new TZDate(2024, 0, 15, 14, 30, 45, 123);
+      const result = date.toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Asia/Tokyo",
+      });
+
+      expect(result).toBe("01/15/2024, 11:30 PM");
+    });
+
+    it("works with timezone-adjusted dates", () => {
+      const date = new TZDate(2024, 0, 15, 12, 0, 0, 0);
+      const zonedDate = date.withTimeZone("Asia/Tokyo");
+
+      const utcResult = date.toLocaleString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "UTC",
+      });
+
+      const tokyoResult = zonedDate.toLocaleString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone: "Asia/Tokyo",
+      });
+
+      expect(utcResult).toBe("12:00 PM");
+      expect(tokyoResult).toBe("09:00 PM");
+    });
+
+    it("handles empty array as locales parameter", () => {
+      const date = new TZDate(2024, 0, 15, 14, 30, 45, 123);
+      const result = date.toLocaleString([], { timeZone: "UTC" });
+
+      expect(result).toBe("1/15/2024, 2:30:45 PM");
+    });
+  });
 });
