@@ -5,8 +5,8 @@ from app.core.utils.uuid import UUID
 
 
 class Group(str, Enum):
-    HOST = "host"
-    GUEST = "guest"
+    HOST = "HOST"
+    GUEST = "GUEST"
 
 
 class Role(IntEnum):

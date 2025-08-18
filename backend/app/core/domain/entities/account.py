@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic.networks import EmailStr
 
 from app.core.domain.entities.base import IEntity
-from app.core.features.account import Gender
+from app.core.features.account import Gender, Group
 from app.core.utils.uuid import UUID
 
 
@@ -14,6 +14,7 @@ class UserAccount(IEntity):
         user_id: int,
         username: str,
         hashed_password: str,
+        group: Group,
         nickname: str | None,
         birth_date: datetime,
         gender: Gender,
@@ -28,6 +29,7 @@ class UserAccount(IEntity):
         self.user_id = user_id
         self.username = username
         self.hashed_password = hashed_password
+        self.group = group
         self.nickname = nickname
         self.birth_date = birth_date
         self.gender = gender

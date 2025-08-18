@@ -6,7 +6,7 @@ from app.core.cryptography.jwt import JWTCryptography
 from app.core.domain.usecase.base import IUsecase
 from app.core.dtos.auth import AuthSessionResponse
 from app.core.error.error_code import ErrorCode
-from app.core.features.account import Account, Group
+from app.core.features.account import Account
 from app.core.infrastructure.db.transaction import rollbackable
 from app.core.infrastructure.sqlalchemy.repositories.account import (
     UserAccountRepository,
@@ -28,10 +28,9 @@ class AuthUsecase(IUsecase):
     async def get_account_by_session_token(self, session_token: str) -> Account | None:
         user_account_repository = UserAccountRepository(self.uow)
 
-        token_info = self._jwt_cryptography.get_subject_and_group_from_session_token(session_token)
-        if token_info is None:
+        account_id = self._jwt_cryptography.get_subject_from_session_token(session_token)
+        if account_id is None:
             return None
-        account_id, group = token_info
 
         user_account = await user_account_repository.read_by_id_or_none_async(account_id)
         if user_account is None:
@@ -39,7 +38,7 @@ class AuthUsecase(IUsecase):
 
         return Account(
             account_id=account_id,
-            group=group,
+            group=user_account.group,
             disabled=False,
         )
 
@@ -62,9 +61,7 @@ class AuthUsecase(IUsecase):
                 max_age=0,
             )
 
-        session_token = self._jwt_cryptography.create_session_token(
-            user_account.id, Group.HOST, self._SESSION_TOKEN_EXPIRES
-        )
+        session_token = self._jwt_cryptography.create_session_token(user_account.id, self._SESSION_TOKEN_EXPIRES)
 
         return AuthSessionResponse(
             error_codes=[],
