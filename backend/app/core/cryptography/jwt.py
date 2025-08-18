@@ -12,7 +12,6 @@ from app.core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
 class JWTCryptography:
     secret_key: str
     algorithm: str
-    session_token_expires: timedelta
 
     def _create_token(
         self,
@@ -36,11 +35,11 @@ class JWTCryptography:
         )
         return encoded_jwt
 
-    def create_session_token(self, subject: UUID, group: Group) -> str:
+    def create_session_token(self, subject: UUID, group: Group, expires_delta: timedelta) -> str:
         return self._create_token(
             subject=subject,
             group=group,
-            expires_delta=self.session_token_expires,
+            expires_delta=expires_delta,
         )
 
     def get_subject_and_group_from_session_token(self, session_token: str) -> tuple[UUID, Group] | None:

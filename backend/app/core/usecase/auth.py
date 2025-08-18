@@ -23,7 +23,6 @@ class AuthUsecase(IUsecase):
     _jwt_cryptography = JWTCryptography(
         secret_key=JWT_SECRET_KEY,
         algorithm=_ALGORITHM,
-        session_token_expires=_SESSION_TOKEN_EXPIRES,
     )
 
     async def get_account_by_session_token(self, session_token: str) -> Account | None:
@@ -63,7 +62,9 @@ class AuthUsecase(IUsecase):
                 max_age=0,
             )
 
-        session_token = self._jwt_cryptography.create_session_token(user_account.id, Group.HOST)
+        session_token = self._jwt_cryptography.create_session_token(
+            user_account.id, Group.HOST, self._SESSION_TOKEN_EXPIRES
+        )
 
         return AuthSessionResponse(
             error_codes=[],
