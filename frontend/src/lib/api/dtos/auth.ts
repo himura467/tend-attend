@@ -3,10 +3,8 @@ export interface OAuth2PasswordRequestForm {
   password: string;
 }
 
-export interface AuthToken {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
+export interface CreateAuthSessionResponse {
+  error_codes: string[];
 }
 
 export interface BasicAuthCredentials {
