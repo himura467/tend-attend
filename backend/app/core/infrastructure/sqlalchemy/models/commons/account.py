@@ -24,9 +24,7 @@ class UserAccount(AbstractCommonDynamicBase):
     user_id: Mapped[int] = mapped_column(BIGINT(unsigned=True), unique=True, nullable=False, comment="User ID")
     username: Mapped[str] = mapped_column(VARCHAR(63), unique=True, nullable=False, comment="Username")
     hashed_password: Mapped[str] = mapped_column(VARCHAR(512), nullable=False, comment="Hashed Password")
-    group: Mapped[str] = mapped_column(
-        VARCHAR(63), ForeignKey("user_group.group"), nullable=False, comment="User Group"
-    )
+    group: Mapped[str] = mapped_column(VARCHAR(63), ForeignKey("user_group.group", ondelete="CASCADE"), nullable=False)
     nickname: Mapped[str | None] = mapped_column(VARCHAR(63), nullable=True, comment="Nickname")
     birth_date: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Birth Date")
     gender: Mapped[Gender] = mapped_column(ENUM(Gender), nullable=False, comment="Gender")
