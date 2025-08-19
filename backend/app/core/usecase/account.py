@@ -7,7 +7,7 @@ from app.core.domain.usecase.base import IUsecase
 from app.core.dtos.account import CreateUserAccountResponse, GetFollowersInfoResponse
 from app.core.dtos.account import FollowerInfo as FollowerInfoDto
 from app.core.error.error_code import ErrorCode
-from app.core.features.account import Gender
+from app.core.features.account import Gender, Group
 from app.core.infrastructure.db.transaction import rollbackable
 from app.core.infrastructure.sqlalchemy.models.sequences.sequence import SequenceUserId
 from app.core.infrastructure.sqlalchemy.repositories.account import (
@@ -34,6 +34,9 @@ class AccountUsecase(IUsecase):
 
         user_id = await SequenceUserId.id_generator(self.uow)
 
+        # TODO: Only users who have verified email addresses should be allowed to be HOST.
+        group = Group.HOST
+
         followees = await user_account_repository.read_by_usernames_async(followee_usernames)
 
         user_account_id = generate_uuid()
@@ -42,6 +45,7 @@ class AccountUsecase(IUsecase):
             user_id=user_id,
             username=username,
             hashed_password=self._password_hasher.get_password_hash(password),
+            group=group,
             birth_date=birth_date,
             gender=gender,
             email=email,
