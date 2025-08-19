@@ -21,8 +21,8 @@ groupRoleMap: dict[Group, set[Role]] = {
 
 
 class Gender(str, Enum):
-    MALE = "male"
-    FEMALE = "female"
+    MALE = "MALE"
+    FEMALE = "FEMALE"
 
 
 @dataclass(frozen=True)
