@@ -4,9 +4,6 @@ from zoneinfo import ZoneInfo
 
 from jose import JWTError, jwt
 
-from app.core.dtos.auth import AuthToken as AuthTokenDto
-from app.core.features.account import Group
-from app.core.features.auth import TokenType
 from app.core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
 
 
@@ -14,14 +11,10 @@ from app.core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
 class JWTCryptography:
     secret_key: str
     algorithm: str
-    access_token_expires: timedelta
-    refresh_token_expires: timedelta
 
     def _create_token(
         self,
         subject: UUID,
-        group: Group,
-        token_type: TokenType,
         expires_delta: timedelta,
     ) -> str:
         registered_claims = {
@@ -31,45 +24,27 @@ class JWTCryptography:
             "jti": uuid_to_str(generate_uuid()),
             "exp": datetime.now(ZoneInfo("UTC")) + expires_delta,
         }
-        private_claims = {"group": group, "type": token_type}
 
         encoded_jwt: str = jwt.encode(
-            claims={**registered_claims, **private_claims},
+            claims=registered_claims,
             key=self.secret_key,
             algorithm=self.algorithm,
         )
         return encoded_jwt
 
-    def create_auth_token(self, subject: UUID, group: Group) -> AuthTokenDto:
-        access_token = self._create_token(
+    def create_session_token(self, subject: UUID, expires_delta: timedelta) -> str:
+        return self._create_token(
             subject=subject,
-            group=group,
-            token_type=TokenType.ACCESS,
-            expires_delta=self.access_token_expires,
-        )
-        refresh_token = self._create_token(
-            subject=subject,
-            group=group,
-            token_type=TokenType.REFRESH,
-            expires_delta=self.refresh_token_expires,
-        )
-        return AuthTokenDto(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            token_type="bearer",
+            expires_delta=expires_delta,
         )
 
-    def get_subject_and_group_from_token(self, token: str, token_type: TokenType) -> tuple[UUID, Group] | None:
+    def get_subject_from_session_token(self, session_token: str) -> UUID | None:
         try:
-            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-            if payload.get("type") != token_type:
-                return None
+            payload = jwt.decode(session_token, self.secret_key, algorithms=[self.algorithm])
             sub_str = payload.get("sub")
-            group_str = payload.get("group")
-            if not sub_str or not group_str:
+            if not sub_str:
                 return None
             subject: UUID = str_to_uuid(sub_str)
-            group: Group = group_str
         except JWTError:
             return None
-        return subject, group
+        return subject

@@ -6,7 +6,7 @@ from sqlalchemy.orm.strategy_options import joinedload
 from sqlalchemy.sql import select
 
 from app.core.domain.entities.account import UserAccount as UserAccountEntity
-from app.core.features.account import Gender
+from app.core.features.account import Gender, Group
 from app.core.infrastructure.sqlalchemy.models.commons.account import UserAccount
 from app.core.infrastructure.sqlalchemy.repositories.base import AbstractRepository
 from app.core.utils.uuid import UUID, uuid_to_bin
@@ -23,12 +23,12 @@ class UserAccountRepository(AbstractRepository[UserAccountEntity, UserAccount]):
         user_id: int,
         username: str,
         hashed_password: str,
+        group: Group,
         birth_date: datetime,
         gender: Gender,
         email: EmailStr,
         followee_ids: set[UUID],
         follower_ids: set[UUID],
-        refresh_token: str | None = None,
         nickname: str | None = None,
     ) -> UserAccountEntity | None:
         async def read_models_by_ids_async(record_ids: set[UUID]) -> list[UserAccount]:
@@ -45,7 +45,7 @@ class UserAccountRepository(AbstractRepository[UserAccountEntity, UserAccount]):
             user_id=user_id,
             username=username,
             hashed_password=hashed_password,
-            refresh_token=refresh_token,
+            group=group,
             nickname=nickname,
             birth_date=birth_date,
             gender=gender,

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createAuthToken } from "@/lib/api/auth";
+import { createAuthSession } from "@/lib/api/auth";
 import { routerPush } from "@/lib/utils/router";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -23,10 +23,15 @@ export const SignInForm = ({ location }: SignInFormProps): React.JSX.Element => 
     e.preventDefault();
 
     try {
-      await createAuthToken({
+      const response = await createAuthSession({
         username: username,
         password: password,
       });
+
+      if (response.error_codes.length > 0) {
+        toast.error("Failed to sign in");
+        return;
+      }
 
       routerPush({ href: location }, router);
     } catch {

@@ -6,10 +6,9 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBasicCredentials, OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from app.core.constants.constants import ACCESS_TOKEN_NAME
+from app.core.constants.constants import SESSION_TOKEN_NAME
 from app.core.constants.secrets import ADMIN_PASSWORD, ADMIN_USERNAME
 from app.core.features.account import Account, Role, groupRoleMap
-from app.core.features.auth import TokenType
 from app.core.infrastructure.sqlalchemy.db import get_db_async
 from app.core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
 from app.core.usecase.auth import AuthUsecase
@@ -17,16 +16,16 @@ from app.core.usecase.auth import AuthUsecase
 
 class OAuth2Cookie(OAuth2PasswordBearer):
     async def __call__(self, request: Request) -> str | None:
-        access_token = request.cookies.get(ACCESS_TOKEN_NAME)
-        if not access_token:
+        session_token = request.cookies.get(SESSION_TOKEN_NAME)
+        if not session_token:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="No access token found",
+                detail="No session token found",
             )
-        return access_token
+        return session_token
 
 
-cookie_scheme = OAuth2Cookie(tokenUrl="auth/tokens/create")
+cookie_scheme = OAuth2Cookie(tokenUrl="auth/sessions/create")
 
 
 @dataclass(frozen=True, eq=True)
@@ -35,13 +34,13 @@ class AccessControl:
 
     async def __call__(
         self,
-        token: str = Depends(cookie_scheme),
+        session_token: str = Depends(cookie_scheme),
         session: AsyncSession = Depends(get_db_async),
     ) -> Account:
         uow = SqlalchemyUnitOfWork(session=session)
         usecase = AuthUsecase(uow=uow)
 
-        account = await usecase.get_account_by_token(token, TokenType.ACCESS)
+        account = await usecase.get_account_by_session_token(session_token)
         if account is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
