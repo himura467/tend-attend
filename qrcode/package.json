@@ -16,7 +16,7 @@
   },
   "packageManager": "pnpm@10.13.1",
   "dependencies": {
-    "canvas": "^3.1.2",
+    "canvas": "^3.2.0",
     "jsdom": "^26.1.0",
     "qr-code-styling": "^1.9.2"
   },
