@@ -3,10 +3,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useLocalNow } from "@/hooks/useLocalNow";
+import { useTimezone } from "@/hooks/useTimezone";
 import { attendEvent, getGuestAttendanceStatus, updateAttendances } from "@/lib/api/events";
 import { AttendanceAction, AttendanceActionType } from "@/lib/types/event/attendance";
-import { formatToLocaleYmdHm } from "@/lib/utils/date";
-import { applyTimezone } from "@/lib/utils/timezone";
+import { TZDate } from "@/lib/utils/tzdate";
 import { Edit, Plus, Save, Trash2, X } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
@@ -14,10 +15,10 @@ import { toast } from "sonner";
 interface EventAttendanceFormProps {
   eventId: string | null;
   eventSummary: string | null;
-  eventStart: Date | null;
-  eventEnd: Date | null;
+  eventStart: TZDate | null;
+  eventEnd: TZDate | null;
   attendances: { action: string; acted_at: string }[];
-  onAttendanceUpdate: (eventId: string, eventStart: Date, eventEnd: Date) => Promise<void>;
+  onAttendanceUpdate: (eventId: string, eventStart: TZDate, eventEnd: TZDate) => Promise<void>;
 }
 
 interface EditableAttendance {
@@ -35,14 +36,15 @@ export const EventAttendanceForm = ({
   attendances,
   onAttendanceUpdate,
 }: EventAttendanceFormProps): React.JSX.Element => {
+  const timezone = useTimezone();
+  const localNow = useLocalNow();
+
   const [attend, setAttend] = React.useState<boolean | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [editableAttendances, setEditableAttendances] = React.useState<EditableAttendance[]>([]);
   const [isEditMode, setIsEditMode] = React.useState(false);
 
-  const eventStartUTC = eventStart
-    ? applyTimezone(eventStart, Intl.DateTimeFormat().resolvedOptions().timeZone, "UTC")
-    : null;
+  const utcEventStart = eventStart ? eventStart.withTimeZone("UTC") : null;
 
   const mapAttendancesToEditable = (attendances: { action: string; acted_at: string }[]): EditableAttendance[] => {
     return attendances.map((attendance) => ({
@@ -58,9 +60,9 @@ export const EventAttendanceForm = ({
   }, [attendances]);
 
   const fetchAttendanceStatus = React.useCallback(async (): Promise<void> => {
-    if (eventId && eventStartUTC) {
+    if (eventId && utcEventStart) {
       try {
-        const response = await getGuestAttendanceStatus(eventId, eventStartUTC.toISOString());
+        const response = await getGuestAttendanceStatus(eventId, utcEventStart.toISOString());
         if (response.error_codes.length === 0) {
           setAttend(response.attend);
         } else {
@@ -70,7 +72,7 @@ export const EventAttendanceForm = ({
         toast.error("Failed to fetch attendance status");
       }
     }
-  }, [eventId, eventStartUTC]);
+  }, [eventId, utcEventStart]);
 
   React.useEffect(() => {
     if (eventId && eventStart) {
@@ -81,17 +83,17 @@ export const EventAttendanceForm = ({
   }, [eventId, eventStart, fetchAttendanceStatus]);
 
   const handleSubmit = async (action: AttendanceActionType): Promise<void> => {
-    if (eventId && eventStartUTC) {
+    if (eventId && utcEventStart) {
       setIsLoading(true);
       try {
-        const response = await attendEvent({ action: action }, eventId, eventStartUTC.toISOString());
+        const response = await attendEvent({ action: action }, eventId, utcEventStart.toISOString());
         if (response.error_codes.length === 0) {
           await fetchAttendanceStatus();
           if (eventStart && eventEnd) {
             await onAttendanceUpdate(eventId, eventStart, eventEnd);
           }
         } else {
-          // TODO: 本来はエラーコードからエラーメッセージを取得するべき
+          // TODO: Error message should be received from backend
           toast.error("Request outside of available time");
         }
       } catch {
@@ -103,7 +105,7 @@ export const EventAttendanceForm = ({
   };
 
   const handleSaveAttendances = async (): Promise<void> => {
-    if (!eventId || !eventStartUTC) return;
+    if (!eventId || !utcEventStart) return;
     setIsLoading(true);
     try {
       const attendancesToSave = editableAttendances
@@ -115,7 +117,7 @@ export const EventAttendanceForm = ({
       const response = await updateAttendances(
         { attendances: attendancesToSave },
         eventId,
-        eventStartUTC.toISOString(),
+        utcEventStart.toISOString(),
       );
       if (response.error_codes.length === 0) {
         toast.success("Attendance records updated successfully");
@@ -134,9 +136,8 @@ export const EventAttendanceForm = ({
   };
 
   const addNewAttendance = (): void => {
-    const now = new Date();
     // Format to match existing API format: remove milliseconds and Z suffix
-    const formattedDateTime = now.toISOString().slice(0, 19);
+    const formattedDateTime = localNow.toISOString().slice(0, 19);
     const newAttendance: EditableAttendance = {
       action: AttendanceAction.ATTEND,
       acted_at: formattedDateTime,
@@ -180,9 +181,9 @@ export const EventAttendanceForm = ({
     );
   };
 
-  const formatDateForLocalInput = (date: Date, timeZone: string): string => {
+  const formatDateForLocalInput = (date: TZDate, timezone: string): string => {
     // Apply the target timezone to the date first
-    const zonedDate = applyTimezone(date, "UTC", timeZone);
+    const zonedDate = date.withTimeZone(timezone);
     // Format date for datetime-local input
     // This maintains the actual local time values in the target timezone
     const year = zonedDate.getFullYear();
@@ -196,8 +197,8 @@ export const EventAttendanceForm = ({
   const convertInputDateToUTC = (inputDateTime: string): string => {
     // inputDateTime is in format "2024-05-28T14:30" (datetime-local input)
     // We need to treat this as local time and convert to UTC
-    const localDate = new Date(inputDateTime);
-    const utcDate = applyTimezone(localDate, Intl.DateTimeFormat().resolvedOptions().timeZone, "UTC");
+    const localDate = new TZDate(inputDateTime, timezone);
+    const utcDate = localDate.withTimeZone("UTC");
     // Format to match existing API format: remove milliseconds and Z suffix
     return utcDate.toISOString().slice(0, 19);
   };
@@ -206,7 +207,15 @@ export const EventAttendanceForm = ({
     <Card>
       <CardHeader>
         <CardTitle>
-          {eventSummary && eventStart ? `${eventSummary} at ${formatToLocaleYmdHm(eventStart)}` : "Select an event"}
+          {eventSummary && eventStart
+            ? `${eventSummary} at ${eventStart.toLocaleString([], {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}`
+            : "Select an event"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -276,10 +285,7 @@ export const EventAttendanceForm = ({
                             <label className="text-xs font-medium">Date & Time</label>
                             <Input
                               type="datetime-local"
-                              value={formatDateForLocalInput(
-                                new Date(attendance.acted_at),
-                                Intl.DateTimeFormat().resolvedOptions().timeZone,
-                              )}
+                              value={formatDateForLocalInput(new TZDate(attendance.acted_at), timezone)}
                               onChange={(e) =>
                                 updateAttendanceField(index, "acted_at", convertInputDateToUTC(e.target.value))
                               }
@@ -299,11 +305,13 @@ export const EventAttendanceForm = ({
                     ) : (
                       <div className="flex items-center justify-between text-sm">
                         <span>
-                          {formatToLocaleYmdHm(
-                            new Date(attendance.acted_at),
-                            "UTC",
-                            Intl.DateTimeFormat().resolvedOptions().timeZone,
-                          )}
+                          {new TZDate(attendance.acted_at).withTimeZone(timezone).toLocaleString([], {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </span>
                         <div className="flex items-center gap-2">
                           <span className={attendance.action === "attend" ? "text-green-600" : "text-red-600"}>

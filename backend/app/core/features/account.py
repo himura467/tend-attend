@@ -5,8 +5,8 @@ from app.core.utils.uuid import UUID
 
 
 class Group(str, Enum):
-    HOST = "host"
-    GUEST = "guest"
+    HOST = "HOST"
+    GUEST = "GUEST"
 
 
 class Role(IntEnum):
@@ -21,8 +21,8 @@ groupRoleMap: dict[Group, set[Role]] = {
 
 
 class Gender(str, Enum):
-    MALE = "male"
-    FEMALE = "female"
+    MALE = "MALE"
+    FEMALE = "FEMALE"
 
 
 @dataclass(frozen=True)

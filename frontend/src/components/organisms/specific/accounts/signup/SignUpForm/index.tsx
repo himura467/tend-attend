@@ -7,20 +7,20 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useLocalNow } from "@/hooks/useLocalNow";
+import { useTimezone } from "@/hooks/useTimezone";
 import { createUserAccount } from "@/lib/api/accounts";
 import { Gender, GenderRecord, GenderType } from "@/lib/types/account/gender";
 import { cn } from "@/lib/utils";
-import { getCurrentYmdDate } from "@/lib/utils/date";
 import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
-import { applyTimezone } from "@/lib/utils/timezone";
+import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
 
-const years = Array.from({ length: 100 }, (_, i) => getCurrentYmdDate(new Date()).getFullYear() - i);
 const months = [
   "January",
   "February",
@@ -38,14 +38,19 @@ const months = [
 
 export const SignUpForm = (): React.JSX.Element => {
   const router = useRouter();
+  const timezone = useTimezone();
+  const localNow = useLocalNow();
+
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [nickname, setNickname] = React.useState("");
-  const [birthDate, setBirthDate] = React.useState<Date | null>(null);
+  const [birthDate, setBirthDate] = React.useState<TZDate | null>(null);
   const [gender, setGender] = React.useState<GenderType>(Gender.MALE);
   const [email, setEmail] = React.useState("");
   const [followeeUsernames, setFolloweeUsernames] = React.useState<string[]>([]);
   const [followeeInput, setFolloweeInput] = React.useState("");
+
+  const years = Array.from({ length: 100 }, (_, i) => localNow.getFullYear() - i);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -55,7 +60,7 @@ export const SignUpForm = (): React.JSX.Element => {
         username: username,
         password: password,
         nickname: nickname,
-        birth_date: applyTimezone(birthDate!, Intl.DateTimeFormat().resolvedOptions().timeZone, "UTC").toISOString(),
+        birth_date: birthDate!.withTimeZone("UTC").toISOString(),
         gender: gender,
         email: email,
         followee_usernames: followeeUsernames,
@@ -131,17 +136,18 @@ export const SignUpForm = (): React.JSX.Element => {
           <PopoverContent className="w-[400px]">
             <div className="flex items-center justify-between p-2">
               <Select
-                value={
-                  birthDate
-                    ? birthDate.getFullYear().toString()
-                    : getCurrentYmdDate(new Date()).getFullYear().toString()
-                }
+                value={birthDate ? birthDate.getFullYear().toString() : localNow.getFullYear().toString()}
                 onValueChange={(value) =>
                   setBirthDate(
-                    new Date(
+                    new TZDate(
                       parseInt(value),
-                      birthDate ? birthDate.getMonth() : getCurrentYmdDate(new Date()).getMonth(),
-                      birthDate ? birthDate.getDate() : getCurrentYmdDate(new Date()).getDate(),
+                      birthDate ? birthDate.getMonth() : localNow.getMonth(),
+                      birthDate ? birthDate.getDate() : localNow.getDate(),
+                      0,
+                      0,
+                      0,
+                      0,
+                      timezone,
                     ),
                   )
                 }
@@ -158,15 +164,18 @@ export const SignUpForm = (): React.JSX.Element => {
                 </SelectContent>
               </Select>
               <Select
-                value={
-                  birthDate ? birthDate.getMonth().toString() : getCurrentYmdDate(new Date()).getMonth().toString()
-                }
+                value={birthDate ? birthDate.getMonth().toString() : localNow.getMonth().toString()}
                 onValueChange={(value) =>
                   setBirthDate(
-                    new Date(
-                      birthDate ? birthDate.getFullYear() : getCurrentYmdDate(new Date()).getFullYear(),
+                    new TZDate(
+                      birthDate ? birthDate.getFullYear() : localNow.getFullYear(),
                       parseInt(value),
-                      birthDate ? birthDate.getDate() : getCurrentYmdDate(new Date()).getDate(),
+                      birthDate ? birthDate.getDate() : localNow.getDate(),
+                      0,
+                      0,
+                      0,
+                      0,
+                      timezone,
                     ),
                   )
                 }
@@ -183,13 +192,18 @@ export const SignUpForm = (): React.JSX.Element => {
                 </SelectContent>
               </Select>
               <Select
-                value={birthDate ? birthDate.getDate().toString() : getCurrentYmdDate(new Date()).getDate().toString()}
+                value={birthDate ? birthDate.getDate().toString() : localNow.getDate().toString()}
                 onValueChange={(value) =>
                   setBirthDate(
-                    new Date(
-                      birthDate ? birthDate.getFullYear() : getCurrentYmdDate(new Date()).getFullYear(),
-                      birthDate ? birthDate.getMonth() : getCurrentYmdDate(new Date()).getMonth(),
+                    new TZDate(
+                      birthDate ? birthDate.getFullYear() : localNow.getFullYear(),
+                      birthDate ? birthDate.getMonth() : localNow.getMonth(),
                       parseInt(value),
+                      0,
+                      0,
+                      0,
+                      0,
+                      timezone,
                     ),
                   )
                 }

@@ -10,8 +10,8 @@ from app.core.features.event import AttendanceAction
 class Event(BaseModel):
     summary: str = Field(..., title="Summary")
     location: str | None = Field(None, title="Location")
-    start: datetime = Field(..., title="Start")
-    end: datetime = Field(..., title="End")
+    dtstart: datetime = Field(..., title="DTSTART")
+    dtend: datetime = Field(..., title="DTEND")
     is_all_day: bool = Field(True, title="Is All Day")
     recurrence_list: list[str] = Field(..., title="Recurrence List")
     timezone: str = Field(..., title="Timezone")
@@ -47,6 +47,14 @@ class CreateEventRequest(BaseModel):
 
 
 class CreateEventResponse(BaseModelWithErrorCodes):
+    pass
+
+
+class UpdateEventRequest(BaseModel):
+    event: Event = Field(..., title="Event")
+
+
+class UpdateEventResponse(BaseModelWithErrorCodes):
     pass
 
 

@@ -1,22 +1,14 @@
-import {
-  getYmdDeltaDays,
-  getYmdHm15DeltaMinutes,
-  parseYmdDate,
-  parseYmdHm15Date,
-  YmdDate,
-  YmdHm15Date,
-} from "@/lib/utils/date";
-import { parseRecurrence } from "@/lib/utils/rfc5545";
-import { applyTimezone } from "@/lib/utils/timezone";
-import { endOfDay } from "date-fns";
+import { getYmdDeltaDays, getYmdHm15DeltaMinutes, parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
+import { parseRecurrence } from "@/lib/utils/icalendar";
+import { TZDate } from "@/lib/utils/tzdate";
 import { Options as RRuleOptions } from "rrule";
 
 export interface Event {
   id: string;
   summary: string;
   location: string | null;
-  start: YmdDate | YmdHm15Date;
-  end: YmdDate | YmdHm15Date;
+  dtstart: TZDate;
+  dtend: TZDate;
   isAllDay: boolean;
   recurrences: string[];
   timezone: string;
@@ -25,9 +17,12 @@ export interface Event {
 interface BaseFullCalendarEvent {
   id: string;
   title: string;
-  start: Date;
-  end: Date;
+  start: TZDate;
+  end: TZDate;
   allDay: boolean;
+  extendedProps?: {
+    originalId?: string;
+  };
 }
 
 interface RecurringFullCalendarEvent {
@@ -35,48 +30,72 @@ interface RecurringFullCalendarEvent {
   title: string;
   allDay: boolean;
   rrule: Partial<RRuleOptions> & {
-    dtstart: Date;
+    dtstart: TZDate;
   };
+  exdate: string[];
   duration: {
     days?: number;
     minutes?: number;
   };
 }
 
-export const mapEventsToFullCalendar = (events: Event[]): (BaseFullCalendarEvent | RecurringFullCalendarEvent)[] => {
-  return events.map((event) => {
+export const mapEventsToFullCalendar = (
+  events: Event[],
+  timezone: string,
+): (BaseFullCalendarEvent | RecurringFullCalendarEvent)[] => {
+  return events.flatMap((event) => {
     const baseEvent = {
       id: event.id,
       title: event.summary,
-      start: event.isAllDay
-        ? event.start
-        : applyTimezone(event.start, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-      end: event.isAllDay
-        ? endOfDay(event.end)
-        : applyTimezone(event.end, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
+      start: event.isAllDay ? event.dtstart : event.dtstart.withTimeZone(timezone),
+      end: event.isAllDay ? event.dtend : event.dtend.withTimeZone(timezone),
       allDay: event.isAllDay,
     };
-    const rrule = parseRecurrence(event.recurrences);
-    return rrule
-      ? {
-          id: baseEvent.id,
-          title: baseEvent.title,
-          allDay: baseEvent.allDay,
-          rrule: { ...rrule.options, dtstart: baseEvent.start },
-          duration: baseEvent.allDay
-            ? {
-                days: getYmdDeltaDays(
-                  parseYmdDate(event.start, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-                  parseYmdDate(event.end, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-                ),
-              }
-            : {
-                minutes: getYmdHm15DeltaMinutes(
-                  parseYmdHm15Date(event.start, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-                  parseYmdHm15Date(event.end, event.timezone, Intl.DateTimeFormat().resolvedOptions().timeZone),
-                ),
-              },
-        }
-      : baseEvent;
+
+    const rruleSet = parseRecurrence(event.recurrences);
+    if (!rruleSet) return [baseEvent];
+
+    const results: (BaseFullCalendarEvent | RecurringFullCalendarEvent)[] = [];
+
+    if (rruleSet._rrule.length > 0) {
+      results.push({
+        id: baseEvent.id,
+        title: baseEvent.title,
+        allDay: baseEvent.allDay,
+        rrule: { ...rruleSet._rrule[0].options, dtstart: baseEvent.start },
+        exdate: rruleSet._exdate.map((date) => date.toISOString().split("T")[0]),
+        duration: baseEvent.allDay
+          ? {
+              days: getYmdDeltaDays(parseYmdDate(event.dtstart, timezone), parseYmdDate(event.dtend, timezone)),
+            }
+          : {
+              minutes: getYmdHm15DeltaMinutes(
+                parseYmdHm15Date(event.dtstart, timezone),
+                parseYmdHm15Date(event.dtend, timezone),
+              ),
+            },
+      });
+    }
+
+    rruleSet._rdate.forEach((rdate, index) => {
+      // Convert rdate from local timezone to UTC
+      const timezoneOffsetMs = new TZDate(rdate, timezone).getTimezoneOffset() * 60 * 1000;
+      const rdateStart = new TZDate(rdate.getTime() + timezoneOffsetMs);
+      const originalDurationMs = baseEvent.end.getTime() - baseEvent.start.getTime();
+      const rdateEnd = new TZDate(rdateStart.getTime() + originalDurationMs);
+
+      results.push({
+        id: `${baseEvent.id}-rdate-${index}`,
+        title: baseEvent.title,
+        start: baseEvent.allDay ? rdateStart : rdateStart.withTimeZone(timezone),
+        end: baseEvent.allDay ? rdateEnd : rdateEnd.withTimeZone(timezone),
+        allDay: baseEvent.allDay,
+        extendedProps: {
+          originalId: baseEvent.id,
+        },
+      });
+    });
+
+    return results.length > 0 ? results : [baseEvent];
   });
 };

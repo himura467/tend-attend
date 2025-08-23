@@ -3,11 +3,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useTimezone } from "@/hooks/useTimezone";
 import { cn } from "@/lib/utils";
 import { areEqualByRegExps } from "@/lib/utils/array";
-import { getCurrentYmdDate } from "@/lib/utils/date";
-import { applyTimezone } from "@/lib/utils/timezone";
-import { addDays, format } from "date-fns";
+import { TZDate } from "@/lib/utils/tzdate";
+import { format } from "date-fns";
 import { CalendarIcon, Clock, Repeat } from "lucide-react";
 import React from "react";
 
@@ -34,10 +34,10 @@ const timezoneOptions: TimezoneOption[] = [
 ];
 
 interface DateTimePickerProps {
-  startDate: Date;
-  endDate: Date;
-  onStartDateChange: (date: Date) => void;
-  onEndDateChange: (date: Date) => void;
+  startDate: TZDate;
+  endDate: TZDate;
+  onStartDateChange: (date: TZDate) => void;
+  onEndDateChange: (date: TZDate) => void;
   isAllDay: boolean;
   onIsAllDayChange: (isAllDay: boolean) => void;
   recurrences: string[];
@@ -47,17 +47,18 @@ interface DateTimePickerProps {
 }
 
 export const DateTimePicker = ({
-  startDate = getCurrentYmdDate(new Date()),
-  endDate = addDays(getCurrentYmdDate(new Date()), 1),
+  startDate,
+  endDate,
   onStartDateChange,
   onEndDateChange,
   isAllDay,
   onIsAllDayChange,
   recurrences,
   onRecurrencesChange,
-  timezone = Intl.DateTimeFormat().resolvedOptions().timeZone,
+  timezone,
   onTimezoneChange,
 }: DateTimePickerProps): React.JSX.Element => {
+  const browserTimezone = useTimezone();
   const timeOptions = React.useMemo(() => {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -70,7 +71,7 @@ export const DateTimePicker = ({
   }, []);
 
   const recurrencesOptions = React.useMemo((): RecurrencesOption[] => {
-    const localStart = applyTimezone(startDate, timezone, Intl.DateTimeFormat().resolvedOptions().timeZone);
+    const localStart = startDate.withTimeZone(browserTimezone);
     const month = (localStart.getMonth() + 1).toString();
     const day = localStart.getDate().toString();
     const hour = localStart.getHours().toString();
@@ -84,31 +85,31 @@ export const DateTimePicker = ({
       },
       {
         label: "Every day",
-        value: [`RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute}`],
-        regExps: [/^RRULE:FREQ=DAILY;BYHOUR=\d{1,2};BYMINUTE=\d{1,2}$/],
+        value: [`RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        regExps: [/^RRULE:FREQ=DAILY;BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
       },
       {
         label: "Every week",
-        value: [`RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute}`],
-        regExps: [/^RRULE:FREQ=WEEKLY;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2}$/],
+        value: [`RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        regExps: [/^RRULE:FREQ=WEEKLY;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
       },
       {
         label: "Every 2 weeks",
-        value: [`RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute}`],
-        regExps: [/^RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2}$/],
+        value: [`RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        regExps: [/^RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
       },
       {
         label: "Every month",
-        value: [`RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute}`],
-        regExps: [/^RRULE:FREQ=MONTHLY;BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2}$/],
+        value: [`RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        regExps: [/^RRULE:FREQ=MONTHLY;BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
       },
       {
         label: "Every year",
-        value: [`RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute}`],
-        regExps: [/^RRULE:FREQ=YEARLY;BYMONTH=\d{1,2};BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2}$/],
+        value: [`RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        regExps: [/^RRULE:FREQ=YEARLY;BYMONTH=\d{1,2};BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
       },
     ];
-  }, [startDate, timezone]);
+  }, [browserTimezone, startDate]);
 
   const getDuration = (): string => {
     const diff = endDate.getTime() - startDate.getTime();
@@ -125,7 +126,7 @@ export const DateTimePicker = ({
   React.useEffect(() => {
     const option = getRecurrencesOption();
     onRecurrencesChange(option.value);
-  }, [getRecurrencesOption, onRecurrencesChange, startDate, timezone]);
+  }, [getRecurrencesOption, onRecurrencesChange]);
 
   return (
     <div className="flex flex-col space-y-4 rounded-lg border p-4">
@@ -151,7 +152,7 @@ export const DateTimePicker = ({
                       className="w-full justify-start font-normal"
                       onClick={() => {
                         const [hours, minutes] = time.split(":").map(Number);
-                        const newDate = new Date(startDate);
+                        const newDate = new TZDate(startDate, browserTimezone);
                         newDate.setHours(hours, minutes);
                         onStartDateChange(newDate);
                       }}
@@ -181,7 +182,7 @@ export const DateTimePicker = ({
                       className="w-full justify-start font-normal"
                       onClick={() => {
                         const [hours, minutes] = time.split(":").map(Number);
-                        const newDate = new Date(endDate);
+                        const newDate = new TZDate(endDate, browserTimezone);
                         newDate.setHours(hours, minutes);
                         onEndDateChange(newDate);
                       }}
@@ -212,8 +213,8 @@ export const DateTimePicker = ({
               <Calendar
                 mode="single"
                 selected={startDate}
-                onSelect={(date) => date && onStartDateChange(date)}
-                initialFocus
+                onSelect={(date) => date && onStartDateChange(new TZDate(date, browserTimezone))}
+                autoFocus
               />
             </PopoverContent>
           </Popover>
@@ -231,8 +232,8 @@ export const DateTimePicker = ({
               <Calendar
                 mode="single"
                 selected={endDate}
-                onSelect={(date) => date && onEndDateChange(date)}
-                initialFocus
+                onSelect={(date) => date && onEndDateChange(new TZDate(date, browserTimezone))}
+                autoFocus
               />
             </PopoverContent>
           </Popover>

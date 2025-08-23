@@ -10,7 +10,9 @@
         "app.main:app",
         "--reload"
       ],
-      "cwd": "${workspaceFolder}/backend"
+      "envFile": "${workspaceFolder}/debug.env",
+      "preLaunchTask": "Generate env from 1Password",
+      "postDebugTask": "Cleanup env file"
     }
   ]
 }

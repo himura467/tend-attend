@@ -52,7 +52,7 @@ class RecurrenceRule(AbstractShardStaticBase):
     byweekno: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYWEEKNO")
     bymonth: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYMONTH")
     bysetpos: Mapped[list[int] | None] = mapped_column(JSON, nullable=True, comment="BYSETPOS")
-    wkst: Mapped[Weekday] = mapped_column(ENUM(Weekday), nullable=False, comment="WKST")
+    wkst: Mapped[Weekday | None] = mapped_column(ENUM(Weekday), nullable=True, comment="WKST")
 
     def to_entity(self) -> RecurrenceRuleEntity:
         return RecurrenceRuleEntity(
@@ -132,8 +132,8 @@ class Recurrence(AbstractShardStaticBase):
 class Event(AbstractShardDynamicBase):
     summary: Mapped[str] = mapped_column(VARCHAR(63), unique=True, nullable=False, comment="Summary")
     location: Mapped[str | None] = mapped_column(VARCHAR(63), nullable=True, comment="Location")
-    start: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Start")
-    end: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="End")
+    dtstart: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="DTSTART")
+    dtend: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="DTEND")
     is_all_day: Mapped[bool] = mapped_column(BOOLEAN, nullable=False, comment="Is All Day")
     recurrence_id: Mapped[bytes | None] = mapped_column(
         BINARY(16),
@@ -154,8 +154,8 @@ class Event(AbstractShardDynamicBase):
             user_id=self.user_id,
             summary=self.summary,
             location=self.location,
-            start=self.start,
-            end=self.end,
+            dtstart=self.dtstart,
+            dtend=self.dtend,
             is_all_day=self.is_all_day,
             recurrence_id=(bin_to_uuid(self.recurrence_id) if self.recurrence_id else None),
             timezone=self.timezone,
@@ -169,8 +169,8 @@ class Event(AbstractShardDynamicBase):
             user_id=entity.user_id,
             summary=entity.summary,
             location=entity.location,
-            start=entity.start,
-            end=entity.end,
+            dtstart=entity.dtstart,
+            dtend=entity.dtend,
             is_all_day=entity.is_all_day,
             recurrence_id=(uuid_to_bin(entity.recurrence_id) if entity.recurrence_id else None),
             timezone=entity.timezone,

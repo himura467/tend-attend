@@ -20,7 +20,7 @@ class CORSMiddleware(BaseHTTPMiddleware):
         is_localhost = "localhost" in origin or "127.0.0.1" in origin
         if is_localhost:
             response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Methods"] = "*"
+            response.headers["Access-Control-Allow-Methods"] = "DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT"
             response.headers["Access-Control-Allow-Credentials"] = "true"
         return response
 

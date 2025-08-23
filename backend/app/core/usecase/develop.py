@@ -7,7 +7,7 @@ from app.core.domain.entities.event import (
 )
 from app.core.domain.usecase.base import IUsecase
 from app.core.dtos.base import BaseModelWithErrorCodes
-from app.core.features.account import Gender
+from app.core.features.account import Gender, Group
 from app.core.features.event import AttendanceAction, Frequency, Weekday
 from app.core.infrastructure.db.transaction import rollbackable
 from app.core.infrastructure.sqlalchemy.repositories.account import (
@@ -36,6 +36,7 @@ class DevelopUsecase(IUsecase):
             user_id=0,
             username="host",
             hashed_password="hashed_password",
+            group=Group.HOST,
             birth_date=datetime(year=1970, month=1, day=1, tzinfo=ZoneInfo("UTC")),
             gender=Gender.MALE,
             email="email@example.com",
@@ -81,8 +82,8 @@ class DevelopUsecase(IUsecase):
             user_id=0,
             summary="summary",
             location=None,
-            start=datetime(year=2000, month=1, day=1, tzinfo=ZoneInfo("UTC")),
-            end=datetime(year=2000, month=1, day=2, tzinfo=ZoneInfo("UTC")),
+            dtstart=datetime(year=2000, month=1, day=1, tzinfo=ZoneInfo("UTC")),
+            dtend=datetime(year=2000, month=1, day=2, tzinfo=ZoneInfo("UTC")),
             is_all_day=True,
             recurrence_id=recurrence_id,
             timezone="UTC",
@@ -99,6 +100,7 @@ class DevelopUsecase(IUsecase):
                 user_id=user_id,
                 username=f"username{user_id}",
                 hashed_password="hashed_password",
+                group=Group.HOST,
                 birth_date=datetime(year=1970, month=1, day=1, tzinfo=ZoneInfo("UTC")),
                 gender=Gender.MALE,
                 email=f"email{user_id}@example.com",
@@ -106,7 +108,7 @@ class DevelopUsecase(IUsecase):
                 follower_ids=set(),
             )
 
-            for i in range(30):  # 30 日分のデータを生成
+            for i in range(30):  # Generate 30 days worth of data
                 start = today - timedelta(days=i)
                 attend_log = EventAttendanceActionLogEntity(
                     entity_id=generate_uuid(),

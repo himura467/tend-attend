@@ -8,7 +8,7 @@ from sqlalchemy.orm.base import Mapped
 from sqlalchemy.sql.schema import ForeignKey
 
 from app.core.domain.entities.account import UserAccount as UserAccountEntity
-from app.core.features.account import Gender
+from app.core.features.account import Gender, Group
 from app.core.infrastructure.sqlalchemy.models.commons.base import (
     AbstractCommonBase,
     AbstractCommonDynamicBase,
@@ -16,11 +16,15 @@ from app.core.infrastructure.sqlalchemy.models.commons.base import (
 from app.core.utils.uuid import bin_to_uuid, uuid_to_bin
 
 
+class UserGroup(AbstractCommonBase):
+    group: Mapped[str] = mapped_column(VARCHAR(63), primary_key=True, comment="Group Name")
+
+
 class UserAccount(AbstractCommonDynamicBase):
     user_id: Mapped[int] = mapped_column(BIGINT(unsigned=True), unique=True, nullable=False, comment="User ID")
     username: Mapped[str] = mapped_column(VARCHAR(63), unique=True, nullable=False, comment="Username")
     hashed_password: Mapped[str] = mapped_column(VARCHAR(512), nullable=False, comment="Hashed Password")
-    refresh_token: Mapped[str | None] = mapped_column(VARCHAR(512), nullable=True, comment="Refresh Token")
+    group: Mapped[str] = mapped_column(VARCHAR(63), ForeignKey("user_group.group", ondelete="CASCADE"), nullable=False)
     nickname: Mapped[str | None] = mapped_column(VARCHAR(63), nullable=True, comment="Nickname")
     birth_date: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Birth Date")
     gender: Mapped[Gender] = mapped_column(ENUM(Gender), nullable=False, comment="Gender")
@@ -54,7 +58,7 @@ class UserAccount(AbstractCommonDynamicBase):
             user_id=self.user_id,
             username=self.username,
             hashed_password=self.hashed_password,
-            refresh_token=self.refresh_token,
+            group=Group(self.group),
             nickname=self.nickname,
             birth_date=self.birth_date,
             gender=self.gender,
@@ -73,7 +77,7 @@ class UserAccount(AbstractCommonDynamicBase):
             user_id=entity.user_id,
             username=entity.username,
             hashed_password=entity.hashed_password,
-            refresh_token=entity.refresh_token,
+            group=entity.group.value,
             nickname=entity.nickname,
             birth_date=entity.birth_date,
             gender=entity.gender,

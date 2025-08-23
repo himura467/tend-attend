@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { generateQRCode, QRCodeOptions } from "./qrCodeGenerator";
 
-describe("generateQRCode", () => {
+describe(generateQRCode, () => {
   it("should generate a PNG QR code with default options", async () => {
     const options = {
       data: "https://vitest.dev",

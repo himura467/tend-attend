@@ -79,6 +79,48 @@ class RecurrenceRuleRepository(
         )
         return await self.create_async(recurrence_rule)
 
+    async def update_recurrence_rule_async(
+        self,
+        entity_id: UUID,
+        freq: Frequency,
+        until: datetime | None,
+        count: int | None,
+        interval: int,
+        bysecond: list[int] | None,
+        byminute: list[int] | None,
+        byhour: list[int] | None,
+        byday: list[list[int | Weekday]] | None,
+        bymonthday: list[int] | None,
+        byyearday: list[int] | None,
+        byweekno: list[int] | None,
+        bymonth: list[int] | None,
+        bysetpos: list[int] | None,
+        wkst: Weekday,
+    ) -> RecurrenceRuleEntity | None:
+        existing_rule = await self.read_by_id_or_none_async(entity_id)
+        if existing_rule is None:
+            return None
+
+        updated_rule = RecurrenceRuleEntity(
+            entity_id=entity_id,
+            user_id=existing_rule.user_id,
+            freq=freq,
+            until=until,
+            count=count,
+            interval=interval,
+            bysecond=bysecond,
+            byminute=byminute,
+            byhour=byhour,
+            byday=byday,
+            bymonthday=bymonthday,
+            byyearday=byyearday,
+            byweekno=byweekno,
+            bymonth=bymonth,
+            bysetpos=bysetpos,
+            wkst=wkst,
+        )
+        return await self.update_async(updated_rule)
+
 
 class RecurrenceRepository(
     AbstractRepository[RecurrenceEntity, Recurrence],
@@ -106,6 +148,32 @@ class RecurrenceRepository(
         )
         return await self.create_async(recurrence)
 
+    async def update_recurrence_async(
+        self,
+        entity_id: UUID,
+        rdate: list[str],
+        exdate: list[str],
+    ) -> RecurrenceEntity | None:
+        existing_recurrence = await self.read_with_rrule_by_id_or_none_async(entity_id)
+        if existing_recurrence is None:
+            return None
+
+        updated_recurrence = RecurrenceEntity(
+            entity_id=entity_id,
+            user_id=existing_recurrence.user_id,
+            rrule_id=existing_recurrence.rrule_id,
+            rrule=existing_recurrence.rrule,
+            rdate=rdate,
+            exdate=exdate,
+        )
+        return await self.update_async(updated_recurrence)
+
+    async def read_with_rrule_by_id_or_none_async(self, record_id: UUID) -> RecurrenceEntity | None:
+        stmt = select(self._model).where(self._model.id == uuid_to_bin(record_id)).options(joinedload(Recurrence.rrule))
+        result = await self._uow.execute_async(stmt)
+        record = result.unique().scalar_one_or_none()
+        return record.to_entity() if record is not None else None
+
 
 class EventRepository(AbstractRepository[EventEntity, Event]):
     @property
@@ -118,8 +186,8 @@ class EventRepository(AbstractRepository[EventEntity, Event]):
         user_id: int,
         summary: str,
         location: str | None,
-        start: datetime,
-        end: datetime,
+        dtstart: datetime,
+        dtend: datetime,
         is_all_day: bool,
         recurrence_id: UUID | None,
         timezone: str,
@@ -129,13 +197,51 @@ class EventRepository(AbstractRepository[EventEntity, Event]):
             user_id=user_id,
             summary=summary,
             location=location,
-            start=start,
-            end=end,
+            dtstart=dtstart,
+            dtend=dtend,
             is_all_day=is_all_day,
             recurrence_id=recurrence_id,
             timezone=timezone,
         )
         return await self.create_async(event)
+
+    async def update_event_async(
+        self,
+        entity_id: UUID,
+        summary: str,
+        location: str | None,
+        dtstart: datetime,
+        dtend: datetime,
+        is_all_day: bool,
+        recurrence_id: UUID | None,
+        timezone: str,
+    ) -> EventEntity | None:
+        existing_event = await self.read_by_id_or_none_async(entity_id)
+        if existing_event is None:
+            return None
+
+        updated_event = EventEntity(
+            entity_id=entity_id,
+            user_id=existing_event.user_id,
+            summary=summary,
+            location=location,
+            dtstart=dtstart,
+            dtend=dtend,
+            is_all_day=is_all_day,
+            recurrence_id=recurrence_id,
+            timezone=timezone,
+        )
+        return await self.update_async(updated_event)
+
+    async def read_with_recurrence_by_id_or_none_async(self, record_id: UUID) -> EventEntity | None:
+        stmt = (
+            select(self._model)
+            .where(self._model.id == uuid_to_bin(record_id))
+            .options(joinedload(Event.recurrence).joinedload(Recurrence.rrule))
+        )
+        result = await self._uow.execute_async(stmt)
+        record = result.unique().scalar_one_or_none()
+        return record.to_entity() if record is not None else None
 
     async def read_with_recurrence_by_user_ids_async(self, user_ids: set[int]) -> set[EventEntity]:
         stmt = (

@@ -1,4 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { useTimezone } from "@/hooks/useTimezone";
+import { TZDate } from "@/lib/utils/tzdate";
 import { EventClickArg } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -10,10 +12,30 @@ import React from "react";
 interface CalendarProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   events: any[];
-  onEventClick: (eventInfo: EventClickArg) => void;
+  onEventClick: (eventInfo: { id: string; start: TZDate; end: TZDate; title: string; allDay: boolean }) => void;
 }
 
 export const Calendar = ({ events, onEventClick }: CalendarProps): React.JSX.Element => {
+  const timezone = useTimezone();
+
+  const handleEventClick = (eventInfo: EventClickArg): void => {
+    const eventId = eventInfo.event.extendedProps.originalId || eventInfo.event.id;
+    const start = eventInfo.event.start;
+    const end = eventInfo.event.end;
+    const title = eventInfo.event.title;
+    const allDay = eventInfo.event.allDay;
+
+    if (eventId && start && end) {
+      onEventClick({
+        id: eventId,
+        start: new TZDate(start, timezone),
+        end: new TZDate(end, timezone),
+        title,
+        allDay,
+      });
+    }
+  };
+
   return (
     <Card>
       <CardContent className="p-4">
@@ -26,7 +48,7 @@ export const Calendar = ({ events, onEventClick }: CalendarProps): React.JSX.Ele
             right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
           events={events}
-          eventClick={onEventClick}
+          eventClick={handleEventClick}
           height="auto"
         />
       </CardContent>

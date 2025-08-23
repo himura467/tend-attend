@@ -1,0 +1,229 @@
+import { TZDate } from "@/lib/utils/tzdate";
+import { describe, expect, it } from "vitest";
+import { parseRecurrence } from "./icalendar";
+
+describe(parseRecurrence, () => {
+  describe("with empty recurrences array", () => {
+    it("returns null for empty array", () => {
+      const result = parseRecurrence([]);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("with single RRULE", () => {
+    it("handles daily recurrence", () => {
+      const recurrences = ["RRULE:FREQ=DAILY"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(3);
+    });
+
+    it("handles weekly recurrence with BYDAY", () => {
+      const recurrences = ["RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(2);
+      expect(result?._rrule[0].options.byweekday).toStrictEqual([0, 2, 4]);
+    });
+
+    it("handles monthly recurrence with COUNT", () => {
+      const recurrences = ["RRULE:FREQ=MONTHLY;COUNT=12"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(1);
+      expect(result?._rrule[0].options.count).toBe(12);
+    });
+
+    it("handles yearly recurrence with UNTIL", () => {
+      const recurrences = ["RRULE:FREQ=YEARLY;UNTIL=20251231T235959Z"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(0);
+      expect(result?._rrule[0].options.until).toEqual(new TZDate(2025, 11, 31, 23, 59, 59, 0));
+    });
+
+    it("handles complex RRULE with multiple parameters", () => {
+      const recurrences = ["RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=TU,TH;COUNT=10"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(2);
+      expect(result?._rrule[0].options.interval).toBe(2);
+      expect(result?._rrule[0].options.byweekday).toStrictEqual([1, 3]);
+      expect(result?._rrule[0].options.count).toBe(10);
+    });
+
+    it("generates expected number of dates", () => {
+      const recurrences = ["RRULE:FREQ=WEEKLY;COUNT=3"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      const dates = result?.all();
+      expect(dates).toHaveLength(3);
+      expect(Array.isArray(dates)).toBe(true);
+    });
+  });
+
+  describe("with multiple recurrence rules", () => {
+    it("handles two RRULE entries", () => {
+      const recurrences = ["RRULE:FREQ=WEEKLY;BYDAY=MO", "RRULE:FREQ=MONTHLY;BYMONTHDAY=15"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(2);
+      expect(result?._rrule[0].options.freq).toBe(2);
+      expect(result?._rrule[1].options.freq).toBe(1);
+      expect(result?._rrule[1].options.bymonthday).toStrictEqual([15]);
+    });
+
+    it("handles daily RRULE with weekend EXRULE", () => {
+      const recurrences = ["RRULE:FREQ=DAILY", "EXRULE:FREQ=WEEKLY;BYDAY=SA,SU"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(3);
+      expect(result?._exrule).toHaveLength(1);
+      expect(result?._exrule[0].options.freq).toBe(2);
+      expect(result?._exrule[0].options.byweekday).toStrictEqual([5, 6]);
+    });
+
+    it("handles weekly RRULE with specific RDATE", () => {
+      const recurrences = ["RRULE:FREQ=WEEKLY;BYDAY=MO", "RDATE:20240115T100000Z,20240125T100000Z"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.byweekday).toStrictEqual([0]);
+      expect(result?._rdate).toHaveLength(2);
+      expect(result?._rdate[0]).toEqual(new TZDate(2024, 0, 15, 10, 0, 0, 0));
+      expect(result?._rdate[1]).toEqual(new TZDate(2024, 0, 25, 10, 0, 0, 0));
+    });
+
+    it("handles daily RRULE with COUNT and EXDATE", () => {
+      const recurrences = ["RRULE:FREQ=DAILY;COUNT=10", "EXDATE:20240116T100000Z,20240118T100000Z"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(3);
+      expect(result?._rrule[0].options.count).toBe(10);
+      expect(result?._exdate).toHaveLength(2);
+      expect(result?._exdate[0]).toEqual(new TZDate(2024, 0, 16, 10, 0, 0, 0));
+      expect(result?._exdate[1]).toEqual(new TZDate(2024, 0, 18, 10, 0, 0, 0));
+    });
+  });
+
+  describe("error handling", () => {
+    it("throws error for completely invalid syntax", () => {
+      const recurrences = ["INVALID:RULE"];
+
+      expect(() => parseRecurrence(recurrences)).toThrow();
+    });
+
+    it("throws error for invalid frequency value", () => {
+      const recurrences = ["RRULE:FREQ=INVALID_FREQUENCY"];
+
+      expect(() => parseRecurrence(recurrences)).toThrow();
+    });
+
+    it("throws error for malformed RRULE parameters", () => {
+      const recurrences = ["RRULE:FREQ=WEEKLY;BYDAY=INVALID_DAY"];
+
+      expect(() => parseRecurrence(recurrences)).toThrow();
+    });
+
+    it("throws error when mixing valid and invalid rules", () => {
+      const recurrences = ["RRULE:FREQ=DAILY", "INVALID:RULE"];
+
+      expect(() => parseRecurrence(recurrences)).toThrow();
+    });
+  });
+
+  describe("RFC 5545 compliance", () => {
+    it("parses DTSTART with weekly RRULE", () => {
+      const recurrences = ["DTSTART:20240101T100000Z", "RRULE:FREQ=WEEKLY;BYDAY=MO"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?.dtstart()).toEqual(new TZDate(2024, 0, 1, 10, 0, 0, 0));
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(2);
+      expect(result?._rrule[0].options.byweekday).toStrictEqual([0]);
+    });
+
+    it("parses DTSTART with monthly BYSETPOS RRULE", () => {
+      const recurrences = ["DTSTART:20240101T100000Z", "RRULE:FREQ=MONTHLY;BYSETPOS=1;BYDAY=MO"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?.dtstart()).toEqual(new TZDate(2024, 0, 1, 10, 0, 0, 0));
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(1);
+      expect(result?._rrule[0].options.bysetpos).toStrictEqual([1]);
+      expect(result?._rrule[0].options.byweekday).toStrictEqual([0]);
+    });
+
+    it("combines DTSTART, RRULE and EXDATE", () => {
+      const recurrences = [
+        "DTSTART:20240101T100000Z",
+        "RRULE:FREQ=MONTHLY;BYSETPOS=1;BYDAY=MO",
+        "EXDATE:20240205T100000Z",
+      ];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?.dtstart()).toEqual(new TZDate(2024, 0, 1, 10, 0, 0, 0));
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(1);
+      expect(result?._rrule[0].options.bysetpos).toStrictEqual([1]);
+      expect(result?._rrule[0].options.byweekday).toStrictEqual([0]);
+      expect(result?._exdate).toHaveLength(1);
+      expect(result?._exdate[0]).toEqual(new TZDate(2024, 1, 5, 10, 0, 0, 0));
+    });
+
+    it("parses DTSTART with timezone and weekly RRULE", () => {
+      const recurrences = ["DTSTART;TZID=America/New_York:20240101T100000", "RRULE:FREQ=WEEKLY"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?.tzid()).toBe("America/New_York");
+      expect(result?.dtstart()).toEqual(new TZDate(2024, 0, 1, 10, 0, 0, 0));
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(2);
+    });
+  });
+
+  describe("edge cases", () => {
+    it("trims whitespace from daily RRULE and EXDATE", () => {
+      const recurrences = ["  RRULE:FREQ=DAILY  ", "  EXDATE:20240115T100000Z  "];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(3);
+      expect(result?._exdate).toHaveLength(1);
+      expect(result?._exdate[0]).toEqual(new TZDate(2024, 0, 15, 10, 0, 0, 0));
+    });
+
+    it("filters out empty strings from recurrence array", () => {
+      const recurrences = ["RRULE:FREQ=DAILY", "", "EXDATE:20240115T100000Z"];
+      const result = parseRecurrence(recurrences);
+
+      expect(result).not.toBeNull();
+      expect(result?._rrule).toHaveLength(1);
+      expect(result?._rrule[0].options.freq).toBe(3);
+      expect(result?._exdate).toHaveLength(1);
+      expect(result?._exdate[0]).toEqual(new TZDate(2024, 0, 15, 10, 0, 0, 0));
+    });
+  });
+});
