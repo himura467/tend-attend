@@ -2,8 +2,8 @@ module "lambda" {
   source                     = "../../modules/lambda"
   cloudfront_arn             = module.cloudfront.distribution_arn
   allow_origins              = ["https://www.${module.op.domain_name}"]
-  backend_lambda_timeout     = 900
-  backend_lambda_memory_size = 128
+  backend_lambda_timeout     = 60
+  backend_lambda_memory_size = 512
   subnet_ids                 = module.vpc.private_subnets[*].id
   security_group_ids         = [module.private_sg.aurora_sg_id]
   cookie_domain              = module.op.domain_name
