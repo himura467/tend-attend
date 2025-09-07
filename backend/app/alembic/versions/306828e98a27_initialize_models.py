@@ -37,6 +37,8 @@ def upgrade_common() -> None:
     info={'shard_ids': {'common'}},
     mysql_engine='InnoDB'
     )
+    # Insert default user groups: HOST and GUEST
+    op.execute("INSERT INTO user_group (`group`) VALUES ('HOST'), ('GUEST')")
     op.create_table('user_account',
     sa.Column('user_id', mysql.BIGINT(unsigned=True), nullable=False, comment='User ID'),
     sa.Column('username', mysql.VARCHAR(length=63), nullable=False, comment='Username'),
