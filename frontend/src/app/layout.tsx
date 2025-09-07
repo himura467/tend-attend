@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
-import { NextPage } from "next";
 import { Inter } from "next/font/google";
 import React from "react";
 
@@ -17,11 +16,7 @@ const fontBody = Inter({
   variable: "--font-body",
 });
 
-interface RootLayoutProps {
-  children: React.ReactNode;
-}
-
-const RootLayout: NextPage<RootLayoutProps> = ({ children }): React.JSX.Element => {
+export default function RootLayout({ children }: LayoutProps<"/">): React.JSX.Element {
   return (
     <html lang="en">
       <body className={cn("antialiased", fontHeading.variable, fontBody.variable)}>
@@ -30,6 +25,4 @@ const RootLayout: NextPage<RootLayoutProps> = ({ children }): React.JSX.Element 
       </body>
     </html>
   );
-};
-
-export default RootLayout;
+}
