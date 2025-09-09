@@ -48,7 +48,5 @@ updates:
       interval: "daily"
       time: "12:00"
       timezone: "Asia/Tokyo"
-    cooldown:
-      default-days: 7
     target-branch: "develop"
     open-pull-requests-limit: 1
