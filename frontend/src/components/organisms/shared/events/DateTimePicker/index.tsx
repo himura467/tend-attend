@@ -5,16 +5,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useTimezone } from "@/hooks/useTimezone";
 import { cn } from "@/lib/utils";
-import { areEqualByRegExps } from "@/lib/utils/array";
+import { matchesFrequency } from "@/lib/utils/icalendar";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { CalendarIcon, Clock, Repeat } from "lucide-react";
 import React from "react";
+import { RRule } from "rrule";
 
 type RecurrencesOption = {
   label: string;
   value: string[];
-  regExps: RegExp[];
+  matcher: (rrules: string[]) => boolean;
 };
 
 type TimezoneOption = {
@@ -81,32 +82,32 @@ export const DateTimePicker = ({
       {
         label: "Does not repeat",
         value: [],
-        regExps: [],
+        matcher: (rrules: string[]) => matchesFrequency(rrules),
       },
       {
         label: "Every day",
         value: [`RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        regExps: [/^RRULE:FREQ=DAILY;BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
+        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.DAILY),
       },
       {
         label: "Every week",
         value: [`RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        regExps: [/^RRULE:FREQ=WEEKLY;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
+        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.WEEKLY),
       },
       {
         label: "Every 2 weeks",
         value: [`RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        regExps: [/^RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
+        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.WEEKLY),
       },
       {
         label: "Every month",
         value: [`RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        regExps: [/^RRULE:FREQ=MONTHLY;BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
+        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.MONTHLY),
       },
       {
         label: "Every year",
         value: [`RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        regExps: [/^RRULE:FREQ=YEARLY;BYMONTH=\d{1,2};BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
+        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.YEARLY),
       },
     ];
   }, [browserTimezone, startDate]);
@@ -118,7 +119,7 @@ export const DateTimePicker = ({
   };
 
   const getRecurrencesOption = React.useCallback((): RecurrencesOption => {
-    const option = recurrencesOptions.find((r) => areEqualByRegExps(recurrences, r.regExps));
+    const option = recurrencesOptions.find((r) => r.matcher(recurrences));
     if (!option) throw new Error("Unsupported recurrences");
     return option;
   }, [recurrences, recurrencesOptions]);
