@@ -2,9 +2,10 @@
 
 import { Calendar } from "@/components/organisms/shared/events/Calendar";
 import { CreateEventForm, formSchema } from "@/components/organisms/specific/events/edit/CreateEventForm";
+import { UpdateEventForm } from "@/components/organisms/specific/events/edit/UpdateEventForm";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { useTimezone } from "@/hooks/useTimezone";
-import { createEvent, getMyEvents } from "@/lib/api/events";
+import { createEvent, getMyEvents, updateEvent } from "@/lib/api/events";
 import { parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
 import { Event, mapEventsToFullCalendar } from "@/lib/utils/fullcalendar";
 import { TZDate } from "@/lib/utils/tzdate";
@@ -17,6 +18,7 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
   const localNow = useLocalNow();
 
   const [events, setEvents] = React.useState<Event[]>([]);
+  const [selectedEvent, setSelectedEvent] = React.useState<Event | null>(null);
   const [startDate, setStartDate] = React.useState<TZDate>(localNow.startOfDay());
   const [endDate, setEndDate] = React.useState<TZDate>(localNow.startOfDay().addDays(1));
   const [isAllDay, setIsAllDay] = React.useState<boolean>(true);
@@ -58,7 +60,7 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
     void fetchEvents();
   }, [fetchEvents]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>): Promise<void> => {
+  const onCreateSubmit = async (values: z.infer<typeof formSchema>): Promise<void> => {
     try {
       const response = await createEvent({
         event: {
@@ -75,21 +77,54 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
       if (response.error_codes.length > 0) {
         toast.error("Failed to create event");
       } else {
-        toast.message("Event registered", {
-          description: `You have registered for ${values.summary}`,
+        toast.message("Event created", {
+          description: `You have created ${values.summary}`,
         });
       }
     } catch {
       toast.error("Failed to create event");
     }
 
+    resetForm();
+    await fetchEvents();
+  };
+
+  const onUpdateSubmit = async (eventId: string, values: z.infer<typeof formSchema>): Promise<void> => {
+    try {
+      const response = await updateEvent(eventId, {
+        event: {
+          summary: values.summary,
+          location: values.location,
+          dtstart: startDate.withTimeZone("UTC").toISOString(),
+          dtend: endDate.withTimeZone("UTC").toISOString(),
+          is_all_day: isAllDay,
+          recurrence_list: recurrences,
+          timezone: timezone,
+        },
+      });
+
+      if (response.error_codes.length > 0) {
+        toast.error("Failed to update event");
+      } else {
+        toast.message("Event updated", {
+          description: `You have updated ${values.summary}`,
+        });
+      }
+    } catch {
+      toast.error("Failed to update event");
+    }
+
+    setSelectedEvent(null);
+    resetForm();
+    await fetchEvents();
+  };
+
+  const resetForm = (): void => {
     setStartDate(localNow.startOfDay());
     setEndDate(localNow.startOfDay().addDays(1));
     setIsAllDay(true);
     setRecurrences([]);
     setTimezone(browserTimezone);
-
-    await fetchEvents();
   };
 
   const handleStartDateChange = (date: TZDate): void => {
@@ -113,31 +148,70 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
     }
   };
 
+  const handleEventSelect = (event: Event): void => {
+    setSelectedEvent(event);
+    const dtstart = new TZDate(event.dtstart);
+    const dtend = new TZDate(event.dtend);
+    setStartDate(dtstart);
+    setEndDate(dtend);
+    setIsAllDay(event.isAllDay);
+    setRecurrences(event.recurrences);
+    setTimezone(event.timezone);
+  };
+
+  const handleCancelUpdate = (): void => {
+    setSelectedEvent(null);
+    resetForm();
+  };
+
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       <div className="md:col-span-2">
         <Calendar
           events={mapEventsToFullCalendar(events, browserTimezone)}
           onEventClick={(info) => {
-            // TODO: Display event update form
-            console.log(info);
+            const eventId = info.id;
+            const event = events.find((e) => e.id === eventId);
+            if (event) {
+              handleEventSelect(event);
+            }
           }}
         />
       </div>
       <div>
-        <CreateEventForm
-          onSubmit={onSubmit}
-          startDate={startDate}
-          endDate={endDate}
-          onStartDateChange={handleStartDateChange}
-          onEndDateChange={handleEndDateChange}
-          isAllDay={isAllDay}
-          onIsAllDayChange={handleIsAllDayChange}
-          recurrences={recurrences}
-          onRecurrencesChange={setRecurrences}
-          timezone={timezone}
-          onTimezoneChange={setTimezone}
-        />
+        {selectedEvent ? (
+          <UpdateEventForm
+            eventId={selectedEvent.id}
+            initialSummary={selectedEvent.summary}
+            initialLocation={selectedEvent.location}
+            onSubmit={onUpdateSubmit}
+            onCancel={handleCancelUpdate}
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={handleStartDateChange}
+            onEndDateChange={handleEndDateChange}
+            isAllDay={isAllDay}
+            onIsAllDayChange={handleIsAllDayChange}
+            recurrences={recurrences}
+            onRecurrencesChange={setRecurrences}
+            timezone={timezone}
+            onTimezoneChange={setTimezone}
+          />
+        ) : (
+          <CreateEventForm
+            onSubmit={onCreateSubmit}
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={handleStartDateChange}
+            onEndDateChange={handleEndDateChange}
+            isAllDay={isAllDay}
+            onIsAllDayChange={handleIsAllDayChange}
+            recurrences={recurrences}
+            onRecurrencesChange={setRecurrences}
+            timezone={timezone}
+            onTimezoneChange={setTimezone}
+          />
+        )}
       </div>
     </div>
   );
