@@ -3,6 +3,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useSSRSafeFormat } from "@/hooks/useSSRSafeFormat";
 import { useTimezone } from "@/hooks/useTimezone";
 import { cn } from "@/lib/utils";
 import { matchesFrequency } from "@/lib/utils/icalendar";
@@ -60,6 +61,13 @@ export const DateTimePicker = ({
   onTimezoneChange,
 }: DateTimePickerProps): React.JSX.Element => {
   const browserTimezone = useTimezone();
+
+  // SSR-safe date formatting to prevent hydration mismatches
+  const startTimeFormatted = useSSRSafeFormat(startDate, "HH:mm");
+  const endTimeFormatted = useSSRSafeFormat(endDate, "HH:mm");
+  const startDateFormatted = useSSRSafeFormat(startDate, "EEE MMM dd");
+  const endDateFormatted = useSSRSafeFormat(endDate, "EEE MMM dd");
+
   const timeOptions = React.useMemo(() => {
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -141,7 +149,7 @@ export const DateTimePicker = ({
                   variant="outline"
                   className={cn("w-[120px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}
                 >
-                  {format(startDate, "HH:mm")}
+                  {startTimeFormatted}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0" align="start">
@@ -171,7 +179,7 @@ export const DateTimePicker = ({
                   variant="outline"
                   className={cn("w-[120px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}
                 >
-                  {format(endDate, "HH:mm")}
+                  {endTimeFormatted}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0" align="start">
@@ -207,7 +215,7 @@ export const DateTimePicker = ({
                 variant="outline"
                 className={cn("w-[120px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}
               >
-                {format(startDate, "EEE MMM dd")}
+                {startDateFormatted}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -226,7 +234,7 @@ export const DateTimePicker = ({
                 variant="outline"
                 className={cn("w-[120px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}
               >
-                {format(endDate, "EEE MMM dd")}
+                {endDateFormatted}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
