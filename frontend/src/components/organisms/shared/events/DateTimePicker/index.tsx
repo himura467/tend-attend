@@ -95,27 +95,27 @@ export const DateTimePicker = ({
       {
         label: "Every day",
         value: [`RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.DAILY),
+        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.DAILY, 1),
       },
       {
         label: "Every week",
         value: [`RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.WEEKLY),
+        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.WEEKLY, 1),
       },
       {
         label: "Every 2 weeks",
         value: [`RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.WEEKLY),
+        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.WEEKLY, 2),
       },
       {
         label: "Every month",
         value: [`RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.MONTHLY),
+        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.MONTHLY, 1),
       },
       {
         label: "Every year",
         value: [`RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.YEARLY),
+        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.YEARLY, 1),
       },
     ];
   }, [browserTimezone, startDate]);

@@ -12,8 +12,8 @@ export const parseRecurrence = (recurrences: string[]): RRuleSet | null => {
   return rruleSet;
 };
 
-// Helper function to check if recurrence matches expected frequency
-export const matchesFrequency = (recurrences: string[], expectedFreq?: number): boolean => {
+// Helper function to check if recurrence matches expected frequency and interval
+export const matchesFrequency = (recurrences: string[], expectedFreq?: number, expectedInterval?: number): boolean => {
   if (expectedFreq === undefined) {
     return recurrences.length === 0;
   }
@@ -23,6 +23,17 @@ export const matchesFrequency = (recurrences: string[], expectedFreq?: number): 
     return false;
   }
 
-  const rrule = rruleSet._rrule[0];
-  return rrule.options.freq === expectedFreq;
+  const options = rruleSet._rrule[0].options;
+
+  // Check frequency
+  if (expectedFreq !== undefined && options.freq !== expectedFreq) {
+    return false;
+  }
+
+  // Check interval
+  if (expectedInterval !== undefined && options.interval !== expectedInterval) {
+    return false;
+  }
+
+  return true;
 };
