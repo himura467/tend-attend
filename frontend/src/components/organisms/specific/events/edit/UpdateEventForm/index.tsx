@@ -16,9 +16,11 @@ export const formSchema = z.object({
 });
 
 interface UpdateEventFormProps {
-  eventId: string;
-  initialSummary: string;
-  initialLocation: string | null;
+  selectedEvent: {
+    id: string;
+    summary: string;
+    location: string | null;
+  };
   onSubmit: (eventId: string, values: z.infer<typeof formSchema>) => Promise<void>;
   onCancel: () => void;
   startDate: TZDate;
@@ -34,9 +36,7 @@ interface UpdateEventFormProps {
 }
 
 export const UpdateEventForm = ({
-  eventId,
-  initialSummary,
-  initialLocation,
+  selectedEvent,
   onSubmit,
   onCancel,
   startDate,
@@ -53,13 +53,21 @@ export const UpdateEventForm = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      summary: initialSummary,
-      location: initialLocation,
+      summary: selectedEvent.summary,
+      location: selectedEvent.location,
     },
   });
 
+  // Update form values when selectedEvent changes
+  React.useEffect(() => {
+    form.reset({
+      summary: selectedEvent.summary,
+      location: selectedEvent.location,
+    });
+  }, [form, selectedEvent.summary, selectedEvent.location]);
+
   const handleSubmit = async (values: z.infer<typeof formSchema>): Promise<void> => {
-    await onSubmit(eventId, values);
+    await onSubmit(selectedEvent.id, values);
   };
 
   return (

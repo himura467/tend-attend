@@ -179,9 +179,7 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
       <div>
         {selectedEvent ? (
           <UpdateEventForm
-            eventId={selectedEvent.id}
-            initialSummary={selectedEvent.summary}
-            initialLocation={selectedEvent.location}
+            selectedEvent={selectedEvent}
             onSubmit={onUpdateSubmit}
             onCancel={handleCancelUpdate}
             startDate={startDate}
