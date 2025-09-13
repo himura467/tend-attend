@@ -150,10 +150,8 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
 
   const handleEventSelect = (event: Event): void => {
     setSelectedEvent(event);
-    const dtstart = new TZDate(event.dtstart);
-    const dtend = new TZDate(event.dtend);
-    setStartDate(dtstart);
-    setEndDate(dtend);
+    setStartDate(event.dtstart);
+    setEndDate(event.dtend);
     setIsAllDay(event.isAllDay);
     setRecurrences(event.recurrences);
     setTimezone(event.timezone);
