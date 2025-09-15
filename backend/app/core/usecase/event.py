@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import date, datetime
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import httpx
@@ -81,14 +81,6 @@ def parse_byday(
     return [(int(i[0]), Weekday(str(i[1]))) for i in byday] if byday is not None else None
 
 
-def stringify_dates(dates: list[date]) -> list[str]:
-    return [d.isoformat() for d in dates]
-
-
-def parse_dates(dates: list[str]) -> list[date]:
-    return [date.fromisoformat(d) for d in dates]
-
-
 def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
     event_dto_list = []
     for event in events:
@@ -111,8 +103,8 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                     bysetpos=event.recurrence.rrule.bysetpos,
                     wkst=event.recurrence.rrule.wkst or Weekday.MO,
                 ),
-                rdate=(parse_dates(event.recurrence.rdate) if event.is_all_day else []),
-                exdate=(parse_dates(event.recurrence.exdate) if event.is_all_day else []),
+                rdate=event.recurrence.rdate,
+                exdate=event.recurrence.exdate,
             )
         event_dto_list.append(
             EventWithIdDto(
@@ -201,8 +193,8 @@ class EventUsecase(IUsecase):
                 user_id=user_id,
                 rrule_id=recurrence_rule.id,
                 rrule=recurrence_rule,
-                rdate=stringify_dates(event.recurrence.rdate),
-                exdate=stringify_dates(event.recurrence.exdate),
+                rdate=event.recurrence.rdate,
+                exdate=event.recurrence.exdate,
             )
             if recurrence_entity is None:
                 raise ValueError("Failed to create recurrence")
@@ -290,8 +282,8 @@ class EventUsecase(IUsecase):
                     )
                     await recurrence_repository.update_recurrence_async(
                         entity_id=existing_event.recurrence_id,
-                        rdate=stringify_dates(recurrence.rdate),
-                        exdate=stringify_dates(recurrence.exdate),
+                        rdate=recurrence.rdate,
+                        exdate=recurrence.exdate,
                     )
                     recurrence_id = existing_event.recurrence_id
                 else:
@@ -323,8 +315,8 @@ class EventUsecase(IUsecase):
                     user_id=user_id,
                     rrule_id=recurrence_rule.id,
                     rrule=recurrence_rule,
-                    rdate=stringify_dates(recurrence.rdate),
-                    exdate=stringify_dates(recurrence.exdate),
+                    rdate=recurrence.rdate,
+                    exdate=recurrence.exdate,
                 )
                 if recurrence_entity is None:
                     raise ValueError("Failed to create recurrence")
