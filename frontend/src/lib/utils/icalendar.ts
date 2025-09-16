@@ -1,9 +1,9 @@
 import { RRuleSet, rrulestr } from "rrule";
 
-export const parseRecurrence = (recurrences: string[]): RRuleSet | null => {
+export const parseRecurrence = (recurrences: string[], tzid?: string): RRuleSet | null => {
   if (recurrences.length === 0) return null;
   const rfcString = recurrences.join("\n");
-  const result = rrulestr(rfcString);
+  const result = rrulestr(rfcString, { tzid });
   if (result instanceof RRuleSet) {
     return result;
   }
