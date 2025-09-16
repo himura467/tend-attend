@@ -78,9 +78,9 @@ export const mapEventsToFullCalendar = (
     }
 
     rruleSet._rdate.forEach((rdate, index) => {
-      // Convert rdate from local timezone to UTC
-      const timezoneOffsetMs = new TZDate(rdate, timezone).getTimezoneOffset() * 60 * 1000;
-      const rdateStart = new TZDate(rdate.getTime() + timezoneOffsetMs);
+      // The TZID associated with RDATE should be registered as the timezone for rdateStart,
+      // but for convenience, it's currently using event.timezone instead.
+      const rdateStart = new TZDate(rdate, event.timezone);
       const originalDurationMs = baseEvent.end.getTime() - baseEvent.start.getTime();
       const rdateEnd = new TZDate(rdateStart.getTime() + originalDurationMs);
 
