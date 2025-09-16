@@ -69,18 +69,6 @@ from app.core.utils.icalendar import parse_recurrence, serialize_recurrence
 from app.core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
 
 
-def listify_byday(
-    byday: list[tuple[int, Weekday]] | None,
-) -> list[list[int | Weekday]] | None:
-    return [list(i) for i in byday] if byday is not None else None
-
-
-def parse_byday(
-    byday: list[list[int | Weekday]] | None,
-) -> list[tuple[int, Weekday]] | None:
-    return [(int(i[0]), Weekday(str(i[1]))) for i in byday] if byday is not None else None
-
-
 def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
     event_dto_list = []
     for event in events:
@@ -95,7 +83,7 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                     bysecond=event.recurrence.rrule.bysecond,
                     byminute=event.recurrence.rrule.byminute,
                     byhour=event.recurrence.rrule.byhour,
-                    byday=parse_byday(event.recurrence.rrule.byday),
+                    byday=event.recurrence.rrule.byday,
                     bymonthday=event.recurrence.rrule.bymonthday,
                     byyearday=event.recurrence.rrule.byyearday,
                     byweekno=event.recurrence.rrule.byweekno,
@@ -177,7 +165,7 @@ class EventUsecase(IUsecase):
                 bysecond=event.recurrence.rrule.bysecond,
                 byminute=event.recurrence.rrule.byminute,
                 byhour=event.recurrence.rrule.byhour,
-                byday=listify_byday(event.recurrence.rrule.byday),
+                byday=event.recurrence.rrule.byday,
                 bymonthday=event.recurrence.rrule.bymonthday,
                 byyearday=event.recurrence.rrule.byyearday,
                 byweekno=event.recurrence.rrule.byweekno,
@@ -272,7 +260,7 @@ class EventUsecase(IUsecase):
                         bysecond=recurrence.rrule.bysecond,
                         byminute=recurrence.rrule.byminute,
                         byhour=recurrence.rrule.byhour,
-                        byday=listify_byday(recurrence.rrule.byday),
+                        byday=recurrence.rrule.byday,
                         bymonthday=recurrence.rrule.bymonthday,
                         byyearday=recurrence.rrule.byyearday,
                         byweekno=recurrence.rrule.byweekno,
@@ -299,7 +287,7 @@ class EventUsecase(IUsecase):
                     bysecond=recurrence.rrule.bysecond,
                     byminute=recurrence.rrule.byminute,
                     byhour=recurrence.rrule.byhour,
-                    byday=listify_byday(recurrence.rrule.byday),
+                    byday=recurrence.rrule.byday,
                     bymonthday=recurrence.rrule.bymonthday,
                     byyearday=recurrence.rrule.byyearday,
                     byweekno=recurrence.rrule.byweekno,

@@ -23,7 +23,7 @@ class RecurrenceRule(IEntity):
         bysecond: list[int] | None,
         byminute: list[int] | None,
         byhour: list[int] | None,
-        byday: list[list[int | Weekday]] | None,
+        byday: list[tuple[int, Weekday]] | None,
         bymonthday: list[int] | None,
         byyearday: list[int] | None,
         byweekno: list[int] | None,
