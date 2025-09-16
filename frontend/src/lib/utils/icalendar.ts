@@ -3,13 +3,15 @@ import { RRuleSet, rrulestr } from "rrule";
 export const parseRecurrence = (recurrences: string[], tzid?: string): RRuleSet | null => {
   if (recurrences.length === 0) return null;
   const rfcString = recurrences.join("\n");
-  const result = rrulestr(rfcString, { tzid });
-  if (result instanceof RRuleSet) {
-    return result;
-  }
-  const rruleSet = new RRuleSet();
-  rruleSet.rrule(result);
-  return rruleSet;
+
+  // Always use forceset to ensure we get an RRuleSet, which properly handles RDATE/EXDATE
+  const result = rrulestr(rfcString, {
+    cache: true,
+    forceset: true,
+    tzid,
+  });
+
+  return result as RRuleSet;
 };
 
 // Helper function to check if recurrence matches expected frequency and interval
