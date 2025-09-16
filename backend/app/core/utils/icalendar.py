@@ -163,11 +163,8 @@ def serialize_recurrence(recurrence: Recurrence | None, is_all_day: bool) -> lis
         else:
             rdates = ",".join(rdate.strftime("%Y%m%dT%H%M%S") for rdate in recurrence.rdate)
             # TODO: Use the timezone from the db record
-            if recurrence.rdate and recurrence.rdate[0].tzinfo:
-                tzid = str(recurrence.rdate[0].tzinfo)
-                rdate_str = f"RDATE;TZID={tzid}:{rdates}"
-            else:
-                rdate_str = f"RDATE:{rdates}"
+            tzid = "Asia/Tokyo"
+            rdate_str = f"RDATE;TZID={tzid}:{rdates}"
         recurrence_list.append(rdate_str)
     if recurrence.exdate:
         if is_all_day:
@@ -176,11 +173,8 @@ def serialize_recurrence(recurrence: Recurrence | None, is_all_day: bool) -> lis
         else:
             exdates = ",".join(exdate.strftime("%Y%m%dT%H%M%S") for exdate in recurrence.exdate)
             # TODO: Use the timezone from the db record
-            if recurrence.exdate and recurrence.exdate[0].tzinfo:
-                tzid = str(recurrence.exdate[0].tzinfo)
-                exdate_str = f"EXDATE;TZID={tzid}:{exdates}"
-            else:
-                exdate_str = f"EXDATE:{exdates}"
+            tzid = "Asia/Tokyo"
+            exdate_str = f"EXDATE;TZID={tzid}:{exdates}"
         recurrence_list.append(exdate_str)
 
     return recurrence_list
