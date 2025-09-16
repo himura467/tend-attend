@@ -114,8 +114,8 @@ class Recurrence(AbstractShardStaticBase):
             user_id=self.user_id,
             rrule_id=bin_to_uuid(self.rrule_id),
             rrule=rrule,
-            rdate=self.rdate,
-            exdate=self.exdate,
+            rdate=[datetime.fromisoformat(dt_str) for dt_str in self.rdate],
+            exdate=[datetime.fromisoformat(dt_str) for dt_str in self.exdate],
         )
 
     @classmethod
@@ -124,8 +124,8 @@ class Recurrence(AbstractShardStaticBase):
             id=uuid_to_bin(entity.id),
             user_id=entity.user_id,
             rrule_id=uuid_to_bin(entity.rrule_id),
-            rdate=entity.rdate,
-            exdate=entity.exdate,
+            rdate=[dt.isoformat() for dt in entity.rdate],
+            exdate=[dt.isoformat() for dt in entity.exdate],
         )
 
 

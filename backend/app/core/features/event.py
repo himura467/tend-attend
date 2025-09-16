@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import datetime
 from enum import Enum, IntEnum
 
 
@@ -101,13 +101,14 @@ class Recurrence:
     # The RRULE property is the most important as it defines a regular rule for repeating the event.
     rrule: RecurrenceRule
 
-    # EXDATE and RDATE can have a time zone, and must be dates (not date-times) for all-day events.
+    # RDATE and EXDATE use datetime objects with proper timezone information.
+    # For all-day events, the time component should be midnight (00:00:00).
 
     # The RDATE property specifies additional dates when the event occurrences should happen.
-    rdate: list[date]
+    rdate: list[datetime]
 
     # The EXDATE property is similar to RDATE, but specifies dates when the event should not happen.
-    exdate: list[date]
+    exdate: list[datetime]
 
 
 @dataclass(frozen=True)

@@ -1,7 +1,57 @@
 import re
-from datetime import date, datetime
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from app.core.features.event import Frequency, Recurrence, RecurrenceRule, Weekday
+
+
+def _parse_datetime_with_tzid(datetime_str: str, tzid: str | None) -> datetime:
+    """Parse datetime string with optional TZID parameter."""
+    if "T" in datetime_str:
+        if datetime_str.endswith("Z"):
+            # UTC time
+            dt = datetime.strptime(datetime_str, "%Y%m%dT%H%M%SZ")
+            return dt.replace(tzinfo=ZoneInfo("UTC"))
+        else:
+            # Local time with TZID
+            dt = datetime.strptime(datetime_str, "%Y%m%dT%H%M%S")
+            if tzid:
+                return dt.replace(tzinfo=ZoneInfo(tzid))
+            else:
+                # Assume UTC if no timezone specified
+                return dt.replace(tzinfo=ZoneInfo("UTC"))
+    else:
+        # Date-only format (all-day events)
+        dt = datetime.strptime(datetime_str, "%Y%m%d")
+        if tzid:
+            return dt.replace(tzinfo=ZoneInfo(tzid))
+        else:
+            return dt.replace(tzinfo=ZoneInfo("UTC"))
+
+
+def _parse_rdate_exdate_line(line: str, is_all_day: bool) -> list[datetime]:
+    """Parse RDATE or EXDATE line with proper TZID handling."""
+    # Extract TZID parameter if present
+    tzid = None
+    if ";TZID=" in line:
+        parts = line.split(";")
+        for part in parts[1:]:
+            if part.startswith("TZID="):
+                tzid = part[5:].split(":")[0]
+                break
+
+    # Extract the value part after the colon
+    value_part = line.split(":")[1]
+
+    if ";VALUE=DATE:" in line:
+        if not is_all_day:
+            raise ValueError("RDATE/EXDATE with VALUE=DATE must be used only for all-day events")
+        # RFC 5545: TZID MUST NOT be applied to DATE properties
+        return [_parse_datetime_with_tzid(date_str, None) for date_str in value_part.split(",")]
+    else:
+        if is_all_day:
+            raise ValueError("RDATE/EXDATE without VALUE=DATE cannot be used for all-day events")
+        return [_parse_datetime_with_tzid(datetime_str, tzid) for datetime_str in value_part.split(",")]
 
 
 def parse_rrule(rrule_str: str, is_all_day: bool) -> RecurrenceRule:
@@ -54,8 +104,8 @@ def parse_rrule(rrule_str: str, is_all_day: bool) -> RecurrenceRule:
 
 def parse_recurrence(recurrence_list: list[str], is_all_day: bool) -> Recurrence | None:
     rrule: RecurrenceRule | None = None
-    rdate: list[date] = []
-    exdate: list[date] = []
+    rdate: list[datetime] = []
+    exdate: list[datetime] = []
 
     if not recurrence_list:
         return None
@@ -64,35 +114,10 @@ def parse_recurrence(recurrence_list: list[str], is_all_day: bool) -> Recurrence
         if rec.startswith("RRULE:"):
             rrule = parse_rrule(rec, is_all_day)
         elif rec.startswith("RDATE"):
-            # RFC 5545: Handle both RDATE;VALUE=DATE: and RDATE: formats
-            if "VALUE=DATE:" in rec:
-                if not is_all_day:
-                    raise ValueError("RDATE with VALUE=DATE must be used only for all-day events")
-                rdate.extend(
-                    datetime.strptime(date_str, "%Y%m%d").date() for date_str in rec.split(":", 1)[1].split(",")
-                )
-            else:
-                # Handle RDATE without VALUE=DATE (date-time format)
-                if is_all_day:
-                    raise ValueError("RDATE without VALUE=DATE cannot be used for all-day events")
-                # Parse as date-time values - this would need more complex handling
-                # For now, keep existing logic for all-day events
-                pass
+            rdate.extend(_parse_rdate_exdate_line(rec, is_all_day))
         elif rec.startswith("EXDATE"):
-            # RFC 5545: Handle both EXDATE;VALUE=DATE: and EXDATE: formats
-            if "VALUE=DATE:" in rec:
-                if not is_all_day:
-                    raise ValueError("EXDATE with VALUE=DATE must be used only for all-day events")
-                exdate.extend(
-                    datetime.strptime(date_str, "%Y%m%d").date() for date_str in rec.split(":", 1)[1].split(",")
-                )
-            else:
-                # Handle EXDATE without VALUE=DATE (date-time format)
-                if is_all_day:
-                    raise ValueError("EXDATE without VALUE=DATE cannot be used for all-day events")
-                # Parse as date-time values - this would need more complex handling
-                # For now, keep existing logic for all-day events
-                pass
+            exdate.extend(_parse_rdate_exdate_line(rec, is_all_day))
+
     if not rrule:
         raise ValueError("Missing RRULE in recurrence list")
 
@@ -132,12 +157,24 @@ def serialize_recurrence(recurrence: Recurrence | None, is_all_day: bool) -> lis
 
     recurrence_list = [rrule_str]
     if recurrence.rdate:
-        rdates = ",".join(rdate.strftime("%Y%m%d") for rdate in recurrence.rdate)
-        rdate_str = f"RDATE;VALUE=DATE:{rdates}"
+        if is_all_day:
+            rdates = ",".join(rdate.strftime("%Y%m%d") for rdate in recurrence.rdate)
+            rdate_str = f"RDATE;VALUE=DATE:{rdates}"
+        else:
+            rdates = ",".join(rdate.strftime("%Y%m%dT%H%M%S") for rdate in recurrence.rdate)
+            # TODO: Use the timezone from the db record
+            tzid = "Asia/Tokyo"
+            rdate_str = f"RDATE;TZID={tzid}:{rdates}"
         recurrence_list.append(rdate_str)
     if recurrence.exdate:
-        exdates = ",".join(exdate.strftime("%Y%m%d") for exdate in recurrence.exdate)
-        exdate_str = f"EXDATE;VALUE=DATE:{exdates}"
+        if is_all_day:
+            exdates = ",".join(exdate.strftime("%Y%m%d") for exdate in recurrence.exdate)
+            exdate_str = f"EXDATE;VALUE=DATE:{exdates}"
+        else:
+            exdates = ",".join(exdate.strftime("%Y%m%dT%H%M%S") for exdate in recurrence.exdate)
+            # TODO: Use the timezone from the db record
+            tzid = "Asia/Tokyo"
+            exdate_str = f"EXDATE;TZID={tzid}:{exdates}"
         recurrence_list.append(exdate_str)
 
     return recurrence_list

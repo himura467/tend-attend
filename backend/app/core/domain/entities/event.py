@@ -56,8 +56,8 @@ class Recurrence(IEntity):
         user_id: int,
         rrule_id: UUID,
         rrule: RecurrenceRule,
-        rdate: list[str],
-        exdate: list[str],
+        rdate: list[datetime],
+        exdate: list[datetime],
     ) -> None:
         super().__init__(entity_id)
         self.user_id = user_id
