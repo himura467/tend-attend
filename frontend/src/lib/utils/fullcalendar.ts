@@ -52,7 +52,7 @@ export const mapEventsToFullCalendar = (
       allDay: event.isAllDay,
     };
 
-    const rruleSet = parseRecurrence(event.recurrences);
+    const rruleSet = parseRecurrence(event.recurrences, event.timezone);
     if (!rruleSet) return [baseEvent];
 
     const results: (BaseFullCalendarEvent | RecurringFullCalendarEvent)[] = [];
@@ -78,9 +78,7 @@ export const mapEventsToFullCalendar = (
     }
 
     rruleSet._rdate.forEach((rdate, index) => {
-      // The TZID associated with RDATE should be registered as the timezone for rdateStart,
-      // but for convenience, it's currently using event.timezone instead.
-      const rdateStart = new TZDate(rdate, event.timezone);
+      const rdateStart = new TZDate(rdate, rruleSet.tzid);
       const originalDurationMs = baseEvent.end.getTime() - baseEvent.start.getTime();
       const rdateEnd = new TZDate(rdateStart.getTime() + originalDurationMs);
 
