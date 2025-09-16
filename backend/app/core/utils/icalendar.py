@@ -29,7 +29,7 @@ def _parse_datetime_with_tzid(datetime_str: str, tzid: str | None) -> datetime:
             return dt.replace(tzinfo=ZoneInfo("UTC"))
 
 
-def _parse_rdate_exdate_line(line: str, is_all_day: bool) -> list[datetime]:
+def _parse_rdate_exdate_line(line: str, is_all_day: bool) -> tuple[list[datetime], str | None]:
     """Parse RDATE or EXDATE line with proper TZID handling."""
     # Extract TZID parameter if present
     tzid = None
@@ -47,11 +47,11 @@ def _parse_rdate_exdate_line(line: str, is_all_day: bool) -> list[datetime]:
         if not is_all_day:
             raise ValueError("RDATE/EXDATE with VALUE=DATE must be used only for all-day events")
         # RFC 5545: TZID MUST NOT be applied to DATE properties
-        return [_parse_datetime_with_tzid(date_str, None) for date_str in value_part.split(",")]
+        return [_parse_datetime_with_tzid(date_str, None) for date_str in value_part.split(",")], tzid
     else:
         if is_all_day:
             raise ValueError("RDATE/EXDATE without VALUE=DATE cannot be used for all-day events")
-        return [_parse_datetime_with_tzid(datetime_str, tzid) for datetime_str in value_part.split(",")]
+        return [_parse_datetime_with_tzid(datetime_str, tzid) for datetime_str in value_part.split(",")], tzid
 
 
 def parse_rrule(rrule_str: str, is_all_day: bool) -> RecurrenceRule:
@@ -106,6 +106,7 @@ def parse_recurrence(recurrence_list: list[str], is_all_day: bool) -> Recurrence
     rrule: RecurrenceRule | None = None
     rdate: list[datetime] = []
     exdate: list[datetime] = []
+    timezone: str | None = None
 
     if not recurrence_list:
         return None
@@ -114,14 +115,24 @@ def parse_recurrence(recurrence_list: list[str], is_all_day: bool) -> Recurrence
         if rec.startswith("RRULE:"):
             rrule = parse_rrule(rec, is_all_day)
         elif rec.startswith("RDATE"):
-            rdate.extend(_parse_rdate_exdate_line(rec, is_all_day))
+            rdate_datetimes, rdate_tzid = _parse_rdate_exdate_line(rec, is_all_day)
+            rdate.extend(rdate_datetimes)
+            if rdate_tzid and timezone is None:
+                timezone = rdate_tzid
         elif rec.startswith("EXDATE"):
-            exdate.extend(_parse_rdate_exdate_line(rec, is_all_day))
+            exdate_datetimes, exdate_tzid = _parse_rdate_exdate_line(rec, is_all_day)
+            exdate.extend(exdate_datetimes)
+            if exdate_tzid and timezone is None:
+                timezone = exdate_tzid
 
     if not rrule:
         raise ValueError("Missing RRULE in recurrence list")
 
-    return Recurrence(rrule=rrule, rdate=rdate, exdate=exdate)
+    # Default to UTC if no timezone was found
+    if timezone is None:
+        timezone = "UTC"
+
+    return Recurrence(rrule=rrule, rdate=rdate, exdate=exdate, timezone=timezone)
 
 
 def serialize_recurrence(recurrence: Recurrence | None, is_all_day: bool) -> list[str]:
@@ -162,9 +173,7 @@ def serialize_recurrence(recurrence: Recurrence | None, is_all_day: bool) -> lis
             rdate_str = f"RDATE;VALUE=DATE:{rdates}"
         else:
             rdates = ",".join(rdate.strftime("%Y%m%dT%H%M%S") for rdate in recurrence.rdate)
-            # TODO: Use the timezone from the db record
-            tzid = "Asia/Tokyo"
-            rdate_str = f"RDATE;TZID={tzid}:{rdates}"
+            rdate_str = f"RDATE;TZID={recurrence.timezone}:{rdates}"
         recurrence_list.append(rdate_str)
     if recurrence.exdate:
         if is_all_day:
@@ -172,9 +181,7 @@ def serialize_recurrence(recurrence: Recurrence | None, is_all_day: bool) -> lis
             exdate_str = f"EXDATE;VALUE=DATE:{exdates}"
         else:
             exdates = ",".join(exdate.strftime("%Y%m%dT%H%M%S") for exdate in recurrence.exdate)
-            # TODO: Use the timezone from the db record
-            tzid = "Asia/Tokyo"
-            exdate_str = f"EXDATE;TZID={tzid}:{exdates}"
+            exdate_str = f"EXDATE;TZID={recurrence.timezone}:{exdates}"
         recurrence_list.append(exdate_str)
 
     return recurrence_list
