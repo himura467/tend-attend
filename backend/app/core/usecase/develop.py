@@ -74,6 +74,7 @@ class DevelopUsecase(IUsecase):
             rrule=recurrence_rule,
             rdate=[],
             exdate=[],
+            timezone="UTC",
         )
 
         event_id = generate_uuid()

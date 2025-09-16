@@ -105,6 +105,7 @@ class Recurrence(AbstractShardStaticBase):
     rrule: Mapped[RecurrenceRule] = relationship(uselist=False)
     rdate: Mapped[list[str]] = mapped_column(JSON, nullable=False, comment="RDATE")
     exdate: Mapped[list[str]] = mapped_column(JSON, nullable=False, comment="EXDATE")
+    timezone: Mapped[str] = mapped_column(VARCHAR(63), nullable=False, comment="Timezone")
 
     def to_entity(self) -> RecurrenceEntity:
         rrule = self.rrule.to_entity()
@@ -116,6 +117,7 @@ class Recurrence(AbstractShardStaticBase):
             rrule=rrule,
             rdate=[datetime.fromisoformat(dt_str) for dt_str in self.rdate],
             exdate=[datetime.fromisoformat(dt_str) for dt_str in self.exdate],
+            timezone=self.timezone,
         )
 
     @classmethod
@@ -126,6 +128,7 @@ class Recurrence(AbstractShardStaticBase):
             rrule_id=uuid_to_bin(entity.rrule_id),
             rdate=[dt.isoformat() for dt in entity.rdate],
             exdate=[dt.isoformat() for dt in entity.exdate],
+            timezone=entity.timezone,
         )
 
 

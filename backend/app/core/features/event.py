@@ -110,6 +110,9 @@ class Recurrence:
     # The EXDATE property is similar to RDATE, but specifies dates when the event should not happen.
     exdate: list[datetime]
 
+    # Timezone identifier for RDATE and EXDATE datetime serialization
+    timezone: str
+
 
 @dataclass(frozen=True)
 class Event:

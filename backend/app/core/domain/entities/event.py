@@ -58,6 +58,7 @@ class Recurrence(IEntity):
         rrule: RecurrenceRule,
         rdate: list[datetime],
         exdate: list[datetime],
+        timezone: str,
     ) -> None:
         super().__init__(entity_id)
         self.user_id = user_id
@@ -65,6 +66,7 @@ class Recurrence(IEntity):
         self.rrule = rrule
         self.rdate = rdate
         self.exdate = exdate
+        self.timezone = timezone
 
 
 class Event(IEntity):
