@@ -1,7 +1,17 @@
 import { TZDate } from "@/lib/utils/tzdate";
 import { RRule } from "rrule";
 import { describe, expect, it } from "vitest";
-import { hasRRule, matchesFrequency, parseRecurrence } from "./icalendar";
+import {
+  addEXDate,
+  addRDate,
+  getEXDates,
+  getRDates,
+  hasRRule,
+  matchesFrequency,
+  parseRecurrence,
+  removeEXDate,
+  removeRDate,
+} from "./icalendar";
 
 describe(parseRecurrence, () => {
   describe("with empty recurrences array", () => {
@@ -264,7 +274,7 @@ describe(hasRRule, () => {
       "DTSTART:20240101T100000Z",
       "RRULE:FREQ=WEEKLY",
       "RDATE:20240115T100000Z",
-      "EXDATE:20240122T100000Z"
+      "EXDATE:20240122T100000Z",
     ];
     const result = hasRRule(recurrences);
     expect(result).toBe(true);
@@ -351,5 +361,129 @@ describe(matchesFrequency, () => {
       const result = matchesFrequency(recurrences, RRule.WEEKLY, 1);
       expect(result).toBe(false);
     });
+  });
+});
+
+describe(getRDates, () => {
+  it("returns empty array when no RDATE entries", () => {
+    const recurrences = ["RRULE:FREQ=DAILY"];
+    const result = getRDates(recurrences, "UTC");
+    expect(result).toEqual([]);
+  });
+
+  it("returns RDATE entries as TZDate objects", () => {
+    const recurrences = ["RRULE:FREQ=WEEKLY", "RDATE:20240115T100000Z,20240125T140000Z"];
+    const result = getRDates(recurrences, "UTC");
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual(new TZDate(2024, 0, 15, 10, 0, 0, 0));
+    expect(result[1]).toEqual(new TZDate(2024, 0, 25, 14, 0, 0, 0));
+  });
+
+  it("returns empty array for empty recurrences", () => {
+    const result = getRDates([], "UTC");
+    expect(result).toEqual([]);
+  });
+});
+
+describe(getEXDates, () => {
+  it("returns empty array when no EXDATE entries", () => {
+    const recurrences = ["RRULE:FREQ=DAILY"];
+    const result = getEXDates(recurrences, "UTC");
+    expect(result).toEqual([]);
+  });
+
+  it("returns EXDATE entries as TZDate objects", () => {
+    const recurrences = ["RRULE:FREQ=DAILY", "EXDATE:20240116T100000Z,20240118T100000Z"];
+    const result = getEXDates(recurrences, "UTC");
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual(new TZDate(2024, 0, 16, 10, 0, 0, 0));
+    expect(result[1]).toEqual(new TZDate(2024, 0, 18, 10, 0, 0, 0));
+  });
+
+  it("returns empty array for empty recurrences", () => {
+    const result = getEXDates([], "UTC");
+    expect(result).toEqual([]);
+  });
+});
+
+describe(addRDate, () => {
+  it("adds RDATE to empty recurrences", () => {
+    const date = new TZDate(2024, 0, 15, 10, 0, 0, 0);
+    const result = addRDate([], date);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toContain("RDATE:");
+  });
+
+  it("adds RDATE to existing recurrences", () => {
+    const recurrences = ["RRULE:FREQ=WEEKLY"];
+    const date = new TZDate(2024, 0, 15, 10, 0, 0, 0);
+    const result = addRDate(recurrences, date);
+
+    expect(result.length).toBeGreaterThan(1);
+    expect(result.some((r) => r.includes("RRULE:"))).toBe(true);
+    expect(result.some((r) => r.includes("RDATE:"))).toBe(true);
+  });
+});
+
+describe(addEXDate, () => {
+  it("adds EXDATE to empty recurrences", () => {
+    const date = new TZDate(2024, 0, 15, 10, 0, 0, 0);
+    const result = addEXDate([], date);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toContain("EXDATE:");
+  });
+
+  it("adds EXDATE to existing recurrences", () => {
+    const recurrences = ["RRULE:FREQ=DAILY"];
+    const date = new TZDate(2024, 0, 16, 10, 0, 0, 0);
+    const result = addEXDate(recurrences, date);
+
+    expect(result.length).toBeGreaterThan(1);
+    expect(result.some((r) => r.includes("RRULE:"))).toBe(true);
+    expect(result.some((r) => r.includes("EXDATE:"))).toBe(true);
+  });
+});
+
+describe(removeRDate, () => {
+  it("returns original recurrences when no RDATE to remove", () => {
+    const recurrences = ["RRULE:FREQ=WEEKLY"];
+    const date = new TZDate(2024, 0, 15, 10, 0, 0, 0);
+    const result = removeRDate(recurrences, date);
+
+    expect(result).toEqual(recurrences);
+  });
+
+  it("removes specified RDATE entry", () => {
+    const recurrences = ["RRULE:FREQ=WEEKLY", "RDATE:20240115T100000Z,20240125T140000Z"];
+    const dateToRemove = new TZDate("2024-01-15T10:00:00", "UTC").withTimeZone("UTC");
+    const result = removeRDate(recurrences, dateToRemove);
+
+    const rdates = getRDates(result, "UTC");
+    expect(rdates).toHaveLength(1);
+    expect(rdates[0]).toEqual(new TZDate(2024, 0, 25, 14, 0, 0, 0));
+  });
+});
+
+describe(removeEXDate, () => {
+  it("returns original recurrences when no EXDATE to remove", () => {
+    const recurrences = ["RRULE:FREQ=DAILY"];
+    const date = new TZDate(2024, 0, 16, 10, 0, 0, 0);
+    const result = removeEXDate(recurrences, date);
+
+    expect(result).toEqual(recurrences);
+  });
+
+  it("removes specified EXDATE entry", () => {
+    const recurrences = ["RRULE:FREQ=DAILY", "EXDATE:20240116T100000Z,20240118T100000Z"];
+    const dateToRemove = new TZDate("2024-01-16T10:00:00", "UTC").withTimeZone("UTC");
+    const result = removeEXDate(recurrences, dateToRemove);
+
+    const exdates = getEXDates(result, "UTC");
+    expect(exdates).toHaveLength(1);
+    expect(exdates[0]).toEqual(new TZDate(2024, 0, 18, 10, 0, 0, 0));
   });
 });
