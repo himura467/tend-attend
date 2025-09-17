@@ -52,7 +52,7 @@ export const mapEventsToFullCalendar = (
       allDay: event.isAllDay,
     };
 
-    const rruleSet = parseRecurrence(event.recurrences, event.timezone);
+    const rruleSet = parseRecurrence(event.recurrences);
     if (!rruleSet) return [baseEvent];
 
     const results: (BaseFullCalendarEvent | RecurringFullCalendarEvent)[] = [];

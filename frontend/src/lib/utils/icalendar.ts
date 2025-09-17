@@ -4,10 +4,9 @@ import { datetime, RRuleSet, rrulestr } from "rrule";
 /**
  * Parse recurrence strings into an RRuleSet object
  * @param recurrences - Array of recurrence rule strings
- * @param tzid - Optional timezone identifier
  * @returns RRuleSet object or null if no recurrences
  */
-export const parseRecurrence = (recurrences: string[], tzid?: string): RRuleSet | null => {
+export const parseRecurrence = (recurrences: string[]): RRuleSet | null => {
   if (recurrences.length === 0) return null;
   const rfcString = recurrences.join("\n");
 
@@ -15,7 +14,6 @@ export const parseRecurrence = (recurrences: string[], tzid?: string): RRuleSet 
   const result = rrulestr(rfcString, {
     cache: true,
     forceset: true,
-    tzid,
   });
 
   return result as RRuleSet;
