@@ -1,3 +1,4 @@
+import { RecurrenceDateEditor } from "@/components/organisms/shared/events/RecurrenceDateEditor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -6,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { useSSRSafeFormat } from "@/hooks/useSSRSafeFormat";
 import { useTimezone } from "@/hooks/useTimezone";
 import { cn } from "@/lib/utils";
-import { matchesFrequency } from "@/lib/utils/icalendar";
+import { hasRRule, matchesFrequency } from "@/lib/utils/icalendar";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { CalendarIcon, Clock, Repeat } from "lucide-react";
@@ -314,6 +315,12 @@ export const DateTimePicker = ({
           </Select>
         )}
       </div>
+      {hasRRule(recurrences) && (
+        <div className="space-y-4 border-t pt-4">
+          <RecurrenceDateEditor recurrences={recurrences} onRecurrencesChange={onRecurrencesChange} type="RDATE" />
+          <RecurrenceDateEditor recurrences={recurrences} onRecurrencesChange={onRecurrencesChange} type="EXDATE" />
+        </div>
+      )}
     </div>
   );
 };
