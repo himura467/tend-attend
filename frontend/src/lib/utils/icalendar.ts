@@ -1,6 +1,12 @@
 import { TZDate } from "@/lib/utils/tzdate";
 import { datetime, RRuleSet, rrulestr } from "rrule";
 
+/**
+ * Parse recurrence strings into an RRuleSet object
+ * @param recurrences - Array of recurrence rule strings
+ * @param tzid - Optional timezone identifier
+ * @returns RRuleSet object or null if no recurrences
+ */
 export const parseRecurrence = (recurrences: string[], tzid?: string): RRuleSet | null => {
   if (recurrences.length === 0) return null;
   const rfcString = recurrences.join("\n");
@@ -35,7 +41,13 @@ export const hasRRule = (recurrences: string[]): boolean => {
   return rruleSet ? rruleSet._rrule.length > 0 : false;
 };
 
-// Helper function to check if recurrence matches expected frequency and interval
+/**
+ * Check if recurrence matches expected frequency and interval
+ * @param recurrences - Array of recurrence rule strings
+ * @param expectedFreq - Expected frequency value (optional)
+ * @param expectedInterval - Expected interval value (optional)
+ * @returns True if recurrence matches the expected frequency and interval
+ */
 export const matchesFrequency = (recurrences: string[], expectedFreq?: number, expectedInterval?: number): boolean => {
   if (expectedFreq === undefined) {
     return recurrences.length === 0;
