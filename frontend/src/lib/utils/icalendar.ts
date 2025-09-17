@@ -2,6 +2,20 @@ import { TZDate } from "@/lib/utils/tzdate";
 import { datetime, RRuleSet, rrulestr } from "rrule";
 
 /**
+ * Convert a Date instance from rrule.js to TZDate with proper timezone handling
+ * @param date - Date instance from rrule.js
+ * @param localTimezone - Local timezone identifier for the conversion
+ * @param targetTimezone - Target timezone identifier (from RRuleSet)
+ * @returns TZDate instance with proper timezone conversion
+ */
+export const convertRRuleDateToTZDate = (date: Date, localTimezone: string, targetTimezone: string): TZDate => {
+  return new TZDate(
+    new TZDate(date, localTimezone).withTimeZone("UTC").toISOString({ excludeZ: true }),
+    targetTimezone,
+  );
+};
+
+/**
  * Parse recurrence strings into an RRuleSet object
  * @param recurrences - Array of recurrence rule strings
  * @returns RRuleSet object or null if no recurrences
@@ -82,7 +96,7 @@ export const getRDates = (recurrences: string[], timezone: string): TZDate[] => 
   if (!rruleSet) return [];
 
   return rruleSet._rdate.map((rdate) => {
-    return new TZDate(new TZDate(rdate, timezone).withTimeZone("UTC").toISOString({ excludeZ: true }), rruleSet.tzid());
+    return convertRRuleDateToTZDate(rdate, timezone, rruleSet.tzid());
   });
 };
 
@@ -97,10 +111,7 @@ export const getEXDates = (recurrences: string[], timezone: string): TZDate[] =>
   if (!rruleSet) return [];
 
   return rruleSet._exdate.map((exdate) => {
-    return new TZDate(
-      new TZDate(exdate, timezone).withTimeZone("UTC").toISOString({ excludeZ: true }),
-      rruleSet.tzid(),
-    );
+    return convertRRuleDateToTZDate(exdate, timezone, rruleSet.tzid());
   });
 };
 
