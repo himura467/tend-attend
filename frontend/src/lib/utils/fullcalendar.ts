@@ -1,7 +1,6 @@
 import { getYmdDeltaDays, getYmdHm15DeltaMinutes, parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
-import { convertRRuleDateToTZDate, parseRecurrence } from "@/lib/utils/icalendar";
+import { convertRRuleDateToTZDate, parseRecurrence, type RRuleOptions } from "@/lib/utils/icalendar";
 import { TZDate } from "@/lib/utils/tzdate";
-import { Options as RRuleOptions } from "rrule";
 
 export interface Event {
   id: string;
