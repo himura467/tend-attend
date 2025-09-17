@@ -1,3 +1,4 @@
+import { RecurrenceDateEditor } from "@/components/organisms/shared/events/RecurrenceDateEditor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -6,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { useSSRSafeFormat } from "@/hooks/useSSRSafeFormat";
 import { useTimezone } from "@/hooks/useTimezone";
 import { cn } from "@/lib/utils";
-import { matchesFrequency } from "@/lib/utils/icalendar";
+import { hasRRule, matchesFrequency } from "@/lib/utils/icalendar";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { CalendarIcon, Clock, Repeat } from "lucide-react";
@@ -15,7 +16,7 @@ import { RRule } from "rrule";
 
 type RecurrencesOption = {
   label: string;
-  value: string[];
+  value?: string;
   matcher: (rrules: string[]) => boolean;
 };
 
@@ -79,6 +80,12 @@ export const DateTimePicker = ({
     return options;
   }, []);
 
+  const getDuration = (): string => {
+    const diff = endDate.getTime() - startDate.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    return `${hours}h`;
+  };
+
   const recurrencesOptions = React.useMemo((): RecurrencesOption[] => {
     const localStart = startDate.withTimeZone(browserTimezone);
     const month = (localStart.getMonth() + 1).toString();
@@ -89,42 +96,36 @@ export const DateTimePicker = ({
     return [
       {
         label: "Does not repeat",
-        value: [],
+        value: undefined,
         matcher: (rrules: string[]) => matchesFrequency(rrules),
       },
       {
         label: "Every day",
-        value: [`RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        value: `RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
         matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.DAILY, 1),
       },
       {
         label: "Every week",
-        value: [`RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        value: `RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
         matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.WEEKLY, 1),
       },
       {
         label: "Every 2 weeks",
-        value: [`RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        value: `RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
         matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.WEEKLY, 2),
       },
       {
         label: "Every month",
-        value: [`RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        value: `RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
         matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.MONTHLY, 1),
       },
       {
         label: "Every year",
-        value: [`RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
+        value: `RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
         matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.YEARLY, 1),
       },
     ];
   }, [browserTimezone, startDate]);
-
-  const getDuration = (): string => {
-    const diff = endDate.getTime() - startDate.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    return `${hours}h`;
-  };
 
   const getRecurrencesOption = React.useCallback((): RecurrencesOption => {
     const option = recurrencesOptions.find((r) => r.matcher(recurrences));
@@ -132,10 +133,19 @@ export const DateTimePicker = ({
     return option;
   }, [recurrences, recurrencesOptions]);
 
-  React.useEffect(() => {
-    const option = getRecurrencesOption();
-    onRecurrencesChange(option.value);
-  }, [getRecurrencesOption, onRecurrencesChange]);
+  // Helper function to update RRULE while preserving RDATE/EXDATE entries
+  const updateRRuleOnly = React.useCallback(
+    (newRRule?: string) => {
+      // Separate existing RDATE/EXDATE from RRULE entries
+      const nonRRuleEntries = recurrences.filter((recurrence) => !recurrence.startsWith("RRULE:"));
+
+      // Combine new RRULE with existing RDATE/EXDATE
+      const updatedRecurrences = newRRule ? [newRRule, ...nonRRuleEntries] : nonRRuleEntries; // If no RRULE, just keep RDATE/EXDATE
+
+      onRecurrencesChange(updatedRecurrences);
+    },
+    [recurrences, onRecurrencesChange],
+  );
 
   return (
     <div className="flex flex-col space-y-4 rounded-lg border p-4">
@@ -278,9 +288,9 @@ export const DateTimePicker = ({
                   variant="ghost"
                   className={cn(
                     "w-full justify-start font-normal",
-                    recurrences === r.value && "bg-accent text-accent-foreground",
+                    r.matcher(recurrences) && "bg-accent text-accent-foreground",
                   )}
-                  onClick={() => onRecurrencesChange(r.value)}
+                  onClick={() => updateRRuleOnly(r.value)}
                 >
                   <span className="flex flex-col items-start">
                     <span>{r.label}</span>
@@ -305,6 +315,12 @@ export const DateTimePicker = ({
           </Select>
         )}
       </div>
+      {hasRRule(recurrences) && (
+        <div className="space-y-4 border-t pt-4">
+          <RecurrenceDateEditor recurrences={recurrences} onRecurrencesChange={onRecurrencesChange} type="RDATE" />
+          <RecurrenceDateEditor recurrences={recurrences} onRecurrencesChange={onRecurrencesChange} type="EXDATE" />
+        </div>
+      )}
     </div>
   );
 };
