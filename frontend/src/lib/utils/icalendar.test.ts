@@ -1,7 +1,7 @@
 import { TZDate } from "@/lib/utils/tzdate";
 import { RRule } from "rrule";
 import { describe, expect, it } from "vitest";
-import { matchesFrequency, parseRecurrence } from "./icalendar";
+import { hasRRule, matchesFrequency, parseRecurrence } from "./icalendar";
 
 describe(parseRecurrence, () => {
   describe("with empty recurrences array", () => {
@@ -226,6 +226,59 @@ describe(parseRecurrence, () => {
       expect(result?._exdate).toHaveLength(1);
       expect(result?._exdate[0]).toEqual(new TZDate(2024, 0, 15, 10, 0, 0, 0));
     });
+  });
+});
+
+describe(hasRRule, () => {
+  it("returns false for empty recurrences array", () => {
+    const result = hasRRule([]);
+    expect(result).toBe(false);
+  });
+
+  it("returns true when recurrences contain RRULE", () => {
+    const recurrences = ["RRULE:FREQ=DAILY"];
+    const result = hasRRule(recurrences);
+    expect(result).toBe(true);
+  });
+
+  it("returns false when recurrences contain only RDATE", () => {
+    const recurrences = ["RDATE:20240115T100000Z"];
+    const result = hasRRule(recurrences);
+    expect(result).toBe(false);
+  });
+
+  it("returns false when recurrences contain only EXDATE", () => {
+    const recurrences = ["EXDATE:20240115T100000Z"];
+    const result = hasRRule(recurrences);
+    expect(result).toBe(false);
+  });
+
+  it("returns false when recurrences contain only DTSTART", () => {
+    const recurrences = ["DTSTART:20240115T100000Z"];
+    const result = hasRRule(recurrences);
+    expect(result).toBe(false);
+  });
+
+  it("returns true when recurrences contain RRULE with other entries", () => {
+    const recurrences = [
+      "DTSTART:20240101T100000Z",
+      "RRULE:FREQ=WEEKLY",
+      "RDATE:20240115T100000Z",
+      "EXDATE:20240122T100000Z"
+    ];
+    const result = hasRRule(recurrences);
+    expect(result).toBe(true);
+  });
+
+  it("returns true for complex RRULE", () => {
+    const recurrences = ["RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR;COUNT=10"];
+    const result = hasRRule(recurrences);
+    expect(result).toBe(true);
+  });
+
+  it("returns false for invalid recurrences", () => {
+    const recurrences = ["INVALID:RULE"];
+    expect(() => hasRRule(recurrences)).toThrow();
   });
 });
 
