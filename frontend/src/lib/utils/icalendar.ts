@@ -1,5 +1,9 @@
 import { TZDate } from "@/lib/utils/tzdate";
-import { datetime, RRuleSet, rrulestr } from "rrule";
+import { datetime, Frequency, RRuleSet, rrulestr } from "rrule";
+
+// Export types and enums for other modules to use
+export { Frequency } from "rrule";
+export type { Options as RRuleOptions } from "rrule";
 
 /**
  * Convert a Date instance from rrule.js to TZDate with proper timezone handling
@@ -60,7 +64,11 @@ export const hasRRule = (recurrences: string[]): boolean => {
  * @param expectedInterval - Expected interval value (optional)
  * @returns True if recurrence matches the expected frequency and interval
  */
-export const matchesFrequency = (recurrences: string[], expectedFreq?: number, expectedInterval?: number): boolean => {
+export const matchesFrequency = (
+  recurrences: string[],
+  expectedFreq?: Frequency,
+  expectedInterval?: number,
+): boolean => {
   if (expectedFreq === undefined) {
     return recurrences.length === 0;
   }

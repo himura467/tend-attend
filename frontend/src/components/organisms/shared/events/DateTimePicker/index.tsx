@@ -7,12 +7,11 @@ import { Switch } from "@/components/ui/switch";
 import { useSSRSafeFormat } from "@/hooks/useSSRSafeFormat";
 import { useTimezone } from "@/hooks/useTimezone";
 import { cn } from "@/lib/utils";
-import { hasRRule, matchesFrequency } from "@/lib/utils/icalendar";
+import { Frequency, hasRRule, matchesFrequency } from "@/lib/utils/icalendar";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { CalendarIcon, Clock, Repeat } from "lucide-react";
 import React from "react";
-import { RRule } from "rrule";
 
 type RecurrencesOption = {
   label: string;
@@ -102,27 +101,27 @@ export const DateTimePicker = ({
       {
         label: "Every day",
         value: `RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
-        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.DAILY, 1),
+        matcher: (rrules: string[]) => matchesFrequency(rrules, Frequency.DAILY, 1),
       },
       {
         label: "Every week",
         value: `RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
-        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.WEEKLY, 1),
+        matcher: (rrules: string[]) => matchesFrequency(rrules, Frequency.WEEKLY, 1),
       },
       {
         label: "Every 2 weeks",
         value: `RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
-        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.WEEKLY, 2),
+        matcher: (rrules: string[]) => matchesFrequency(rrules, Frequency.WEEKLY, 2),
       },
       {
         label: "Every month",
         value: `RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
-        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.MONTHLY, 1),
+        matcher: (rrules: string[]) => matchesFrequency(rrules, Frequency.MONTHLY, 1),
       },
       {
         label: "Every year",
         value: `RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
-        matcher: (rrules: string[]) => matchesFrequency(rrules, RRule.YEARLY, 1),
+        matcher: (rrules: string[]) => matchesFrequency(rrules, Frequency.YEARLY, 1),
       },
     ];
   }, [browserTimezone, startDate]);

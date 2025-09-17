@@ -1,5 +1,5 @@
 import { TZDate } from "@/lib/utils/tzdate";
-import { RRule } from "rrule";
+import { Frequency } from "rrule";
 import { describe, expect, it } from "vitest";
 import {
   addEXDate,
@@ -300,7 +300,7 @@ describe(matchesFrequency, () => {
     });
 
     it("returns false when expectedFreq is defined", () => {
-      const result = matchesFrequency([], RRule.DAILY);
+      const result = matchesFrequency([], Frequency.DAILY);
       expect(result).toBe(false);
     });
   });
@@ -308,31 +308,31 @@ describe(matchesFrequency, () => {
   describe("with frequency matching", () => {
     it("matches daily frequency", () => {
       const recurrences = ["RRULE:FREQ=DAILY;BYHOUR=10;BYMINUTE=0;BYSECOND=0"];
-      const result = matchesFrequency(recurrences, RRule.DAILY);
+      const result = matchesFrequency(recurrences, Frequency.DAILY);
       expect(result).toBe(true);
     });
 
     it("matches weekly frequency", () => {
       const recurrences = ["RRULE:FREQ=WEEKLY;BYDAY=MO;BYHOUR=10;BYMINUTE=0;BYSECOND=0"];
-      const result = matchesFrequency(recurrences, RRule.WEEKLY);
+      const result = matchesFrequency(recurrences, Frequency.WEEKLY);
       expect(result).toBe(true);
     });
 
     it("matches monthly frequency", () => {
       const recurrences = ["RRULE:FREQ=MONTHLY;BYMONTHDAY=15;BYHOUR=10;BYMINUTE=0;BYSECOND=0"];
-      const result = matchesFrequency(recurrences, RRule.MONTHLY);
+      const result = matchesFrequency(recurrences, Frequency.MONTHLY);
       expect(result).toBe(true);
     });
 
     it("matches yearly frequency", () => {
       const recurrences = ["RRULE:FREQ=YEARLY;BYMONTH=12;BYMONTHDAY=25;BYHOUR=10;BYMINUTE=0;BYSECOND=0"];
-      const result = matchesFrequency(recurrences, RRule.YEARLY);
+      const result = matchesFrequency(recurrences, Frequency.YEARLY);
       expect(result).toBe(true);
     });
 
     it("does not match different frequency", () => {
       const recurrences = ["RRULE:FREQ=DAILY;BYHOUR=10;BYMINUTE=0;BYSECOND=0"];
-      const result = matchesFrequency(recurrences, RRule.WEEKLY);
+      const result = matchesFrequency(recurrences, Frequency.WEEKLY);
       expect(result).toBe(false);
     });
   });
@@ -340,25 +340,25 @@ describe(matchesFrequency, () => {
   describe("with interval matching", () => {
     it("matches weekly frequency with interval 1 (default)", () => {
       const recurrences = ["RRULE:FREQ=WEEKLY;BYDAY=MO;BYHOUR=10;BYMINUTE=0;BYSECOND=0"];
-      const result = matchesFrequency(recurrences, RRule.WEEKLY, 1);
+      const result = matchesFrequency(recurrences, Frequency.WEEKLY, 1);
       expect(result).toBe(true);
     });
 
     it("matches weekly frequency with explicit interval 1", () => {
       const recurrences = ["RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=MO;BYHOUR=10;BYMINUTE=0;BYSECOND=0"];
-      const result = matchesFrequency(recurrences, RRule.WEEKLY, 1);
+      const result = matchesFrequency(recurrences, Frequency.WEEKLY, 1);
       expect(result).toBe(true);
     });
 
     it("matches weekly frequency with interval 2", () => {
       const recurrences = ["RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO;BYHOUR=10;BYMINUTE=0;BYSECOND=0"];
-      const result = matchesFrequency(recurrences, RRule.WEEKLY, 2);
+      const result = matchesFrequency(recurrences, Frequency.WEEKLY, 2);
       expect(result).toBe(true);
     });
 
     it("does not match weekly frequency with wrong interval", () => {
       const recurrences = ["RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO;BYHOUR=10;BYMINUTE=0;BYSECOND=0"];
-      const result = matchesFrequency(recurrences, RRule.WEEKLY, 1);
+      const result = matchesFrequency(recurrences, Frequency.WEEKLY, 1);
       expect(result).toBe(false);
     });
   });
