@@ -80,7 +80,7 @@ export const mapEventsToFullCalendar = (
     rruleSet._rdate.forEach((rdate, index) => {
       const rdateStart = new TZDate(
         new TZDate(rdate, timezone).withTimeZone("UTC").toISOString({ excludeZ: true }),
-        rruleSet.tzid,
+        rruleSet.tzid(),
       );
       const originalDurationMs = baseEvent.end.getTime() - baseEvent.start.getTime();
       const rdateEnd = new TZDate(rdateStart.getTime() + originalDurationMs);

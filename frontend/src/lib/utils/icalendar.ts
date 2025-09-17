@@ -82,7 +82,7 @@ export const getRDates = (recurrences: string[], timezone: string): TZDate[] => 
   if (!rruleSet) return [];
 
   return rruleSet._rdate.map((rdate) => {
-    return new TZDate(new TZDate(rdate, timezone).withTimeZone("UTC").toISOString({ excludeZ: true }), rruleSet.tzid);
+    return new TZDate(new TZDate(rdate, timezone).withTimeZone("UTC").toISOString({ excludeZ: true }), rruleSet.tzid());
   });
 };
 
@@ -97,7 +97,10 @@ export const getEXDates = (recurrences: string[], timezone: string): TZDate[] =>
   if (!rruleSet) return [];
 
   return rruleSet._exdate.map((exdate) => {
-    return new TZDate(new TZDate(exdate, timezone).withTimeZone("UTC").toISOString({ excludeZ: true }), rruleSet.tzid);
+    return new TZDate(
+      new TZDate(exdate, timezone).withTimeZone("UTC").toISOString({ excludeZ: true }),
+      rruleSet.tzid(),
+    );
   });
 };
 
