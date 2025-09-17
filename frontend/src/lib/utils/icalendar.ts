@@ -25,6 +25,16 @@ function rruleSetToStrings(rruleSet: RRuleSet): string[] {
   return rruleSet.valueOf();
 }
 
+/**
+ * Check if recurrence has any RRULE
+ * @param recurrences - Array of recurrence rule strings
+ * @returns True if recurrence contains at least one RRULE
+ */
+export const hasRRule = (recurrences: string[]): boolean => {
+  const rruleSet = parseRecurrence(recurrences);
+  return rruleSet ? rruleSet._rrule.length > 0 : false;
+};
+
 // Helper function to check if recurrence matches expected frequency and interval
 export const matchesFrequency = (recurrences: string[], expectedFreq?: number, expectedInterval?: number): boolean => {
   if (expectedFreq === undefined) {
