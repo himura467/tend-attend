@@ -96,7 +96,7 @@ export class TZDate extends TZDateMini {
 
   toISOString(options?: { excludeZ?: boolean }): string {
     const isoString = super.toISOString();
-    return options?.excludeZ && isoString.endsWith('Z') ? isoString.slice(0, -1) : isoString;
+    return options?.excludeZ && isoString.endsWith("Z") ? isoString.slice(0, -1) : isoString;
   }
 
   toLocaleString(locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions): string {
