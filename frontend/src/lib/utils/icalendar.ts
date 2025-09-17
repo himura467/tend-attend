@@ -1,4 +1,5 @@
-import { RRuleSet, rrulestr } from "rrule";
+import { TZDate } from "@/lib/utils/tzdate";
+import { datetime, RRuleSet, rrulestr } from "rrule";
 
 export const parseRecurrence = (recurrences: string[], tzid?: string): RRuleSet | null => {
   if (recurrences.length === 0) return null;
@@ -38,4 +39,120 @@ export const matchesFrequency = (recurrences: string[], expectedFreq?: number, e
   }
 
   return true;
+};
+
+/**
+ * Get RDATE dates from recurrence strings
+ * @param recurrences - Array of recurrence rule strings
+ * @param timezone - Timezone identifier
+ * @returns Array of RDATE dates as TZDate objects
+ */
+export const getRDates = (recurrences: string[], timezone: string): TZDate[] => {
+  const rruleSet = parseRecurrence(recurrences);
+  if (!rruleSet) return [];
+
+  return rruleSet._rdate.map((rdate) => {
+    return new TZDate(new TZDate(rdate, timezone).withTimeZone("UTC").toISOString({ excludeZ: true }), rruleSet.tzid);
+  });
+};
+
+/**
+ * Get EXDATE dates from recurrence strings
+ * @param recurrences - Array of recurrence rule strings
+ * @param timezone - Timezone identifier
+ * @returns Array of EXDATE dates as TZDate objects
+ */
+export const getEXDates = (recurrences: string[], timezone: string): TZDate[] => {
+  const rruleSet = parseRecurrence(recurrences);
+  if (!rruleSet) return [];
+
+  return rruleSet._exdate.map((exdate) => {
+    return new TZDate(new TZDate(exdate, timezone).withTimeZone("UTC").toISOString({ excludeZ: true }), rruleSet.tzid);
+  });
+};
+
+/**
+ * Add RDATE to existing recurrence strings
+ * @param recurrences - Array of existing recurrence rule strings
+ * @param newDate - Date to add as RDATE
+ * @returns Updated array of recurrence strings with new RDATE
+ */
+export const addRDate = (recurrences: string[], newDate: TZDate): string[] => {
+  const rruleSet = parseRecurrence(recurrences) || new RRuleSet();
+  const utcDate = datetime(
+    newDate.getFullYear(),
+    newDate.getMonth() + 1, // rrule.datetime uses 1-based months
+    newDate.getDate(),
+    newDate.getHours(),
+    newDate.getMinutes(),
+    newDate.getSeconds(),
+  );
+  rruleSet.rdate(utcDate);
+  return rruleSetToStrings(rruleSet);
+};
+
+/**
+ * Add EXDATE to existing recurrence strings
+ * @param recurrences - Array of existing recurrence rule strings
+ * @param newDate - Date to add as EXDATE
+ * @returns Updated array of recurrence strings with new EXDATE
+ */
+export const addEXDate = (recurrences: string[], newDate: TZDate): string[] => {
+  const rruleSet = parseRecurrence(recurrences) || new RRuleSet();
+  const utcDate = datetime(
+    newDate.getFullYear(),
+    newDate.getMonth() + 1, // rrule.datetime uses 1-based months
+    newDate.getDate(),
+    newDate.getHours(),
+    newDate.getMinutes(),
+    newDate.getSeconds(),
+  );
+  rruleSet.exdate(utcDate);
+  return rruleSetToStrings(rruleSet);
+};
+
+/**
+ * Remove RDATE from existing recurrence strings
+ * @param recurrences - Array of existing recurrence rule strings
+ * @param dateToRemove - Date to remove from RDATE list
+ * @returns Updated array of recurrence strings with RDATE removed
+ */
+export const removeRDate = (recurrences: string[], dateToRemove: TZDate): string[] => {
+  const rruleSet = parseRecurrence(recurrences);
+  if (!rruleSet) return recurrences;
+
+  const utcDateToRemove = dateToRemove.withTimeZone("UTC");
+  const newRRuleSet = new RRuleSet();
+  rruleSet._rrule.forEach((rule) => newRRuleSet.rrule(rule));
+  rruleSet._rdate.forEach((rdate) => {
+    if (rdate.getTime() !== utcDateToRemove.getTime()) {
+      newRRuleSet.rdate(rdate);
+    }
+  });
+  rruleSet._exdate.forEach((exdate) => newRRuleSet.exdate(exdate));
+
+  return rruleSetToStrings(newRRuleSet);
+};
+
+/**
+ * Remove EXDATE from existing recurrence strings
+ * @param recurrences - Array of existing recurrence rule strings
+ * @param dateToRemove - Date to remove from EXDATE list
+ * @returns Updated array of recurrence strings with EXDATE removed
+ */
+export const removeEXDate = (recurrences: string[], dateToRemove: TZDate): string[] => {
+  const rruleSet = parseRecurrence(recurrences);
+  if (!rruleSet) return recurrences;
+
+  const utcDateToRemove = dateToRemove.withTimeZone("UTC");
+  const newRRuleSet = new RRuleSet();
+  rruleSet._rrule.forEach((rule) => newRRuleSet.rrule(rule));
+  rruleSet._rdate.forEach((rdate) => newRRuleSet.rdate(rdate));
+  rruleSet._exdate.forEach((exdate) => {
+    if (exdate.getTime() !== utcDateToRemove.getTime()) {
+      newRRuleSet.exdate(exdate);
+    }
+  });
+
+  return rruleSetToStrings(newRRuleSet);
 };
