@@ -15,6 +15,16 @@ export const parseRecurrence = (recurrences: string[], tzid?: string): RRuleSet 
   return result as RRuleSet;
 };
 
+/**
+ * Convert RRuleSet back to string array format for backend compatibility
+ * Uses rrule's built-in valueOf() which produces RFC 5545 compliant string array
+ * @param rruleSet - The RRuleSet to convert
+ * @returns Array of RFC 5545 compliant recurrence strings
+ */
+function rruleSetToStrings(rruleSet: RRuleSet): string[] {
+  return rruleSet.valueOf();
+}
+
 // Helper function to check if recurrence matches expected frequency and interval
 export const matchesFrequency = (recurrences: string[], expectedFreq?: number, expectedInterval?: number): boolean => {
   if (expectedFreq === undefined) {
