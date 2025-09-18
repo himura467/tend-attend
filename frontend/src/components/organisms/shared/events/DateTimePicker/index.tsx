@@ -132,18 +132,28 @@ export const DateTimePicker = ({
     return option;
   }, [recurrences, recurrencesOptions]);
 
-  // Helper function to update RRULE while preserving RDATE/EXDATE entries
-  const updateRRuleOnly = React.useCallback(
+  // Update recurrence rule with DTSTART and TZID, preserving existing RDATE/EXDATE entries
+  const updateRecurrenceRule = React.useCallback(
     (newRRule?: string) => {
-      // Separate existing RDATE/EXDATE from RRULE entries
-      const nonRRuleEntries = recurrences.filter((recurrence) => !recurrence.startsWith("RRULE:"));
+      if (!newRRule) {
+        onRecurrencesChange([]);
+        return;
+      }
 
-      // Combine new RRULE with existing RDATE/EXDATE
-      const updatedRecurrences = newRRule ? [newRRule, ...nonRRuleEntries] : nonRRuleEntries; // If no RRULE, just keep RDATE/EXDATE
+      // Separate existing RDATE/EXDATE from RRULE and DTSTART entries
+      const preservedEntries = recurrences.filter(
+        (recurrence) => !recurrence.startsWith("RRULE:") && !recurrence.startsWith("DTSTART"),
+      );
 
+      // Add DTSTART with TZID for proper frontend RRule parsing
+      const dtstartEntry = isAllDay
+        ? `DTSTART;VALUE=DATE:${startDate.toISOString().split("T")[0].replace(/-/g, "")}`
+        : `DTSTART;TZID=${timezone}:${startDate.withTimeZone("UTC").toISOString().replace(/[-:]/g, "").split(".")[0]}`;
+
+      const updatedRecurrences = [dtstartEntry, newRRule, ...preservedEntries];
       onRecurrencesChange(updatedRecurrences);
     },
-    [recurrences, onRecurrencesChange],
+    [recurrences, onRecurrencesChange, isAllDay, startDate, timezone],
   );
 
   return (
@@ -289,7 +299,7 @@ export const DateTimePicker = ({
                     "w-full justify-start font-normal",
                     r.matcher(recurrences) && "bg-accent text-accent-foreground",
                   )}
-                  onClick={() => updateRRuleOnly(r.value)}
+                  onClick={() => updateRecurrenceRule(r.value)}
                 >
                   <span className="flex flex-col items-start">
                     <span>{r.label}</span>
