@@ -93,7 +93,9 @@ export const RecurrenceDateEditor = ({
 
     // Update recurrences
     const newRecurrences =
-      type === "RDATE" ? removeRDate(recurrences, dateToRemove) : removeEXDate(recurrences, dateToRemove);
+      type === "RDATE"
+        ? removeRDate(recurrences, dateToRemove, browserTimezone)
+        : removeEXDate(recurrences, dateToRemove, browserTimezone);
     onRecurrencesChange(newRecurrences);
   };
 
