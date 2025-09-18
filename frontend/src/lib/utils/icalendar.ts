@@ -167,17 +167,17 @@ export const addEXDate = (recurrences: string[], newDate: TZDate): string[] => {
  * Remove RDATE from existing recurrence strings
  * @param recurrences - Array of existing recurrence rule strings
  * @param dateToRemove - Date to remove from RDATE list
+ * @param timezone - Timezone identifier
  * @returns Updated array of recurrence strings with RDATE removed
  */
-export const removeRDate = (recurrences: string[], dateToRemove: TZDate): string[] => {
+export const removeRDate = (recurrences: string[], dateToRemove: TZDate, timezone: string): string[] => {
   const rruleSet = parseRecurrence(recurrences);
   if (!rruleSet) return recurrences;
 
-  const utcDateToRemove = dateToRemove.withTimeZone("UTC");
   const newRRuleSet = new RRuleSet();
   rruleSet._rrule.forEach((rule) => newRRuleSet.rrule(rule));
   rruleSet._rdate.forEach((rdate) => {
-    if (rdate.getTime() !== utcDateToRemove.getTime()) {
+    if (convertRRuleDateToTZDate(rdate, timezone, rruleSet.tzid()).getTime() !== dateToRemove.getTime()) {
       newRRuleSet.rdate(rdate);
     }
   });
@@ -190,18 +190,18 @@ export const removeRDate = (recurrences: string[], dateToRemove: TZDate): string
  * Remove EXDATE from existing recurrence strings
  * @param recurrences - Array of existing recurrence rule strings
  * @param dateToRemove - Date to remove from EXDATE list
+ * @param timezone - Timezone identifier
  * @returns Updated array of recurrence strings with EXDATE removed
  */
-export const removeEXDate = (recurrences: string[], dateToRemove: TZDate): string[] => {
+export const removeEXDate = (recurrences: string[], dateToRemove: TZDate, timezone: string): string[] => {
   const rruleSet = parseRecurrence(recurrences);
   if (!rruleSet) return recurrences;
 
-  const utcDateToRemove = dateToRemove.withTimeZone("UTC");
   const newRRuleSet = new RRuleSet();
   rruleSet._rrule.forEach((rule) => newRRuleSet.rrule(rule));
   rruleSet._rdate.forEach((rdate) => newRRuleSet.rdate(rdate));
   rruleSet._exdate.forEach((exdate) => {
-    if (exdate.getTime() !== utcDateToRemove.getTime()) {
+    if (convertRRuleDateToTZDate(exdate, timezone, rruleSet.tzid()).getTime() !== dateToRemove.getTime()) {
       newRRuleSet.exdate(exdate);
     }
   });
