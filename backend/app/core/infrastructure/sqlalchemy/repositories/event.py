@@ -137,7 +137,6 @@ class RecurrenceRepository(
         rrule: RecurrenceRuleEntity,
         rdate: list[datetime],
         exdate: list[datetime],
-        timezone: str,
     ) -> RecurrenceEntity | None:
         recurrence = RecurrenceEntity(
             entity_id=entity_id,
@@ -146,7 +145,6 @@ class RecurrenceRepository(
             rrule=rrule,
             rdate=rdate,
             exdate=exdate,
-            timezone=timezone,
         )
         return await self.create_async(recurrence)
 
@@ -155,7 +153,6 @@ class RecurrenceRepository(
         entity_id: UUID,
         rdate: list[datetime],
         exdate: list[datetime],
-        timezone: str,
     ) -> RecurrenceEntity | None:
         existing_recurrence = await self.read_with_rrule_by_id_or_none_async(entity_id)
         if existing_recurrence is None:
@@ -168,7 +165,6 @@ class RecurrenceRepository(
             rrule=existing_recurrence.rrule,
             rdate=rdate,
             exdate=exdate,
-            timezone=timezone,
         )
         return await self.update_async(updated_recurrence)
 
