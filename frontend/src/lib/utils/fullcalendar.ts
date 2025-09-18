@@ -62,7 +62,7 @@ export const mapEventsToFullCalendar = (
         title: baseEvent.title,
         allDay: baseEvent.allDay,
         rrule: { ...rruleSet._rrule[0].options, dtstart: baseEvent.start },
-        exdate: rruleSet._exdate.map((date) => date.toISOString().split("T")[0]),
+        exdate: rruleSet._exdate.map((date) => date.toISOString().slice(0, -1)),
         duration: baseEvent.allDay
           ? {
               days: getYmdDeltaDays(parseYmdDate(event.dtstart, timezone), parseYmdDate(event.dtend, timezone)),
