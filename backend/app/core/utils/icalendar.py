@@ -124,9 +124,20 @@ def parse_recurrence(recurrence_list: list[str], is_all_day: bool) -> Recurrence
     return Recurrence(rrule=rrule, rdate=rdate, exdate=exdate)
 
 
-def serialize_recurrence(recurrence: Recurrence | None, is_all_day: bool) -> list[str]:
+def serialize_recurrence(
+    recurrence: Recurrence | None, dtstart: datetime, is_all_day: bool, timezone: str
+) -> list[str]:
     if not recurrence:
         return []
+
+    recurrence_list = []
+
+    # Add DTSTART with TZID
+    if is_all_day:
+        dtstart_str = f"DTSTART;VALUE=DATE:{dtstart.strftime('%Y%m%d')}"
+    else:
+        dtstart_str = f"DTSTART;TZID={timezone}:{dtstart.strftime('%Y%m%dT%H%M%S')}"
+    recurrence_list.append(dtstart_str)
 
     rrule_str = f"RRULE:FREQ={recurrence.rrule.freq.value}"
     if recurrence.rrule.until:
@@ -155,16 +166,14 @@ def serialize_recurrence(recurrence: Recurrence | None, is_all_day: bool) -> lis
     if recurrence.rrule.wkst:
         rrule_str += f";WKST={recurrence.rrule.wkst.value}"
 
-    recurrence_list = [rrule_str]
+    recurrence_list.append(rrule_str)
     if recurrence.rdate:
         if is_all_day:
             rdates = ",".join(rdate.strftime("%Y%m%d") for rdate in recurrence.rdate)
             rdate_str = f"RDATE;VALUE=DATE:{rdates}"
         else:
             rdates = ",".join(rdate.strftime("%Y%m%dT%H%M%S") for rdate in recurrence.rdate)
-            # TODO: Use the timezone from the db record
-            tzid = "Asia/Tokyo"
-            rdate_str = f"RDATE;TZID={tzid}:{rdates}"
+            rdate_str = f"RDATE;TZID={timezone}:{rdates}"
         recurrence_list.append(rdate_str)
     if recurrence.exdate:
         if is_all_day:
@@ -172,9 +181,7 @@ def serialize_recurrence(recurrence: Recurrence | None, is_all_day: bool) -> lis
             exdate_str = f"EXDATE;VALUE=DATE:{exdates}"
         else:
             exdates = ",".join(exdate.strftime("%Y%m%dT%H%M%S") for exdate in recurrence.exdate)
-            # TODO: Use the timezone from the db record
-            tzid = "Asia/Tokyo"
-            exdate_str = f"EXDATE;TZID={tzid}:{exdates}"
+            exdate_str = f"EXDATE;TZID={timezone}:{exdates}"
         recurrence_list.append(exdate_str)
 
     return recurrence_list

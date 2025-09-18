@@ -102,7 +102,7 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                 dtstart=event.dtstart,
                 dtend=event.dtend,
                 is_all_day=event.is_all_day,
-                recurrence_list=serialize_recurrence(recurrence, event.is_all_day),
+                recurrence_list=serialize_recurrence(recurrence, event.dtstart, event.is_all_day, event.timezone),
                 timezone=event.timezone,
             )
         )
