@@ -1,9 +1,10 @@
 import { TZDate } from "@/lib/utils/tzdate";
-import { Frequency } from "rrule";
+import { datetime, Frequency } from "rrule";
 import { describe, expect, it } from "vitest";
 import {
   addEXDate,
   addRDate,
+  convertRRuleDateToTZDate,
   getEXDates,
   getRDates,
   hasRRule,
@@ -12,6 +13,20 @@ import {
   removeEXDate,
   removeRDate,
 } from "./icalendar";
+
+describe(convertRRuleDateToTZDate, () => {
+  it("successfully converts between different timezones", () => {
+    const utcDate = datetime(2024, 1, 15, 10, 0, 0);
+
+    // Test conversion to UTC
+    const utcResult = convertRRuleDateToTZDate(utcDate, "UTC", "UTC");
+    expect(utcResult).toEqual(new TZDate(utcDate));
+
+    // Test conversion to different timezone
+    const nyResult = convertRRuleDateToTZDate(utcDate, "UTC", "America/New_York");
+    expect(nyResult).toEqual(new TZDate(utcDate, "America/New_York"));
+  });
+});
 
 describe(parseRecurrence, () => {
   describe("with empty recurrences array", () => {
