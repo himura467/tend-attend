@@ -373,7 +373,8 @@ describe(getRDates, () => {
 
   it("returns RDATE entries as TZDate objects", () => {
     const recurrences = ["RRULE:FREQ=WEEKLY", "RDATE:20240115T100000Z,20240125T140000Z"];
-    const result = getRDates(recurrences, "UTC");
+    const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const result = getRDates(recurrences, localTimezone);
 
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual(new TZDate(2024, 0, 15, 10, 0, 0, 0));
@@ -395,7 +396,8 @@ describe(getEXDates, () => {
 
   it("returns EXDATE entries as TZDate objects", () => {
     const recurrences = ["RRULE:FREQ=DAILY", "EXDATE:20240116T100000Z,20240118T100000Z"];
-    const result = getEXDates(recurrences, "UTC");
+    const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const result = getEXDates(recurrences, localTimezone);
 
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual(new TZDate(2024, 0, 16, 10, 0, 0, 0));
@@ -462,7 +464,8 @@ describe(removeRDate, () => {
     const dateToRemove = new TZDate("2024-01-15T10:00:00", "UTC").withTimeZone("UTC");
     const result = removeRDate(recurrences, dateToRemove);
 
-    const rdates = getRDates(result, "UTC");
+    const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const rdates = getRDates(result, localTimezone);
     expect(rdates).toHaveLength(1);
     expect(rdates[0]).toEqual(new TZDate(2024, 0, 25, 14, 0, 0, 0));
   });
@@ -482,7 +485,8 @@ describe(removeEXDate, () => {
     const dateToRemove = new TZDate("2024-01-16T10:00:00", "UTC").withTimeZone("UTC");
     const result = removeEXDate(recurrences, dateToRemove);
 
-    const exdates = getEXDates(result, "UTC");
+    const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const exdates = getEXDates(result, localTimezone);
     expect(exdates).toHaveLength(1);
     expect(exdates[0]).toEqual(new TZDate(2024, 0, 18, 10, 0, 0, 0));
   });
