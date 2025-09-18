@@ -93,7 +93,6 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                 ),
                 rdate=event.recurrence.rdate,
                 exdate=event.recurrence.exdate,
-                timezone=event.recurrence.timezone,
             )
         event_dto_list.append(
             EventWithIdDto(
@@ -184,7 +183,6 @@ class EventUsecase(IUsecase):
                 rrule=recurrence_rule,
                 rdate=event.recurrence.rdate,
                 exdate=event.recurrence.exdate,
-                timezone=event.recurrence.timezone,
             )
             if recurrence_entity is None:
                 raise ValueError("Failed to create recurrence")
@@ -274,7 +272,6 @@ class EventUsecase(IUsecase):
                         entity_id=existing_event.recurrence_id,
                         rdate=recurrence.rdate,
                         exdate=recurrence.exdate,
-                        timezone=recurrence.timezone,
                     )
                     recurrence_id = existing_event.recurrence_id
                 else:
@@ -308,7 +305,6 @@ class EventUsecase(IUsecase):
                     rrule=recurrence_rule,
                     rdate=recurrence.rdate,
                     exdate=recurrence.exdate,
-                    timezone=recurrence.timezone,
                 )
                 if recurrence_entity is None:
                     raise ValueError("Failed to create recurrence")
