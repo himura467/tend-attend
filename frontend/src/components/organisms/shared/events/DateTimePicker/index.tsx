@@ -8,6 +8,7 @@ import { useSSRSafeFormat } from "@/hooks/useSSRSafeFormat";
 import { useTimezone } from "@/hooks/useTimezone";
 import { cn } from "@/lib/utils";
 import { Frequency, hasRRule, matchesFrequency } from "@/lib/utils/icalendar";
+import { generateTimeOptions } from "@/lib/utils/timeOptions";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { CalendarIcon, Clock, Repeat } from "lucide-react";
@@ -62,22 +63,13 @@ export const DateTimePicker = ({
 }: DateTimePickerProps): React.JSX.Element => {
   const browserTimezone = useTimezone();
 
+  const timeOptions = React.useMemo(() => generateTimeOptions(), []);
+
   // SSR-safe date formatting to prevent hydration mismatches
   const startTimeFormatted = useSSRSafeFormat(startDate, "HH:mm");
   const endTimeFormatted = useSSRSafeFormat(endDate, "HH:mm");
   const startDateFormatted = useSSRSafeFormat(startDate, "EEE MMM dd");
   const endDateFormatted = useSSRSafeFormat(endDate, "EEE MMM dd");
-
-  const timeOptions = React.useMemo(() => {
-    const options = [];
-    for (let hour = 0; hour < 24; hour++) {
-      for (const minute of [0, 15, 30, 45]) {
-        const time = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
-        options.push(time);
-      }
-    }
-    return options;
-  }, []);
 
   const getDuration = (): string => {
     const diff = endDate.getTime() - startDate.getTime();
@@ -331,12 +323,14 @@ export const DateTimePicker = ({
             onRecurrencesChange={onRecurrencesChange}
             type="RDATE"
             isAllDay={isAllDay}
+            defaultTime={startDate}
           />
           <RecurrenceDateEditor
             recurrences={recurrences}
             onRecurrencesChange={onRecurrencesChange}
             type="EXDATE"
             isAllDay={isAllDay}
+            defaultTime={startDate}
           />
         </div>
       )}
