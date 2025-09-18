@@ -43,15 +43,7 @@ def _parse_rdate_exdate_line(line: str, is_all_day: bool) -> list[datetime]:
     # Extract the value part after the colon
     value_part = line.split(":")[1]
 
-    if ";VALUE=DATE:" in line:
-        if not is_all_day:
-            raise ValueError("RDATE/EXDATE with VALUE=DATE must be used only for all-day events")
-        # RFC 5545: TZID MUST NOT be applied to DATE properties
-        return [_parse_datetime_with_tzid(date_str, None) for date_str in value_part.split(",")]
-    else:
-        if is_all_day:
-            raise ValueError("RDATE/EXDATE without VALUE=DATE cannot be used for all-day events")
-        return [_parse_datetime_with_tzid(datetime_str, tzid) for datetime_str in value_part.split(",")]
+    return [_parse_datetime_with_tzid(dt_str, None if is_all_day else tzid) for dt_str in value_part.split(",")]
 
 
 def parse_rrule(rrule_str: str, is_all_day: bool) -> RecurrenceRule:
