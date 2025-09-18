@@ -323,12 +323,14 @@ export const DateTimePicker = ({
             onRecurrencesChange={onRecurrencesChange}
             type="RDATE"
             isAllDay={isAllDay}
+            defaultTime={startDate}
           />
           <RecurrenceDateEditor
             recurrences={recurrences}
             onRecurrencesChange={onRecurrencesChange}
             type="EXDATE"
             isAllDay={isAllDay}
+            defaultTime={startDate}
           />
         </div>
       )}

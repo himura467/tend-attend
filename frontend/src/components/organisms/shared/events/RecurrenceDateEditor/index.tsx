@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSSRSafeFormat } from "@/hooks/useSSRSafeFormat";
 import { useTimezone } from "@/hooks/useTimezone";
 import { addEXDate, addRDate, getEXDates, getRDates, removeEXDate, removeRDate } from "@/lib/utils/icalendar";
+import { generateTimeOptions } from "@/lib/utils/timeOptions";
 import { TZDate } from "@/lib/utils/tzdate";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import React from "react";
@@ -20,6 +22,7 @@ interface RecurrenceDateEditorProps {
   onRecurrencesChange: (recurrences: string[]) => void;
   type: "RDATE" | "EXDATE";
   isAllDay: boolean;
+  defaultTime: TZDate; // Used to get default time for new RDATE/EXDATE entries
 }
 
 export const RecurrenceDateEditor = ({
@@ -27,12 +30,15 @@ export const RecurrenceDateEditor = ({
   onRecurrencesChange,
   type,
   isAllDay,
+  defaultTime,
 }: RecurrenceDateEditorProps): React.JSX.Element => {
   const browserTimezone = useTimezone();
 
   const [pendingDates, setPendingDates] = React.useState<DateItemState[]>([]);
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState<TZDate>();
+
+  const timeOptions = React.useMemo(() => generateTimeOptions(), []);
 
   // Get current dates from recurrences using rrule library
   const savedDates = React.useMemo(() => {
@@ -63,23 +69,29 @@ export const RecurrenceDateEditor = ({
     return uniqueDates.filter((item) => !item.isRemoved).sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [savedDates, pendingDates]);
 
-  const handleAddDate = (date: TZDate): void => {
+  const handleAddDate = (): void => {
+    if (!selectedDate) return;
+
     // Check if date already exists
-    const exists = displayDates.some((item) => item.date.getTime() === date.getTime());
+    const exists = displayDates.some((item) => item.date.getTime() === selectedDate.getTime());
     if (exists) {
-      const dateText = date.toLocaleDateString();
+      const dateText = selectedDate.toLocaleDateString();
+      const timeText = !isAllDay
+        ? ` at ${selectedDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+        : "";
       const actionText = type === "RDATE" ? "additional date" : "exclusion date";
-      toast.error(`Date ${dateText} is already added as an ${actionText}`);
+      toast.error(`Date ${dateText}${timeText} is already added as an ${actionText}`);
       setIsCalendarOpen(false);
       setSelectedDate(undefined);
       return;
     }
 
     // Add to pending dates
-    setPendingDates((prev) => [...prev, { date, isNew: true }]);
+    setPendingDates((prev) => [...prev, { date: selectedDate, isNew: true }]);
 
     // Update recurrences
-    const newRecurrences = type === "RDATE" ? addRDate(recurrences, date) : addEXDate(recurrences, date);
+    const newRecurrences =
+      type === "RDATE" ? addRDate(recurrences, selectedDate) : addEXDate(recurrences, selectedDate);
     onRecurrencesChange(newRecurrences);
     setIsCalendarOpen(false);
     setSelectedDate(undefined);
@@ -120,6 +132,7 @@ export const RecurrenceDateEditor = ({
               date={dateItem.date}
               isNew={dateItem.isNew}
               onRemove={() => handleRemoveDate(dateItem.date)}
+              isAllDay={isAllDay}
             />
           ))}
         </div>
@@ -133,12 +146,56 @@ export const RecurrenceDateEditor = ({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={(date) => date && handleAddDate(new TZDate(date, isAllDay ? "UTC" : browserTimezone))}
-            autoFocus
-          />
+          <div className="p-3 space-y-3">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => {
+                if (date) {
+                  if (isAllDay) {
+                    setSelectedDate(new TZDate(date, "UTC"));
+                  } else {
+                    const newDate = new TZDate(date, browserTimezone);
+                    newDate.setHours(defaultTime.getHours(), defaultTime.getMinutes());
+                    setSelectedDate(newDate);
+                  }
+                }
+              }}
+              autoFocus
+            />
+            {!isAllDay && selectedDate && (
+              <div className="border-t pt-3 space-y-2">
+                <label className="text-sm font-medium">Time</label>
+                <Select
+                  value={`${selectedDate.getHours().toString().padStart(2, "0")}:${selectedDate.getMinutes().toString().padStart(2, "0")}`}
+                  onValueChange={(time) => {
+                    const [hours, minutes] = time.split(":").map(Number);
+                    const newDate = new TZDate(selectedDate, browserTimezone);
+                    newDate.setHours(hours, minutes);
+                    setSelectedDate(newDate);
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <div className="h-40 overflow-y-auto">
+                      {timeOptions.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </div>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {selectedDate && (
+              <Button className="w-full" onClick={handleAddDate}>
+                Add {type === "RDATE" ? "Date" : "Exclusion"}
+              </Button>
+            )}
+          </div>
         </PopoverContent>
       </Popover>
     </div>
@@ -149,9 +206,10 @@ interface DateItemProps {
   date: TZDate;
   isNew?: boolean;
   onRemove: () => void;
+  isAllDay: boolean;
 }
 
-const DateItem = ({ date, isNew = false, onRemove }: DateItemProps): React.JSX.Element => {
+const DateItem = ({ date, isNew = false, onRemove, isAllDay }: DateItemProps): React.JSX.Element => {
   const dateFormatted = useSSRSafeFormat(date, "EEE MMM dd, yyyy");
   const timeFormatted = useSSRSafeFormat(date, "HH:mm");
 
@@ -164,11 +222,11 @@ const DateItem = ({ date, isNew = false, onRemove }: DateItemProps): React.JSX.E
       <div className="flex items-center space-x-2">
         <CalendarIcon className={`h-4 w-4 ${isNew ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`} />
         <span className={isNew ? "text-green-700 dark:text-green-300" : ""}>{dateFormatted}</span>
-        {date.getHours() !== 0 || date.getMinutes() !== 0 ? (
+        {!isAllDay && (
           <span className={`${isNew ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}`}>
             at {timeFormatted}
           </span>
-        ) : null}
+        )}
         {isNew && (
           <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-0.5 rounded-full">
             New
