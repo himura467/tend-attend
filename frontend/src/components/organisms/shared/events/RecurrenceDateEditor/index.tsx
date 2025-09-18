@@ -19,12 +19,14 @@ interface RecurrenceDateEditorProps {
   recurrences: string[];
   onRecurrencesChange: (recurrences: string[]) => void;
   type: "RDATE" | "EXDATE";
+  isAllDay: boolean;
 }
 
 export const RecurrenceDateEditor = ({
   recurrences,
   onRecurrencesChange,
   type,
+  isAllDay,
 }: RecurrenceDateEditorProps): React.JSX.Element => {
   const browserTimezone = useTimezone();
 
@@ -132,7 +134,7 @@ export const RecurrenceDateEditor = ({
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={(date) => date && handleAddDate(new TZDate(date, browserTimezone))}
+            onSelect={(date) => date && handleAddDate(new TZDate(date, isAllDay ? "UTC" : browserTimezone))}
             autoFocus
           />
         </PopoverContent>

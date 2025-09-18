@@ -326,8 +326,8 @@ export const DateTimePicker = ({
       </div>
       {hasRRule(recurrences) && (
         <div className="space-y-4 border-t pt-4">
-          <RecurrenceDateEditor recurrences={recurrences} onRecurrencesChange={onRecurrencesChange} type="RDATE" />
-          <RecurrenceDateEditor recurrences={recurrences} onRecurrencesChange={onRecurrencesChange} type="EXDATE" />
+          <RecurrenceDateEditor recurrences={recurrences} onRecurrencesChange={onRecurrencesChange} type="RDATE" isAllDay={isAllDay} />
+          <RecurrenceDateEditor recurrences={recurrences} onRecurrencesChange={onRecurrencesChange} type="EXDATE" isAllDay={isAllDay} />
         </div>
       )}
     </div>
