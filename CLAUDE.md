@@ -43,12 +43,12 @@ Implement Google Calendar integration allowing HOST users to sync their events t
 - [x] Generate and test database migration with alembic
 - [x] Add environment variables for Google OAuth credentials to `backend/app/core/constants/secrets.py`
 
-### Milestone 3: Google API Integration (Backend PR #3)
+### Milestone 3: Google API Integration (Backend PR #3) ✅
 
-- [ ] Create Google Calendar service: `backend/app/core/infrastructure/google/calendar_service.py`
-- [ ] Implement OAuth flow utilities for token exchange and refresh
-- [ ] Create DTOs: `backend/app/core/dtos/google_calendar.py`
-- [ ] Add Google Calendar constants and configuration
+- [x] Create Google Calendar service: `backend/app/core/infrastructure/google/calendar_service.py`
+- [x] Implement OAuth flow utilities for token exchange and refresh
+- [x] Create DTOs: `backend/app/core/dtos/google_calendar.py`
+- [x] Add Google Calendar constants and configuration
 
 ### Milestone 4: Use Case Implementation (Backend PR #4)
 

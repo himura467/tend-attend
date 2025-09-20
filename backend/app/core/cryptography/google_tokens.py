@@ -25,11 +25,3 @@ class GoogleTokenCryptography:
         """Decrypt a Google API token for use."""
         decrypted_token = self._fernet.decrypt(encrypted_token.encode())
         return decrypted_token.decode()
-
-    def encrypt_refresh_token(self, refresh_token: str) -> str:
-        """Encrypt a Google refresh token for secure storage."""
-        return self.encrypt_token(refresh_token)
-
-    def decrypt_refresh_token(self, encrypted_refresh_token: str) -> str:
-        """Decrypt a Google refresh token for use."""
-        return self.decrypt_token(encrypted_refresh_token)

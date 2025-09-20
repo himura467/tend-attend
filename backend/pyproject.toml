@@ -40,7 +40,19 @@ module = "aws_advanced_python_wrapper"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = "googleapiclient.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "google_auth_oauthlib.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = "app.core.infrastructure.sqlalchemy.models.*"
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+module = "app.core.infrastructure.google.*"
 disallow_untyped_calls = false
 
 [tool.ruff]
