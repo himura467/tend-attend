@@ -10,7 +10,7 @@ from app.core.utils.uuid import UUID
 
 class IGoogleCalendarIntegrationRepository(IRepository[GoogleCalendarIntegrationEntity, ModelProtocol[Any]], metaclass=ABCMeta):
     @abstractmethod
-    async def read_by_user_id_or_none_async(self, user_id: UUID) -> GoogleCalendarIntegrationEntity | None:
+    async def read_by_user_id_or_none_async(self, user_id: int) -> GoogleCalendarIntegrationEntity | None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -24,7 +24,7 @@ class IGoogleCalendarIntegrationRepository(IRepository[GoogleCalendarIntegration
         encrypted_access_token: str,
         encrypted_refresh_token: str,
         token_expires_at: datetime,
-    ) -> GoogleCalendarIntegrationEntity:
+    ) -> GoogleCalendarIntegrationEntity | None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -34,5 +34,5 @@ class IGoogleCalendarIntegrationRepository(IRepository[GoogleCalendarIntegration
         sync_status: GoogleCalendarSyncStatus,
         last_sync_at: datetime | None = None,
         last_error: str | None = None,
-    ) -> GoogleCalendarIntegrationEntity:
+    ) -> GoogleCalendarIntegrationEntity | None:
         raise NotImplementedError()
