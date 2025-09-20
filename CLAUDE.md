@@ -37,9 +37,9 @@ Implement Google Calendar integration allowing HOST users to sync their events t
 
 ### Milestone 2: Database Layer (Backend PR #2)
 
-- [ ] Create SQLAlchemy model: `backend/app/core/infrastructure/sqlalchemy/models/commons/google_calendar.py`
-- [ ] Update models `__init__.py` to include new model
-- [ ] Create repository implementation: `backend/app/core/infrastructure/sqlalchemy/repositories/google_calendar.py`
+- [x] Create SQLAlchemy model: `backend/app/core/infrastructure/sqlalchemy/models/shards/google_calendar.py`
+- [x] Update models `__init__.py` to include new model
+- [x] Create repository implementation: `backend/app/core/infrastructure/sqlalchemy/repositories/google_calendar.py`
 - [ ] Generate and test database migration with alembic
 - [ ] Add environment variables for Google OAuth credentials to `backend/app/core/constants/secrets.py`
 
