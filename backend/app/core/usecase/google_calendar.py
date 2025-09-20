@@ -8,12 +8,13 @@ from app.core.domain.entities.google_calendar import (
 )
 from app.core.domain.usecase.base import IUsecase
 from app.core.dtos.google_calendar import (
+    DisconnectGoogleCalendarResponse,
     FolloweeCalendarInfo,
-    FolloweeCalendarsResponse,
-    GoogleCalendarDisconnectResponse,
-    GoogleCalendarOAuthResponse,
-    GoogleCalendarStatusResponse,
-    GoogleCalendarSyncResponse,
+    GetFolloweeCalendarsResponse,
+    GetGoogleCalendarAuthUrlResponse,
+    GetGoogleCalendarStatusResponse,
+    HandleGoogleCalendarOAuthCallbackResponse,
+    SyncGoogleCalendarResponse,
 )
 from app.core.error.error_code import ErrorCode
 from app.core.features.google_calendar import GoogleCalendarSyncStatus
@@ -26,7 +27,7 @@ from app.core.infrastructure.sqlalchemy.repositories.account import (
 from app.core.infrastructure.sqlalchemy.repositories.google_calendar import (
     GoogleCalendarIntegrationRepository,
 )
-from app.core.utils.uuid import generate_uuid, uuid_to_str
+from app.core.utils.uuid import UUID, generate_uuid, uuid_to_str
 
 
 class GoogleCalendarUsecase(IUsecase):
@@ -36,18 +37,133 @@ class GoogleCalendarUsecase(IUsecase):
     _oauth_flow = GoogleOAuthFlow()
     _calendar_service = GoogleCalendarService(token_crypto=_token_crypto)
 
-    def get_authorization_url(self, state: str | None = None) -> str:
+    @rollbackable
+    async def get_authorization_url(
+        self, account_id: UUID, state: str | None = None
+    ) -> GetGoogleCalendarAuthUrlResponse:
         """Get Google OAuth authorization URL."""
-        return self._oauth_flow.get_authorization_url(state=state)
+        user_account_repository = UserAccountRepository(self.uow)
 
-    async def get_integration_status_async(self, user_id: int) -> GoogleCalendarStatusResponse:
-        """Get current Google Calendar integration status for user."""
+        # Verify account exists
+        user_account = await user_account_repository.read_by_id_or_none_async(account_id)
+        if not user_account:
+            return GetGoogleCalendarAuthUrlResponse(
+                error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
+                authorization_url="",
+            )
+
+        auth_url = self._oauth_flow.get_authorization_url(state=state)
+        return GetGoogleCalendarAuthUrlResponse(error_codes=[], authorization_url=auth_url)
+
+    @rollbackable
+    async def handle_oauth_callback_async(
+        self, account_id: UUID, auth_code: str
+    ) -> HandleGoogleCalendarOAuthCallbackResponse:
+        """Handle Google OAuth callback and create calendar integration."""
+        user_account_repository = UserAccountRepository(self.uow)
         google_calendar_repository = GoogleCalendarIntegrationRepository(self.uow)
 
+        # Get user_id from account_id
+        user_account = await user_account_repository.read_by_id_or_none_async(account_id)
+        if not user_account:
+            return HandleGoogleCalendarOAuthCallbackResponse(
+                error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
+                integration_id=None,
+                calendar_url=None,
+            )
+
+        user_id = user_account.user_id
+
+        # Exchange authorization code for tokens
+        oauth_tokens = await self._oauth_flow.exchange_code_for_tokens(auth_code)
+
+        # Encrypt tokens for storage
+        encrypted_access_token = self._token_crypto.encrypt_token(oauth_tokens.access_token)
+        encrypted_refresh_token = self._token_crypto.encrypt_token(oauth_tokens.refresh_token)
+
+        # Create calendar in Google
+        calendar_info = await self._calendar_service.create_calendar(
+            encrypted_access_token=encrypted_access_token,
+            encrypted_refresh_token=encrypted_refresh_token,
+            summary="Tend Attend Events",
+        )
+
+        # Get public calendar URL
+        calendar_url = await self._calendar_service.get_calendar_public_url(calendar_info.id)
+
+        # Check if integration already exists
+        existing_integration = await google_calendar_repository.read_by_user_id_or_none_async(user_id)
+
+        if existing_integration:
+            # Update existing integration with new tokens
+            # First update tokens
+            await google_calendar_repository.update_tokens_async(
+                integration_id=existing_integration.id,
+                encrypted_access_token=encrypted_access_token,
+                encrypted_refresh_token=encrypted_refresh_token,
+                token_expires_at=oauth_tokens.expires_at,
+            )
+            # Then update calendar info and status
+            updated_integration = await google_calendar_repository.update_sync_status_async(
+                integration_id=existing_integration.id,
+                sync_status=GoogleCalendarSyncStatus.CONNECTED,
+                last_sync_at=None,
+                last_error=None,
+            )
+            if not updated_integration:
+                raise Exception("Failed to update existing Google Calendar integration")
+            integration_id = uuid_to_str(updated_integration.id)
+        else:
+            # Create new integration
+            new_integration = GoogleCalendarIntegrationEntity(
+                entity_id=generate_uuid(),
+                user_id=user_id,
+                google_user_id=oauth_tokens.user_id,
+                google_email=oauth_tokens.email,
+                encrypted_access_token=encrypted_access_token,
+                encrypted_refresh_token=encrypted_refresh_token,
+                token_expires_at=oauth_tokens.expires_at,
+                calendar_id=calendar_info.id,
+                calendar_url=calendar_url,
+                sync_status=GoogleCalendarSyncStatus.CONNECTED,
+                last_sync_at=None,
+                last_error=None,
+            )
+            created_integration = await google_calendar_repository.create_async(new_integration)
+            if not created_integration:
+                raise Exception("Failed to create new Google Calendar integration")
+            integration_id = uuid_to_str(created_integration.id)
+
+        return HandleGoogleCalendarOAuthCallbackResponse(
+            error_codes=[],
+            integration_id=integration_id,
+            calendar_url=calendar_url,
+        )
+
+    @rollbackable
+    async def get_integration_status_async(self, account_id: UUID) -> GetGoogleCalendarStatusResponse:
+        """Get current Google Calendar integration status for user."""
+        user_account_repository = UserAccountRepository(self.uow)
+        google_calendar_repository = GoogleCalendarIntegrationRepository(self.uow)
+
+        # Get user_id from account_id
+        user_account = await user_account_repository.read_by_id_or_none_async(account_id)
+        if not user_account:
+            return GetGoogleCalendarStatusResponse(
+                error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
+                integration_id=None,
+                google_email=None,
+                calendar_url=None,
+                sync_status=GoogleCalendarSyncStatus.ERROR,
+                last_sync_at=None,
+                last_error=None,
+            )
+
+        user_id = user_account.user_id
         integration = await google_calendar_repository.read_by_user_id_or_none_async(user_id)
 
         if not integration:
-            return GoogleCalendarStatusResponse(
+            return GetGoogleCalendarStatusResponse(
                 error_codes=[],
                 integration_id=None,
                 google_email=None,
@@ -62,7 +178,7 @@ class GoogleCalendarUsecase(IUsecase):
         if integration.calendar_id:
             calendar_url = await self._calendar_service.get_calendar_public_url(integration.calendar_id)
 
-        return GoogleCalendarStatusResponse(
+        return GetGoogleCalendarStatusResponse(
             error_codes=[],
             integration_id=uuid_to_str(integration.id),
             google_email=integration.google_email,
@@ -72,178 +188,58 @@ class GoogleCalendarUsecase(IUsecase):
             last_error=integration.last_error,
         )
 
-    async def get_followee_calendars_async(self, user_id: int) -> FolloweeCalendarsResponse:
-        """Get calendar URLs for all followees who have Google Calendar integration."""
+    @rollbackable
+    async def disconnect_integration_async(self, account_id: UUID) -> DisconnectGoogleCalendarResponse:
+        """Disconnect Google Calendar integration for user."""
         user_account_repository = UserAccountRepository(self.uow)
         google_calendar_repository = GoogleCalendarIntegrationRepository(self.uow)
 
-        try:
-            # First find the user by user_id to get their entity_id
-            user_account_basic = await user_account_repository.read_by_user_id_or_none_async(user_id)
-
-            if not user_account_basic:
-                return FolloweeCalendarsResponse(
-                    error_codes=[],
-                    calendars=[],
-                )
-
-            # Get user account with followees using entity_id
-            user_account = await user_account_repository.read_with_followees_by_id_or_none_async(user_account_basic.id)
-
-            if not user_account or not user_account.followees:
-                return FolloweeCalendarsResponse(
-                    error_codes=[],
-                    calendars=[],
-                )
-
-            calendars = []
-            for followee in user_account.followees:
-                # Get Google Calendar integration for each followee using their user_id
-                integration = await google_calendar_repository.read_by_user_id_or_none_async(followee.user_id)
-
-                if (
-                    integration
-                    and integration.sync_status == GoogleCalendarSyncStatus.CONNECTED
-                    and integration.calendar_id
-                ):
-                    calendar_url = await self._calendar_service.get_calendar_public_url(integration.calendar_id)
-
-                    calendars.append(
-                        FolloweeCalendarInfo(
-                            username=followee.username,
-                            nickname=followee.nickname,
-                            calendar_url=calendar_url,
-                            last_sync_at=integration.last_sync_at,
-                        )
-                    )
-
-            return FolloweeCalendarsResponse(
-                error_codes=[],
-                calendars=calendars,
+        # Get user_id from account_id
+        user_account = await user_account_repository.read_by_id_or_none_async(account_id)
+        if not user_account:
+            return DisconnectGoogleCalendarResponse(
+                error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
             )
 
-        except Exception:
-            return FolloweeCalendarsResponse(
-                error_codes=[ErrorCode.FOLLOWEE_CALENDARS_FETCH_FAILED],
-                calendars=[],
-            )
-
-    @rollbackable
-    async def handle_oauth_callback_async(
-        self, user_id: int, auth_code: str, state: str | None = None
-    ) -> GoogleCalendarOAuthResponse:
-        """Handle Google OAuth callback and create calendar integration."""
-        google_calendar_repository = GoogleCalendarIntegrationRepository(self.uow)
-
-        try:
-            # Exchange authorization code for tokens
-            oauth_tokens = await self._oauth_flow.exchange_code_for_tokens(auth_code)
-
-            # Encrypt tokens for storage
-            encrypted_access_token = self._token_crypto.encrypt_token(oauth_tokens.access_token)
-            encrypted_refresh_token = self._token_crypto.encrypt_token(oauth_tokens.refresh_token)
-
-            # Create calendar in Google
-            calendar_info = await self._calendar_service.create_calendar(
-                encrypted_access_token=encrypted_access_token,
-                encrypted_refresh_token=encrypted_refresh_token,
-                summary="Tend Attend Events",
-            )
-
-            # Get public calendar URL
-            calendar_url = await self._calendar_service.get_calendar_public_url(calendar_info.id)
-
-            # Check if integration already exists
-            existing_integration = await google_calendar_repository.read_by_user_id_or_none_async(user_id)
-
-            if existing_integration:
-                # Update existing integration with new tokens
-                # First update tokens
-                await google_calendar_repository.update_tokens_async(
-                    integration_id=existing_integration.id,
-                    encrypted_access_token=encrypted_access_token,
-                    encrypted_refresh_token=encrypted_refresh_token,
-                    token_expires_at=oauth_tokens.expires_at,
-                )
-                # Then update calendar info and status
-                updated_integration = await google_calendar_repository.update_sync_status_async(
-                    integration_id=existing_integration.id,
-                    sync_status=GoogleCalendarSyncStatus.CONNECTED,
-                    last_sync_at=None,
-                    last_error=None,
-                )
-                if not updated_integration:
-                    raise Exception("Failed to update existing Google Calendar integration")
-                integration_id = uuid_to_str(updated_integration.id)
-            else:
-                # Create new integration
-                new_integration = GoogleCalendarIntegrationEntity(
-                    entity_id=generate_uuid(),
-                    user_id=user_id,
-                    google_user_id=oauth_tokens.user_id,
-                    google_email=oauth_tokens.email,
-                    encrypted_access_token=encrypted_access_token,
-                    encrypted_refresh_token=encrypted_refresh_token,
-                    token_expires_at=oauth_tokens.expires_at,
-                    calendar_id=calendar_info.id,
-                    calendar_url=calendar_url,
-                    sync_status=GoogleCalendarSyncStatus.CONNECTED,
-                    last_sync_at=None,
-                    last_error=None,
-                )
-                created_integration = await google_calendar_repository.create_async(new_integration)
-                if not created_integration:
-                    raise Exception("Failed to create new Google Calendar integration")
-                integration_id = uuid_to_str(created_integration.id)
-
-            return GoogleCalendarOAuthResponse(
-                error_codes=[],
-                integration_id=integration_id,
-                calendar_url=calendar_url,
-            )
-        except Exception:
-            return GoogleCalendarOAuthResponse(
-                error_codes=[ErrorCode.GOOGLE_OAUTH_FAILED],
-                integration_id=None,
-                calendar_url=None,
-            )
-
-    @rollbackable
-    async def disconnect_integration_async(self, user_id: int) -> GoogleCalendarDisconnectResponse:
-        """Disconnect Google Calendar integration for user."""
-        google_calendar_repository = GoogleCalendarIntegrationRepository(self.uow)
-
+        user_id = user_account.user_id
         integration = await google_calendar_repository.read_by_user_id_or_none_async(user_id)
 
         if not integration:
-            return GoogleCalendarDisconnectResponse(
+            return DisconnectGoogleCalendarResponse(
                 error_codes=[ErrorCode.GOOGLE_CALENDAR_NOT_CONNECTED],
             )
 
-        try:
-            # Update status to disconnected
-            await google_calendar_repository.update_sync_status_async(
-                integration_id=integration.id,
-                sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
-                last_sync_at=integration.last_sync_at,
-                last_error=None,
-            )
+        # Update status to disconnected
+        await google_calendar_repository.update_sync_status_async(
+            integration_id=integration.id,
+            sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
+            last_sync_at=integration.last_sync_at,
+            last_error=None,
+        )
 
-            return GoogleCalendarDisconnectResponse(error_codes=[])
-        except Exception:
-            return GoogleCalendarDisconnectResponse(
-                error_codes=[ErrorCode.GOOGLE_CALENDAR_DISCONNECT_FAILED],
-            )
+        return DisconnectGoogleCalendarResponse(error_codes=[])
 
     @rollbackable
-    async def sync_events_async(self, user_id: int, force_sync: bool = False) -> GoogleCalendarSyncResponse:
+    async def sync_events_async(self, account_id: UUID) -> SyncGoogleCalendarResponse:
         """Sync user events to Google Calendar."""
+        user_account_repository = UserAccountRepository(self.uow)
         google_calendar_repository = GoogleCalendarIntegrationRepository(self.uow)
 
+        # Get user_id from account_id
+        user_account = await user_account_repository.read_by_id_or_none_async(account_id)
+        if not user_account:
+            return SyncGoogleCalendarResponse(
+                error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
+                sync_status=GoogleCalendarSyncStatus.ERROR,
+                events_synced=0,
+                last_sync_at=None,
+            )
+
+        user_id = user_account.user_id
         integration = await google_calendar_repository.read_by_user_id_or_none_async(user_id)
 
         if not integration:
-            return GoogleCalendarSyncResponse(
+            return SyncGoogleCalendarResponse(
                 error_codes=[ErrorCode.GOOGLE_CALENDAR_NOT_CONNECTED],
                 sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
                 events_synced=0,
@@ -251,7 +247,7 @@ class GoogleCalendarUsecase(IUsecase):
             )
 
         if integration.sync_status == GoogleCalendarSyncStatus.DISCONNECTED:
-            return GoogleCalendarSyncResponse(
+            return SyncGoogleCalendarResponse(
                 error_codes=[ErrorCode.GOOGLE_CALENDAR_NOT_CONNECTED],
                 sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
                 events_synced=0,
@@ -284,7 +280,7 @@ class GoogleCalendarUsecase(IUsecase):
                 last_error=None,
             )
 
-            return GoogleCalendarSyncResponse(
+            return SyncGoogleCalendarResponse(
                 error_codes=[],
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
                 events_synced=events_synced,
@@ -299,9 +295,55 @@ class GoogleCalendarUsecase(IUsecase):
                 last_error=str(e),
             )
 
-            return GoogleCalendarSyncResponse(
+            return SyncGoogleCalendarResponse(
                 error_codes=[ErrorCode.GOOGLE_CALENDAR_SYNC_FAILED],
                 sync_status=GoogleCalendarSyncStatus.ERROR,
                 events_synced=0,
                 last_sync_at=integration.last_sync_at,
             )
+
+    @rollbackable
+    async def get_followee_calendars_async(self, account_id: UUID) -> GetFolloweeCalendarsResponse:
+        """Get calendar URLs for all followees who have Google Calendar integration."""
+        user_account_repository = UserAccountRepository(self.uow)
+        google_calendar_repository = GoogleCalendarIntegrationRepository(self.uow)
+
+        # Get user account with followees using account_id directly
+        user_account = await user_account_repository.read_with_followees_by_id_or_none_async(account_id)
+
+        if not user_account:
+            return GetFolloweeCalendarsResponse(
+                error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
+                calendars=[],
+            )
+        if not user_account.followees:
+            return GetFolloweeCalendarsResponse(
+                error_codes=[],
+                calendars=[],
+            )
+
+        calendars = []
+        for followee in user_account.followees:
+            # Get Google Calendar integration for each followee using their user_id
+            integration = await google_calendar_repository.read_by_user_id_or_none_async(followee.user_id)
+
+            if (
+                integration
+                and integration.sync_status == GoogleCalendarSyncStatus.CONNECTED
+                and integration.calendar_id
+            ):
+                calendar_url = await self._calendar_service.get_calendar_public_url(integration.calendar_id)
+
+                calendars.append(
+                    FolloweeCalendarInfo(
+                        username=followee.username,
+                        nickname=followee.nickname,
+                        calendar_url=calendar_url,
+                        last_sync_at=integration.last_sync_at,
+                    )
+                )
+
+        return GetFolloweeCalendarsResponse(
+            error_codes=[],
+            calendars=calendars,
+        )

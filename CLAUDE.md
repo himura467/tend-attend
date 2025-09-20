@@ -27,7 +27,7 @@ Implement Google Calendar integration allowing HOST users to sync their events t
 
 ## Backend Implementation
 
-### Milestone 1: Core Infrastructure (Backend PR #1) ✅
+### Milestone 1: Core Infrastructure (Backend PR #1)
 
 - [x] Add Google API dependencies to `backend/pyproject.toml`
 - [x] Create domain entity: `backend/app/core/domain/entities/google_calendar.py`
@@ -35,7 +35,7 @@ Implement Google Calendar integration allowing HOST users to sync their events t
 - [x] Add error codes to `backend/app/core/error/error_code.py`
 - [x] Create token encryption utility: `backend/app/core/cryptography/google_tokens.py`
 
-### Milestone 2: Database Layer (Backend PR #2) ✅
+### Milestone 2: Database Layer (Backend PR #2)
 
 - [x] Create SQLAlchemy model: `backend/app/core/infrastructure/sqlalchemy/models/shards/google_calendar.py`
 - [x] Update models `__init__.py` to include new model
@@ -43,14 +43,14 @@ Implement Google Calendar integration allowing HOST users to sync their events t
 - [x] Generate and test database migration with alembic
 - [x] Add environment variables for Google OAuth credentials to `backend/app/core/constants/secrets.py`
 
-### Milestone 3: Google API Integration (Backend PR #3) ✅
+### Milestone 3: Google API Integration (Backend PR #3)
 
 - [x] Create Google Calendar service: `backend/app/core/infrastructure/google/calendar_service.py`
 - [x] Implement OAuth flow utilities for token exchange and refresh
 - [x] Create DTOs: `backend/app/core/dtos/google_calendar.py`
 - [x] Add Google Calendar constants and configuration
 
-### Milestone 4: Use Case Implementation (Backend PR #4) ✅
+### Milestone 4: Use Case Implementation (Backend PR #4)
 
 - [x] Implement GoogleCalendarUsecase: `backend/app/core/usecase/google_calendar.py`
 - [x] Add auth callback handling with @rollbackable decorator
@@ -60,10 +60,10 @@ Implement Google Calendar integration allowing HOST users to sync their events t
 
 ### Milestone 5: API Layer (Backend PR #5)
 
-- [ ] Create API routes: `backend/app/api/routes/google_calendar.py`
-- [ ] Update API router in `backend/app/api/main.py`
-- [ ] Add proper access control using existing AccessControl dependency
-- [ ] Test all endpoints with proper error handling and response patterns
+- [x] Create API routes: `backend/app/api/routes/google_calendar.py`
+- [x] Update API router in `backend/app/api/main.py`
+- [x] Add proper access control using existing AccessControl dependency
+- [x] Test all endpoints with proper error handling and response patterns
 
 ### Milestone 6: Backend Testing & Documentation (Backend PR #6)
 
