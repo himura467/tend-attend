@@ -14,21 +14,20 @@ class FolloweeCalendarInfo(BaseModel):
     last_sync_at: datetime | None = Field(None, title="Last Sync Time")
 
 
-class GoogleCalendarOAuthRequest(BaseModel):
+class GetGoogleCalendarAuthUrlResponse(BaseModelWithErrorCodes):
+    authorization_url: str = Field(..., title="Google OAuth Authorization URL")
+
+
+class HandleGoogleCalendarOAuthCallbackRequest(BaseModel):
     auth_code: str = Field(..., title="Google OAuth Authorization Code")
-    state: str | None = Field(None, title="OAuth State Parameter")
 
 
-class GoogleCalendarOAuthResponse(BaseModelWithErrorCodes):
+class HandleGoogleCalendarOAuthCallbackResponse(BaseModelWithErrorCodes):
     integration_id: str | None = Field(None, title="Integration ID")
     calendar_url: str | None = Field(None, title="Public Calendar URL")
 
 
-class GoogleCalendarStatusRequest(BaseModel):
-    pass
-
-
-class GoogleCalendarStatusResponse(BaseModelWithErrorCodes):
+class GetGoogleCalendarStatusResponse(BaseModelWithErrorCodes):
     integration_id: str | None = Field(None, title="Integration ID")
     google_email: str | None = Field(None, title="Google Email")
     calendar_url: str | None = Field(None, title="Public Calendar URL")
@@ -37,27 +36,15 @@ class GoogleCalendarStatusResponse(BaseModelWithErrorCodes):
     last_error: str | None = Field(None, title="Last Error Message")
 
 
-class GoogleCalendarDisconnectRequest(BaseModel):
+class DisconnectGoogleCalendarResponse(BaseModelWithErrorCodes):
     pass
 
 
-class GoogleCalendarDisconnectResponse(BaseModelWithErrorCodes):
-    pass
-
-
-class GoogleCalendarSyncRequest(BaseModel):
-    force_sync: bool = Field(False, title="Force Full Sync")
-
-
-class GoogleCalendarSyncResponse(BaseModelWithErrorCodes):
+class SyncGoogleCalendarResponse(BaseModelWithErrorCodes):
     sync_status: GoogleCalendarSyncStatus | None = Field(None, title="Sync Status")
     events_synced: int | None = Field(None, title="Number of Events Synced")
     last_sync_at: datetime | None = Field(None, title="Last Sync Time")
 
 
-class FolloweeCalendarsRequest(BaseModel):
-    pass
-
-
-class FolloweeCalendarsResponse(BaseModelWithErrorCodes):
+class GetFolloweeCalendarsResponse(BaseModelWithErrorCodes):
     calendars: list[FolloweeCalendarInfo] = Field(default_factory=list, title="Followee Calendars")
