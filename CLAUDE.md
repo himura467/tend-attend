@@ -50,13 +50,13 @@ Implement Google Calendar integration allowing HOST users to sync their events t
 - [x] Create DTOs: `backend/app/core/dtos/google_calendar.py`
 - [x] Add Google Calendar constants and configuration
 
-### Milestone 4: Use Case Implementation (Backend PR #4)
+### Milestone 4: Use Case Implementation (Backend PR #4) ✅
 
-- [ ] Implement GoogleCalendarUsecase: `backend/app/core/usecase/google_calendar.py`
-- [ ] Add auth callback handling with @rollbackable decorator
-- [ ] Add event synchronization logic
-- [ ] Add followee calendar URL retrieval
-- [ ] Integration with existing event management workflows
+- [x] Implement GoogleCalendarUsecase: `backend/app/core/usecase/google_calendar.py`
+- [x] Add auth callback handling with @rollbackable decorator
+- [x] Add event synchronization logic
+- [x] Add followee calendar URL retrieval
+- [x] Integration with existing event management workflows
 
 ### Milestone 5: API Layer (Backend PR #5)
 
