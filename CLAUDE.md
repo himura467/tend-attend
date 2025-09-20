@@ -27,13 +27,13 @@ Implement Google Calendar integration allowing HOST users to sync their events t
 
 ## Backend Implementation
 
-### Milestone 1: Core Infrastructure (Backend PR #1)
+### Milestone 1: Core Infrastructure (Backend PR #1) ✅
 
-- [ ] Add Google API dependencies to `backend/pyproject.toml`
-- [ ] Create domain entity: `backend/app/core/domain/entities/google_calendar.py`
-- [ ] Create repository interface: `backend/app/core/domain/repositories/google_calendar.py`
-- [ ] Add error codes to `backend/app/core/error/error_code.py`
-- [ ] Create token encryption utility: `backend/app/core/cryptography/google_tokens.py`
+- [x] Add Google API dependencies to `backend/pyproject.toml`
+- [x] Create domain entity: `backend/app/core/domain/entities/google_calendar.py`
+- [x] Create repository interface: `backend/app/core/domain/repositories/google_calendar.py`
+- [x] Add error codes to `backend/app/core/error/error_code.py`
+- [x] Create token encryption utility: `backend/app/core/cryptography/google_tokens.py`
 
 ### Milestone 2: Database Layer (Backend PR #2)
 
