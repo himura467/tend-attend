@@ -9,7 +9,7 @@ class GoogleCalendarIntegration(IEntity):
     def __init__(
         self,
         entity_id: UUID,
-        user_id: UUID,
+        user_id: int,
         google_user_id: str,
         google_email: str,
         encrypted_access_token: str,
