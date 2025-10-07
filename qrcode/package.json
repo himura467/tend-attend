@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.152",
-    "@types/jsdom": "^21.1.7",
+    "@types/jsdom": "^27.0.0",
     "eslint": "^9.36.0",
     "npm-run-all2": "^8.0.4",
     "prettier": "^3.6.2",
