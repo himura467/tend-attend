@@ -297,11 +297,9 @@ class GoogleCalendarUsecase(IUsecase):
                             rdate=event.recurrence.rdate,
                             exdate=event.recurrence.exdate,
                         )
-                        recurrence_strs = serialize_recurrence(
+                        recurrence_list = serialize_recurrence(
                             recurrence, event.dtstart, event.is_all_day, event.timezone
                         )
-                        # Filter to only RRULE lines (exclude DTSTART, RDATE, EXDATE for now)
-                        recurrence_list = [r for r in recurrence_strs if r.startswith("RRULE:")]
 
                     # Create event in Google Calendar
                     await self._calendar_service.create_event(
