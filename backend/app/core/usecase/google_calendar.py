@@ -17,6 +17,7 @@ from app.core.dtos.google_calendar import (
     SyncGoogleCalendarResponse,
 )
 from app.core.error.error_code import ErrorCode
+from app.core.features.event import Recurrence, RecurrenceRule, Weekday
 from app.core.features.google_calendar import GoogleCalendarSyncStatus
 from app.core.infrastructure.db.transaction import rollbackable
 from app.core.infrastructure.google.calendar_service import GoogleCalendarService
@@ -24,9 +25,11 @@ from app.core.infrastructure.google.oauth_flow import GoogleOAuthFlow
 from app.core.infrastructure.sqlalchemy.repositories.account import (
     UserAccountRepository,
 )
+from app.core.infrastructure.sqlalchemy.repositories.event import EventRepository
 from app.core.infrastructure.sqlalchemy.repositories.google_calendar import (
     GoogleCalendarIntegrationRepository,
 )
+from app.core.utils.icalendar import serialize_recurrence
 from app.core.utils.uuid import UUID, generate_uuid, uuid_to_str
 
 
@@ -224,6 +227,7 @@ class GoogleCalendarUsecase(IUsecase):
         """Sync user events to Google Calendar."""
         user_account_repository = UserAccountRepository(self.uow)
         google_calendar_repository = GoogleCalendarIntegrationRepository(self.uow)
+        event_repository = EventRepository(self.uow)
 
         # Get user_id from account_id
         user_account = await user_account_repository.read_by_id_or_none_async(account_id)
@@ -263,13 +267,58 @@ class GoogleCalendarUsecase(IUsecase):
                 last_error=None,
             )
 
-            # TODO: Implement actual event synchronization logic
-            # This would involve:
-            # 1. Fetching user's events from EventRepository
-            # 2. Creating/updating events in Google Calendar
-            # 3. Handling recurrence rules
-            # 4. Managing event deletions
-            events_synced = 0  # Placeholder
+            # Fetch all user's events with recurrence information
+            events = await event_repository.read_with_recurrence_by_user_ids_async({user_id})
+
+            # Sync each event to Google Calendar
+            events_synced = 0
+            for event in events:
+                try:
+                    # Build recurrence list for Google Calendar
+                    recurrence_list = None
+                    if event.recurrence:
+                        recurrence = Recurrence(
+                            rrule=RecurrenceRule(
+                                freq=event.recurrence.rrule.freq,
+                                until=event.recurrence.rrule.until,
+                                count=event.recurrence.rrule.count,
+                                interval=event.recurrence.rrule.interval,
+                                bysecond=event.recurrence.rrule.bysecond,
+                                byminute=event.recurrence.rrule.byminute,
+                                byhour=event.recurrence.rrule.byhour,
+                                byday=event.recurrence.rrule.byday,
+                                bymonthday=event.recurrence.rrule.bymonthday,
+                                byyearday=event.recurrence.rrule.byyearday,
+                                byweekno=event.recurrence.rrule.byweekno,
+                                bymonth=event.recurrence.rrule.bymonth,
+                                bysetpos=event.recurrence.rrule.bysetpos,
+                                wkst=event.recurrence.rrule.wkst or Weekday.MO,
+                            ),
+                            rdate=event.recurrence.rdate,
+                            exdate=event.recurrence.exdate,
+                        )
+                        recurrence_strs = serialize_recurrence(
+                            recurrence, event.dtstart, event.is_all_day, event.timezone
+                        )
+                        # Filter to only RRULE lines (exclude DTSTART, RDATE, EXDATE for now)
+                        recurrence_list = [r for r in recurrence_strs if r.startswith("RRULE:")]
+
+                    # Create event in Google Calendar
+                    await self._calendar_service.create_event(
+                        encrypted_access_token=integration.encrypted_access_token,
+                        encrypted_refresh_token=integration.encrypted_refresh_token,
+                        calendar_id=integration.calendar_id,
+                        summary=event.summary,
+                        start_time=event.dtstart,
+                        end_time=event.dtend,
+                        description=None,
+                        location=event.location,
+                        recurrence=recurrence_list,
+                    )
+                    events_synced += 1
+                except Exception:
+                    # Continue syncing other events even if one fails
+                    pass
 
             # Update status to connected with sync time
             current_time = datetime.now(ZoneInfo("UTC"))

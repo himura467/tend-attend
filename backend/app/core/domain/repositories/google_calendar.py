@@ -8,7 +8,9 @@ from app.core.features.google_calendar import GoogleCalendarSyncStatus
 from app.core.utils.uuid import UUID
 
 
-class IGoogleCalendarIntegrationRepository(IRepository[GoogleCalendarIntegrationEntity, ModelProtocol[Any]], metaclass=ABCMeta):
+class IGoogleCalendarIntegrationRepository(
+    IRepository[GoogleCalendarIntegrationEntity, ModelProtocol[Any]], metaclass=ABCMeta
+):
     @abstractmethod
     async def read_by_user_id_or_none_async(self, user_id: int) -> GoogleCalendarIntegrationEntity | None:
         raise NotImplementedError()
