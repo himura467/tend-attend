@@ -58,9 +58,6 @@ class GoogleCalendarEventMapping(AbstractShardDynamicBase):
     event_id: Mapped[bytes] = mapped_column(BINARY(16), nullable=False, comment="Event ID")
     google_calendar_id: Mapped[str] = mapped_column(VARCHAR(255), nullable=False, comment="Google Calendar ID")
     google_event_id: Mapped[str] = mapped_column(VARCHAR(255), nullable=False, comment="Google Event ID")
-    last_synced_at: Mapped[datetime] = mapped_column(
-        DATETIME(timezone=True), nullable=False, comment="Last Synced Time"
-    )
 
     def to_entity(self) -> GoogleCalendarEventMappingEntity:
         return GoogleCalendarEventMappingEntity(
@@ -69,7 +66,6 @@ class GoogleCalendarEventMapping(AbstractShardDynamicBase):
             event_id=bin_to_uuid(self.event_id),
             google_calendar_id=self.google_calendar_id,
             google_event_id=self.google_event_id,
-            last_synced_at=self.last_synced_at,
         )
 
     @classmethod
@@ -80,7 +76,6 @@ class GoogleCalendarEventMapping(AbstractShardDynamicBase):
             event_id=uuid_to_bin(entity.event_id),
             google_calendar_id=entity.google_calendar_id,
             google_event_id=entity.google_event_id,
-            last_synced_at=entity.last_synced_at,
         )
 
 

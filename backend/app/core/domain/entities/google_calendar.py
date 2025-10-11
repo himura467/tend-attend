@@ -39,11 +39,9 @@ class GoogleCalendarEventMapping(IEntity):
         event_id: UUID,
         google_calendar_id: str,
         google_event_id: str,
-        last_synced_at: datetime,
     ) -> None:
         super().__init__(entity_id)
         self.user_id = user_id
         self.event_id = event_id
         self.google_calendar_id = google_calendar_id
         self.google_event_id = google_event_id
-        self.last_synced_at = last_synced_at

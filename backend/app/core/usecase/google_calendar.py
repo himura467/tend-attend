@@ -1,6 +1,3 @@
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
 from app.core.constants.secrets import GOOGLE_TOKENS_ENCRYPTION_KEY
 from app.core.cryptography.google_tokens import GoogleTokenCryptography
 from app.core.domain.entities.google_calendar import (
@@ -257,8 +254,6 @@ class GoogleCalendarUsecase(IUsecase):
 
             # Sync each event to Google Calendar
             events_synced = 0
-            current_time = datetime.now(ZoneInfo("UTC"))
-
             for event in events:
                 try:
                     # Build recurrence list for Google Calendar
@@ -310,7 +305,6 @@ class GoogleCalendarUsecase(IUsecase):
                             entity_id=existing_mapping.id,
                             google_calendar_id=integration.calendar_id,
                             google_event_id=google_event.id,
-                            last_synced_at=current_time,
                         )
                     else:
                         google_event = await self._calendar_service.create_event(
@@ -330,15 +324,12 @@ class GoogleCalendarUsecase(IUsecase):
                             event_id=event.id,
                             google_calendar_id=integration.calendar_id,
                             google_event_id=google_event.id,
-                            last_synced_at=current_time,
                         )
                     events_synced += 1
                 except Exception:
                     # Continue syncing other events even if one fails
                     pass
 
-            # Update status to connected with sync time
-            current_time = datetime.now(ZoneInfo("UTC"))
             await google_calendar_repository.update_sync_status_async(
                 integration_id=integration.id,
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
@@ -349,7 +340,7 @@ class GoogleCalendarUsecase(IUsecase):
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
                 events_synced=events_synced,
             )
-        except Exception as e:
+        except Exception:
             # Update status to error
             await google_calendar_repository.update_sync_status_async(
                 integration_id=integration.id,

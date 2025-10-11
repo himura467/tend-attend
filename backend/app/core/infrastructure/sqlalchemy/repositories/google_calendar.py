@@ -96,7 +96,6 @@ class GoogleCalendarEventMappingRepository(
         event_id: UUID,
         google_calendar_id: str,
         google_event_id: str,
-        last_synced_at: datetime,
     ) -> GoogleCalendarEventMappingEntity | None:
         mapping = GoogleCalendarEventMappingEntity(
             entity_id=entity_id,
@@ -104,7 +103,6 @@ class GoogleCalendarEventMappingRepository(
             event_id=event_id,
             google_calendar_id=google_calendar_id,
             google_event_id=google_event_id,
-            last_synced_at=last_synced_at,
         )
         return await self.create_async(mapping)
 
@@ -113,7 +111,6 @@ class GoogleCalendarEventMappingRepository(
         entity_id: UUID,
         google_calendar_id: str,
         google_event_id: str,
-        last_synced_at: datetime,
     ) -> GoogleCalendarEventMappingEntity | None:
         existing_mapping = await self.read_by_id_or_none_async(entity_id)
         if existing_mapping is None:
@@ -125,6 +122,5 @@ class GoogleCalendarEventMappingRepository(
             event_id=existing_mapping.event_id,
             google_calendar_id=google_calendar_id,
             google_event_id=google_event_id,
-            last_synced_at=last_synced_at,
         )
         return await self.update_async(updated_mapping)
