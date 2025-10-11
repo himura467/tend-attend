@@ -9,7 +9,7 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const ignoreFiles = ["src/components/ui/*.tsx"];
+const ignoreFiles = ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "src/components/ui/*.tsx"];
 
 const eslintRules = {
   "prefer-const": "error",
