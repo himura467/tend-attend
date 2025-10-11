@@ -34,7 +34,5 @@ class IGoogleCalendarIntegrationRepository(
         self,
         integration_id: UUID,
         sync_status: GoogleCalendarSyncStatus,
-        last_sync_at: datetime | None = None,
-        last_error: str | None = None,
     ) -> GoogleCalendarIntegrationEntity | None:
         raise NotImplementedError()

@@ -23,10 +23,6 @@ class GoogleCalendarIntegration(AbstractShardDynamicBase):
     sync_status: Mapped[GoogleCalendarSyncStatus] = mapped_column(
         ENUM(GoogleCalendarSyncStatus), nullable=False, comment="Sync Status"
     )
-    last_sync_at: Mapped[datetime | None] = mapped_column(
-        DATETIME(timezone=True), nullable=True, comment="Last Sync Time"
-    )
-    last_error: Mapped[str | None] = mapped_column(TEXT, nullable=True, comment="Last Error Message")
 
     def to_entity(self) -> GoogleCalendarIntegrationEntity:
         return GoogleCalendarIntegrationEntity(
@@ -40,8 +36,6 @@ class GoogleCalendarIntegration(AbstractShardDynamicBase):
             calendar_id=self.calendar_id,
             calendar_url=self.calendar_url,
             sync_status=self.sync_status,
-            last_sync_at=self.last_sync_at,
-            last_error=self.last_error,
         )
 
     @classmethod
@@ -57,8 +51,6 @@ class GoogleCalendarIntegration(AbstractShardDynamicBase):
             calendar_id=entity.calendar_id,
             calendar_url=entity.calendar_url,
             sync_status=entity.sync_status,
-            last_sync_at=entity.last_sync_at,
-            last_error=entity.last_error,
         )
 
 

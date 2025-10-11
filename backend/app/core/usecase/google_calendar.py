@@ -111,8 +111,6 @@ class GoogleCalendarUsecase(IUsecase):
             updated_integration = await google_calendar_repository.update_sync_status_async(
                 integration_id=existing_integration.id,
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
-                last_sync_at=None,
-                last_error=None,
             )
             if not updated_integration:
                 raise Exception("Failed to update existing Google Calendar integration")
@@ -130,8 +128,6 @@ class GoogleCalendarUsecase(IUsecase):
                 calendar_id=calendar_info.id,
                 calendar_url=calendar_url,
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
-                last_sync_at=None,
-                last_error=None,
             )
             created_integration = await google_calendar_repository.create_async(new_integration)
             if not created_integration:
@@ -159,8 +155,6 @@ class GoogleCalendarUsecase(IUsecase):
                 google_email=None,
                 calendar_url=None,
                 sync_status=GoogleCalendarSyncStatus.ERROR,
-                last_sync_at=None,
-                last_error=None,
             )
 
         user_id = user_account.user_id
@@ -173,8 +167,6 @@ class GoogleCalendarUsecase(IUsecase):
                 google_email=None,
                 calendar_url=None,
                 sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
-                last_sync_at=None,
-                last_error=None,
             )
 
         # Get calendar URL if integration exists
@@ -188,8 +180,6 @@ class GoogleCalendarUsecase(IUsecase):
             google_email=integration.google_email,
             calendar_url=calendar_url,
             sync_status=integration.sync_status,
-            last_sync_at=integration.last_sync_at,
-            last_error=integration.last_error,
         )
 
     @rollbackable
@@ -217,8 +207,6 @@ class GoogleCalendarUsecase(IUsecase):
         await google_calendar_repository.update_sync_status_async(
             integration_id=integration.id,
             sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
-            last_sync_at=integration.last_sync_at,
-            last_error=None,
         )
 
         return DisconnectGoogleCalendarResponse(error_codes=[])
@@ -238,7 +226,6 @@ class GoogleCalendarUsecase(IUsecase):
                 error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
                 sync_status=GoogleCalendarSyncStatus.ERROR,
                 events_synced=0,
-                last_sync_at=None,
             )
 
         user_id = user_account.user_id
@@ -249,7 +236,6 @@ class GoogleCalendarUsecase(IUsecase):
                 error_codes=[ErrorCode.GOOGLE_CALENDAR_NOT_CONNECTED],
                 sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
                 events_synced=0,
-                last_sync_at=None,
             )
 
         if integration.sync_status == GoogleCalendarSyncStatus.DISCONNECTED:
@@ -257,7 +243,6 @@ class GoogleCalendarUsecase(IUsecase):
                 error_codes=[ErrorCode.GOOGLE_CALENDAR_NOT_CONNECTED],
                 sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
                 events_synced=0,
-                last_sync_at=integration.last_sync_at,
             )
 
         try:
@@ -265,8 +250,6 @@ class GoogleCalendarUsecase(IUsecase):
             await google_calendar_repository.update_sync_status_async(
                 integration_id=integration.id,
                 sync_status=GoogleCalendarSyncStatus.SYNCING,
-                last_sync_at=integration.last_sync_at,
-                last_error=None,
             )
 
             # Fetch all user's events with recurrence information
@@ -359,30 +342,24 @@ class GoogleCalendarUsecase(IUsecase):
             await google_calendar_repository.update_sync_status_async(
                 integration_id=integration.id,
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
-                last_sync_at=current_time,
-                last_error=None,
             )
 
             return SyncGoogleCalendarResponse(
                 error_codes=[],
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
                 events_synced=events_synced,
-                last_sync_at=current_time,
             )
         except Exception as e:
             # Update status to error
             await google_calendar_repository.update_sync_status_async(
                 integration_id=integration.id,
                 sync_status=GoogleCalendarSyncStatus.ERROR,
-                last_sync_at=integration.last_sync_at,
-                last_error=str(e),
             )
 
             return SyncGoogleCalendarResponse(
                 error_codes=[ErrorCode.GOOGLE_CALENDAR_SYNC_FAILED],
                 sync_status=GoogleCalendarSyncStatus.ERROR,
                 events_synced=0,
-                last_sync_at=integration.last_sync_at,
             )
 
     @rollbackable
@@ -422,7 +399,6 @@ class GoogleCalendarUsecase(IUsecase):
                         username=followee.username,
                         nickname=followee.nickname,
                         calendar_url=calendar_url,
-                        last_sync_at=integration.last_sync_at,
                     )
                 )
 

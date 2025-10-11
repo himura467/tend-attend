@@ -48,8 +48,6 @@ class GoogleCalendarIntegrationRepository(
             calendar_id=existing_integration.calendar_id,
             calendar_url=existing_integration.calendar_url,
             sync_status=existing_integration.sync_status,
-            last_sync_at=existing_integration.last_sync_at,
-            last_error=existing_integration.last_error,
         )
         return await self.update_async(updated_integration)
 
@@ -57,8 +55,6 @@ class GoogleCalendarIntegrationRepository(
         self,
         integration_id: UUID,
         sync_status: GoogleCalendarSyncStatus,
-        last_sync_at: datetime | None = None,
-        last_error: str | None = None,
     ) -> GoogleCalendarIntegrationEntity | None:
         existing_integration = await self.read_by_id_or_none_async(integration_id)
         if existing_integration is None:
@@ -75,8 +71,6 @@ class GoogleCalendarIntegrationRepository(
             calendar_id=existing_integration.calendar_id,
             calendar_url=existing_integration.calendar_url,
             sync_status=sync_status,
-            last_sync_at=last_sync_at if last_sync_at is not None else existing_integration.last_sync_at,
-            last_error=last_error if last_error is not None else existing_integration.last_error,
         )
         return await self.update_async(updated_integration)
 

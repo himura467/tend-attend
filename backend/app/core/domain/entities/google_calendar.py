@@ -18,8 +18,6 @@ class GoogleCalendarIntegration(IEntity):
         calendar_id: str,
         calendar_url: str,
         sync_status: GoogleCalendarSyncStatus,
-        last_sync_at: datetime | None,
-        last_error: str | None,
     ) -> None:
         super().__init__(entity_id)
         self.user_id = user_id
@@ -31,8 +29,6 @@ class GoogleCalendarIntegration(IEntity):
         self.calendar_id = calendar_id
         self.calendar_url = calendar_url
         self.sync_status = sync_status
-        self.last_sync_at = last_sync_at
-        self.last_error = last_error
 
 
 class GoogleCalendarEventMapping(IEntity):

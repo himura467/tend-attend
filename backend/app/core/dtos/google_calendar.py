@@ -11,7 +11,6 @@ class FolloweeCalendarInfo(BaseModel):
     username: str = Field(..., title="Followee Username")
     nickname: str | None = Field(None, title="Followee Nickname")
     calendar_url: str = Field(..., title="Public Calendar URL")
-    last_sync_at: datetime | None = Field(None, title="Last Sync Time")
 
 
 class GetGoogleCalendarAuthUrlResponse(BaseModelWithErrorCodes):
@@ -32,8 +31,6 @@ class GetGoogleCalendarStatusResponse(BaseModelWithErrorCodes):
     google_email: str | None = Field(None, title="Google Email")
     calendar_url: str | None = Field(None, title="Public Calendar URL")
     sync_status: GoogleCalendarSyncStatus | None = Field(None, title="Sync Status")
-    last_sync_at: datetime | None = Field(None, title="Last Sync Time")
-    last_error: str | None = Field(None, title="Last Error Message")
 
 
 class DisconnectGoogleCalendarResponse(BaseModelWithErrorCodes):
@@ -43,7 +40,6 @@ class DisconnectGoogleCalendarResponse(BaseModelWithErrorCodes):
 class SyncGoogleCalendarResponse(BaseModelWithErrorCodes):
     sync_status: GoogleCalendarSyncStatus | None = Field(None, title="Sync Status")
     events_synced: int | None = Field(None, title="Number of Events Synced")
-    last_sync_at: datetime | None = Field(None, title="Last Sync Time")
 
 
 class GetFolloweeCalendarsResponse(BaseModelWithErrorCodes):
