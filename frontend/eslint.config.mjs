@@ -1,4 +1,5 @@
 import { FlatCompat } from "@eslint/eslintrc";
+import nextPlugin from "@next/eslint-plugin-next";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -23,7 +24,18 @@ const eslintConfig = [
   {
     rules: eslintRules,
   },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  // Workaround for https://github.com/microsoft/rushstack/issues/4965
+  {
+    name: "next/core-web-vitals",
+    plugins: {
+      "@next/next": nextPlugin,
+    },
+    rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
+    },
+  },
+  ...compat.extends("next/typescript"),
 ];
 
 export default eslintConfig;
