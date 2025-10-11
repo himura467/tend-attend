@@ -17,11 +17,13 @@ const eslintRules = {
 };
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     ignores: ignoreFiles,
+  },
+  {
     rules: eslintRules,
   },
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 
 export default eslintConfig;
