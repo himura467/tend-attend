@@ -27,6 +27,7 @@ from app.core.infrastructure.sqlalchemy.repositories.account import (
 )
 from app.core.infrastructure.sqlalchemy.repositories.event import EventRepository
 from app.core.infrastructure.sqlalchemy.repositories.google_calendar import (
+    GoogleCalendarEventMappingRepository,
     GoogleCalendarIntegrationRepository,
 )
 from app.core.utils.icalendar import serialize_recurrence
@@ -228,6 +229,7 @@ class GoogleCalendarUsecase(IUsecase):
         user_account_repository = UserAccountRepository(self.uow)
         google_calendar_repository = GoogleCalendarIntegrationRepository(self.uow)
         event_repository = EventRepository(self.uow)
+        mapping_repository = GoogleCalendarEventMappingRepository(self.uow)
 
         # Get user_id from account_id
         user_account = await user_account_repository.read_by_id_or_none_async(account_id)
@@ -272,6 +274,8 @@ class GoogleCalendarUsecase(IUsecase):
 
             # Sync each event to Google Calendar
             events_synced = 0
+            current_time = datetime.now(ZoneInfo("UTC"))
+
             for event in events:
                 try:
                     # Build recurrence list for Google Calendar
@@ -301,18 +305,50 @@ class GoogleCalendarUsecase(IUsecase):
                             recurrence, event.dtstart, event.is_all_day, event.timezone
                         )
 
-                    # Create event in Google Calendar
-                    await self._calendar_service.create_event(
-                        encrypted_access_token=integration.encrypted_access_token,
-                        encrypted_refresh_token=integration.encrypted_refresh_token,
-                        calendar_id=integration.calendar_id,
-                        summary=event.summary,
-                        start_time=event.dtstart,
-                        end_time=event.dtend,
-                        description=None,
-                        location=event.location,
-                        recurrence=recurrence_list,
+                    # Check if event already exists in Google Calendar
+                    existing_mapping = await mapping_repository.read_by_user_id_and_event_id_or_none_async(
+                        user_id, event.id
                     )
+
+                    if existing_mapping:
+                        google_event = await self._calendar_service.update_event(
+                            encrypted_access_token=integration.encrypted_access_token,
+                            encrypted_refresh_token=integration.encrypted_refresh_token,
+                            calendar_id=integration.calendar_id,
+                            event_id=existing_mapping.google_event_id,
+                            summary=event.summary,
+                            start_time=event.dtstart,
+                            end_time=event.dtend,
+                            description=None,
+                            location=event.location,
+                            recurrence=recurrence_list,
+                        )
+                        await mapping_repository.update_google_calendar_event_mapping_async(
+                            entity_id=existing_mapping.id,
+                            google_calendar_id=integration.calendar_id,
+                            google_event_id=google_event.id,
+                            last_synced_at=current_time,
+                        )
+                    else:
+                        google_event = await self._calendar_service.create_event(
+                            encrypted_access_token=integration.encrypted_access_token,
+                            encrypted_refresh_token=integration.encrypted_refresh_token,
+                            calendar_id=integration.calendar_id,
+                            summary=event.summary,
+                            start_time=event.dtstart,
+                            end_time=event.dtend,
+                            description=None,
+                            location=event.location,
+                            recurrence=recurrence_list,
+                        )
+                        await mapping_repository.create_google_calendar_event_mapping_async(
+                            entity_id=generate_uuid(),
+                            user_id=user_id,
+                            event_id=event.id,
+                            google_calendar_id=integration.calendar_id,
+                            google_event_id=google_event.id,
+                            last_synced_at=current_time,
+                        )
                     events_synced += 1
                 except Exception:
                     # Continue syncing other events even if one fails
