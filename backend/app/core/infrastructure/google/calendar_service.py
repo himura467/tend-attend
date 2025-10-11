@@ -12,7 +12,7 @@ from app.core.constants.secrets import (
     GOOGLE_OAUTH_CLIENT_SECRET,
 )
 from app.core.cryptography.google_tokens import GoogleTokenCryptography
-from app.core.features.google_calendar import sanitize_rrule
+from app.core.features.google_calendar import sanitize_recurrence
 
 
 @dataclass
@@ -136,7 +136,7 @@ class GoogleCalendarService:
             }
 
             if recurrence:
-                event_body["recurrence"] = [sanitize_rrule(rule) for rule in recurrence]
+                event_body["recurrence"] = sanitize_recurrence(recurrence)
             event = service.events().insert(calendarId=calendar_id, body=event_body).execute()
 
             return GoogleCalendarEvent(
@@ -185,7 +185,7 @@ class GoogleCalendarService:
             if end_time is not None:
                 existing_event["end"] = {"dateTime": end_time.isoformat(), "timeZone": "UTC"}
             if recurrence is not None:
-                existing_event["recurrence"] = [sanitize_rrule(rule) for rule in recurrence]
+                existing_event["recurrence"] = sanitize_recurrence(recurrence)
 
             updated_event = (
                 service.events().update(calendarId=calendar_id, eventId=event_id, body=existing_event).execute()
