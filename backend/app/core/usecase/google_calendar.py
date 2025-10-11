@@ -1,6 +1,3 @@
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
 from app.core.constants.secrets import GOOGLE_TOKENS_ENCRYPTION_KEY
 from app.core.cryptography.google_tokens import GoogleTokenCryptography
 from app.core.domain.entities.google_calendar import (
@@ -17,6 +14,7 @@ from app.core.dtos.google_calendar import (
     SyncGoogleCalendarResponse,
 )
 from app.core.error.error_code import ErrorCode
+from app.core.features.event import Recurrence, RecurrenceRule, Weekday
 from app.core.features.google_calendar import GoogleCalendarSyncStatus
 from app.core.infrastructure.db.transaction import rollbackable
 from app.core.infrastructure.google.calendar_service import GoogleCalendarService
@@ -24,9 +22,12 @@ from app.core.infrastructure.google.oauth_flow import GoogleOAuthFlow
 from app.core.infrastructure.sqlalchemy.repositories.account import (
     UserAccountRepository,
 )
+from app.core.infrastructure.sqlalchemy.repositories.event import EventRepository
 from app.core.infrastructure.sqlalchemy.repositories.google_calendar import (
+    GoogleCalendarEventMappingRepository,
     GoogleCalendarIntegrationRepository,
 )
+from app.core.utils.icalendar import serialize_recurrence
 from app.core.utils.uuid import UUID, generate_uuid, uuid_to_str
 
 
@@ -107,8 +108,6 @@ class GoogleCalendarUsecase(IUsecase):
             updated_integration = await google_calendar_repository.update_sync_status_async(
                 integration_id=existing_integration.id,
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
-                last_sync_at=None,
-                last_error=None,
             )
             if not updated_integration:
                 raise Exception("Failed to update existing Google Calendar integration")
@@ -126,8 +125,6 @@ class GoogleCalendarUsecase(IUsecase):
                 calendar_id=calendar_info.id,
                 calendar_url=calendar_url,
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
-                last_sync_at=None,
-                last_error=None,
             )
             created_integration = await google_calendar_repository.create_async(new_integration)
             if not created_integration:
@@ -155,8 +152,6 @@ class GoogleCalendarUsecase(IUsecase):
                 google_email=None,
                 calendar_url=None,
                 sync_status=GoogleCalendarSyncStatus.ERROR,
-                last_sync_at=None,
-                last_error=None,
             )
 
         user_id = user_account.user_id
@@ -169,8 +164,6 @@ class GoogleCalendarUsecase(IUsecase):
                 google_email=None,
                 calendar_url=None,
                 sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
-                last_sync_at=None,
-                last_error=None,
             )
 
         # Get calendar URL if integration exists
@@ -184,8 +177,6 @@ class GoogleCalendarUsecase(IUsecase):
             google_email=integration.google_email,
             calendar_url=calendar_url,
             sync_status=integration.sync_status,
-            last_sync_at=integration.last_sync_at,
-            last_error=integration.last_error,
         )
 
     @rollbackable
@@ -213,8 +204,6 @@ class GoogleCalendarUsecase(IUsecase):
         await google_calendar_repository.update_sync_status_async(
             integration_id=integration.id,
             sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
-            last_sync_at=integration.last_sync_at,
-            last_error=None,
         )
 
         return DisconnectGoogleCalendarResponse(error_codes=[])
@@ -224,6 +213,8 @@ class GoogleCalendarUsecase(IUsecase):
         """Sync user events to Google Calendar."""
         user_account_repository = UserAccountRepository(self.uow)
         google_calendar_repository = GoogleCalendarIntegrationRepository(self.uow)
+        event_repository = EventRepository(self.uow)
+        mapping_repository = GoogleCalendarEventMappingRepository(self.uow)
 
         # Get user_id from account_id
         user_account = await user_account_repository.read_by_id_or_none_async(account_id)
@@ -232,7 +223,6 @@ class GoogleCalendarUsecase(IUsecase):
                 error_codes=[ErrorCode.ACCOUNT_NOT_FOUND],
                 sync_status=GoogleCalendarSyncStatus.ERROR,
                 events_synced=0,
-                last_sync_at=None,
             )
 
         user_id = user_account.user_id
@@ -243,7 +233,6 @@ class GoogleCalendarUsecase(IUsecase):
                 error_codes=[ErrorCode.GOOGLE_CALENDAR_NOT_CONNECTED],
                 sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
                 events_synced=0,
-                last_sync_at=None,
             )
 
         if integration.sync_status == GoogleCalendarSyncStatus.DISCONNECTED:
@@ -251,7 +240,6 @@ class GoogleCalendarUsecase(IUsecase):
                 error_codes=[ErrorCode.GOOGLE_CALENDAR_NOT_CONNECTED],
                 sync_status=GoogleCalendarSyncStatus.DISCONNECTED,
                 events_synced=0,
-                last_sync_at=integration.last_sync_at,
             )
 
         try:
@@ -259,47 +247,110 @@ class GoogleCalendarUsecase(IUsecase):
             await google_calendar_repository.update_sync_status_async(
                 integration_id=integration.id,
                 sync_status=GoogleCalendarSyncStatus.SYNCING,
-                last_sync_at=integration.last_sync_at,
-                last_error=None,
             )
 
-            # TODO: Implement actual event synchronization logic
-            # This would involve:
-            # 1. Fetching user's events from EventRepository
-            # 2. Creating/updating events in Google Calendar
-            # 3. Handling recurrence rules
-            # 4. Managing event deletions
-            events_synced = 0  # Placeholder
+            # Fetch all user's events with recurrence information
+            events = await event_repository.read_with_recurrence_by_user_ids_async({user_id})
 
-            # Update status to connected with sync time
-            current_time = datetime.now(ZoneInfo("UTC"))
+            # Sync each event to Google Calendar
+            events_synced = 0
+            for event in events:
+                try:
+                    # Build recurrence list for Google Calendar
+                    recurrence_list = None
+                    if event.recurrence:
+                        recurrence = Recurrence(
+                            rrule=RecurrenceRule(
+                                freq=event.recurrence.rrule.freq,
+                                until=event.recurrence.rrule.until,
+                                count=event.recurrence.rrule.count,
+                                interval=event.recurrence.rrule.interval,
+                                bysecond=event.recurrence.rrule.bysecond,
+                                byminute=event.recurrence.rrule.byminute,
+                                byhour=event.recurrence.rrule.byhour,
+                                byday=event.recurrence.rrule.byday,
+                                bymonthday=event.recurrence.rrule.bymonthday,
+                                byyearday=event.recurrence.rrule.byyearday,
+                                byweekno=event.recurrence.rrule.byweekno,
+                                bymonth=event.recurrence.rrule.bymonth,
+                                bysetpos=event.recurrence.rrule.bysetpos,
+                                wkst=event.recurrence.rrule.wkst or Weekday.MO,
+                            ),
+                            rdate=event.recurrence.rdate,
+                            exdate=event.recurrence.exdate,
+                        )
+                        recurrence_list = serialize_recurrence(
+                            recurrence, event.dtstart, event.is_all_day, event.timezone
+                        )
+
+                    # Check if event already exists in Google Calendar
+                    existing_mapping = await mapping_repository.read_by_user_id_and_event_id_or_none_async(
+                        user_id, event.id
+                    )
+
+                    if existing_mapping:
+                        google_event = await self._calendar_service.update_event(
+                            encrypted_access_token=integration.encrypted_access_token,
+                            encrypted_refresh_token=integration.encrypted_refresh_token,
+                            calendar_id=integration.calendar_id,
+                            event_id=existing_mapping.google_event_id,
+                            summary=event.summary,
+                            start_time=event.dtstart,
+                            end_time=event.dtend,
+                            description=None,
+                            location=event.location,
+                            recurrence=recurrence_list,
+                        )
+                        await mapping_repository.update_google_calendar_event_mapping_async(
+                            entity_id=existing_mapping.id,
+                            google_calendar_id=integration.calendar_id,
+                            google_event_id=google_event.id,
+                        )
+                    else:
+                        google_event = await self._calendar_service.create_event(
+                            encrypted_access_token=integration.encrypted_access_token,
+                            encrypted_refresh_token=integration.encrypted_refresh_token,
+                            calendar_id=integration.calendar_id,
+                            summary=event.summary,
+                            start_time=event.dtstart,
+                            end_time=event.dtend,
+                            description=None,
+                            location=event.location,
+                            recurrence=recurrence_list,
+                        )
+                        await mapping_repository.create_google_calendar_event_mapping_async(
+                            entity_id=generate_uuid(),
+                            user_id=user_id,
+                            event_id=event.id,
+                            google_calendar_id=integration.calendar_id,
+                            google_event_id=google_event.id,
+                        )
+                    events_synced += 1
+                except Exception:
+                    # Continue syncing other events even if one fails
+                    pass
+
             await google_calendar_repository.update_sync_status_async(
                 integration_id=integration.id,
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
-                last_sync_at=current_time,
-                last_error=None,
             )
 
             return SyncGoogleCalendarResponse(
                 error_codes=[],
                 sync_status=GoogleCalendarSyncStatus.CONNECTED,
                 events_synced=events_synced,
-                last_sync_at=current_time,
             )
-        except Exception as e:
+        except Exception:
             # Update status to error
             await google_calendar_repository.update_sync_status_async(
                 integration_id=integration.id,
                 sync_status=GoogleCalendarSyncStatus.ERROR,
-                last_sync_at=integration.last_sync_at,
-                last_error=str(e),
             )
 
             return SyncGoogleCalendarResponse(
                 error_codes=[ErrorCode.GOOGLE_CALENDAR_SYNC_FAILED],
                 sync_status=GoogleCalendarSyncStatus.ERROR,
                 events_synced=0,
-                last_sync_at=integration.last_sync_at,
             )
 
     @rollbackable
@@ -339,7 +390,6 @@ class GoogleCalendarUsecase(IUsecase):
                         username=followee.username,
                         nickname=followee.nickname,
                         calendar_url=calendar_url,
-                        last_sync_at=integration.last_sync_at,
                     )
                 )
 

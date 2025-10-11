@@ -1,9 +1,11 @@
 from datetime import datetime
 
-from sqlalchemy.dialects.mysql import DATETIME, ENUM, TEXT, VARCHAR
+from sqlalchemy import Index
+from sqlalchemy.dialects.mysql import BINARY, DATETIME, ENUM, TEXT, VARCHAR
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm.base import Mapped
 
+from app.core.domain.entities.google_calendar import GoogleCalendarEventMapping as GoogleCalendarEventMappingEntity
 from app.core.domain.entities.google_calendar import GoogleCalendarIntegration as GoogleCalendarIntegrationEntity
 from app.core.features.google_calendar import GoogleCalendarSyncStatus
 from app.core.infrastructure.sqlalchemy.models.shards.base import AbstractShardDynamicBase
@@ -21,10 +23,6 @@ class GoogleCalendarIntegration(AbstractShardDynamicBase):
     sync_status: Mapped[GoogleCalendarSyncStatus] = mapped_column(
         ENUM(GoogleCalendarSyncStatus), nullable=False, comment="Sync Status"
     )
-    last_sync_at: Mapped[datetime | None] = mapped_column(
-        DATETIME(timezone=True), nullable=True, comment="Last Sync Time"
-    )
-    last_error: Mapped[str | None] = mapped_column(TEXT, nullable=True, comment="Last Error Message")
 
     def to_entity(self) -> GoogleCalendarIntegrationEntity:
         return GoogleCalendarIntegrationEntity(
@@ -38,8 +36,6 @@ class GoogleCalendarIntegration(AbstractShardDynamicBase):
             calendar_id=self.calendar_id,
             calendar_url=self.calendar_url,
             sync_status=self.sync_status,
-            last_sync_at=self.last_sync_at,
-            last_error=self.last_error,
         )
 
     @classmethod
@@ -55,6 +51,32 @@ class GoogleCalendarIntegration(AbstractShardDynamicBase):
             calendar_id=entity.calendar_id,
             calendar_url=entity.calendar_url,
             sync_status=entity.sync_status,
-            last_sync_at=entity.last_sync_at,
-            last_error=entity.last_error,
         )
+
+
+class GoogleCalendarEventMapping(AbstractShardDynamicBase):
+    event_id: Mapped[bytes] = mapped_column(BINARY(16), nullable=False, comment="Event ID")
+    google_calendar_id: Mapped[str] = mapped_column(VARCHAR(255), nullable=False, comment="Google Calendar ID")
+    google_event_id: Mapped[str] = mapped_column(VARCHAR(255), nullable=False, comment="Google Event ID")
+
+    def to_entity(self) -> GoogleCalendarEventMappingEntity:
+        return GoogleCalendarEventMappingEntity(
+            entity_id=bin_to_uuid(self.id),
+            user_id=self.user_id,
+            event_id=bin_to_uuid(self.event_id),
+            google_calendar_id=self.google_calendar_id,
+            google_event_id=self.google_event_id,
+        )
+
+    @classmethod
+    def from_entity(cls, entity: GoogleCalendarEventMappingEntity) -> "GoogleCalendarEventMapping":
+        return cls(
+            id=uuid_to_bin(entity.id),
+            user_id=entity.user_id,
+            event_id=uuid_to_bin(entity.event_id),
+            google_calendar_id=entity.google_calendar_id,
+            google_event_id=entity.google_event_id,
+        )
+
+
+Index(None, GoogleCalendarEventMapping.user_id, GoogleCalendarEventMapping.event_id)
