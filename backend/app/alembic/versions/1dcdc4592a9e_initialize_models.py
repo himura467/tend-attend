@@ -1,8 +1,8 @@
-"""Initialize models
+"""initialize models
 
-Revision ID: 306828e98a27
+Revision ID: 1dcdc4592a9e
 Revises: 
-Create Date: 2025-08-19 12:36:43.159679
+Create Date: 2025-10-12 07:13:17.001350
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision: str = '306828e98a27'
+revision: str = '1dcdc4592a9e'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -153,6 +153,37 @@ def upgrade_shard0() -> None:
     info={'shard_ids': {'shard1', 'shard0'}},
     mysql_engine='InnoDB'
     )
+    op.create_table('google_calendar_event_mapping',
+    sa.Column('event_id', sa.BINARY(length=16), nullable=False, comment='Event ID'),
+    sa.Column('google_calendar_id', mysql.VARCHAR(length=255), nullable=False, comment='Google Calendar ID'),
+    sa.Column('google_event_id', mysql.VARCHAR(length=255), nullable=False, comment='Google Event ID'),
+    sa.Column('id', sa.BINARY(length=16), autoincrement=False, nullable=False),
+    sa.Column('created_at', mysql.DATETIME(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', mysql.DATETIME(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
+    sa.Column('user_id', mysql.BIGINT(unsigned=True), nullable=False),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_google_calendar_event_mapping')),
+    info={'shard_ids': {'shard1', 'shard0'}},
+    mysql_engine='InnoDB'
+    )
+    op.create_index(op.f('ix_google_calendar_event_mapping_user_id'), 'google_calendar_event_mapping', ['user_id', 'event_id'], unique=False)
+    op.create_table('google_calendar_integration',
+    sa.Column('google_user_id', mysql.VARCHAR(length=255), nullable=False, comment='Google User ID'),
+    sa.Column('google_email', mysql.VARCHAR(length=255), nullable=False, comment='Google Email'),
+    sa.Column('encrypted_access_token', mysql.TEXT(), nullable=False, comment='Encrypted Access Token'),
+    sa.Column('encrypted_refresh_token', mysql.TEXT(), nullable=False, comment='Encrypted Refresh Token'),
+    sa.Column('token_expires_at', mysql.DATETIME(timezone=True), nullable=False, comment='Token Expiry'),
+    sa.Column('calendar_id', mysql.VARCHAR(length=255), nullable=False, comment='Google Calendar ID'),
+    sa.Column('calendar_url', mysql.VARCHAR(length=512), nullable=False, comment='Public Calendar URL'),
+    sa.Column('sync_status', mysql.ENUM('DISCONNECTED', 'CONNECTED', 'SYNCING', 'ERROR'), nullable=False, comment='Sync Status'),
+    sa.Column('id', sa.BINARY(length=16), autoincrement=False, nullable=False),
+    sa.Column('created_at', mysql.DATETIME(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', mysql.DATETIME(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
+    sa.Column('user_id', mysql.BIGINT(unsigned=True), nullable=False),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_google_calendar_integration')),
+    sa.UniqueConstraint('google_user_id'),
+    info={'shard_ids': {'shard1', 'shard0'}},
+    mysql_engine='InnoDB'
+    )
     op.create_table('recurrence_rule',
     sa.Column('freq', mysql.ENUM('SECONDLY', 'MINUTELY', 'HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'), nullable=False, comment='FREQ'),
     sa.Column('until', mysql.DATETIME(), nullable=True, comment='UNTIL'),
@@ -213,6 +244,9 @@ def downgrade_shard0() -> None:
     op.drop_table('event')
     op.drop_table('recurrence')
     op.drop_table('recurrence_rule')
+    op.drop_table('google_calendar_integration')
+    op.drop_index(op.f('ix_google_calendar_event_mapping_user_id'), table_name='google_calendar_event_mapping')
+    op.drop_table('google_calendar_event_mapping')
     op.drop_table('event_attendance_forecast')
     op.drop_index(op.f('ix_event_attendance_action_log_user_id'), table_name='event_attendance_action_log')
     op.drop_table('event_attendance_action_log')
@@ -260,6 +294,37 @@ def upgrade_shard1() -> None:
     sa.Column('user_id', mysql.BIGINT(unsigned=True), nullable=False),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_event_attendance_forecast')),
     sa.UniqueConstraint('user_id', 'event_id', 'start', name=op.f('uq_event_attendance_forecast_user_id')),
+    info={'shard_ids': {'shard1', 'shard0'}},
+    mysql_engine='InnoDB'
+    )
+    op.create_table('google_calendar_event_mapping',
+    sa.Column('event_id', sa.BINARY(length=16), nullable=False, comment='Event ID'),
+    sa.Column('google_calendar_id', mysql.VARCHAR(length=255), nullable=False, comment='Google Calendar ID'),
+    sa.Column('google_event_id', mysql.VARCHAR(length=255), nullable=False, comment='Google Event ID'),
+    sa.Column('id', sa.BINARY(length=16), autoincrement=False, nullable=False),
+    sa.Column('created_at', mysql.DATETIME(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', mysql.DATETIME(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
+    sa.Column('user_id', mysql.BIGINT(unsigned=True), nullable=False),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_google_calendar_event_mapping')),
+    info={'shard_ids': {'shard1', 'shard0'}},
+    mysql_engine='InnoDB'
+    )
+    op.create_index(op.f('ix_google_calendar_event_mapping_user_id'), 'google_calendar_event_mapping', ['user_id', 'event_id'], unique=False)
+    op.create_table('google_calendar_integration',
+    sa.Column('google_user_id', mysql.VARCHAR(length=255), nullable=False, comment='Google User ID'),
+    sa.Column('google_email', mysql.VARCHAR(length=255), nullable=False, comment='Google Email'),
+    sa.Column('encrypted_access_token', mysql.TEXT(), nullable=False, comment='Encrypted Access Token'),
+    sa.Column('encrypted_refresh_token', mysql.TEXT(), nullable=False, comment='Encrypted Refresh Token'),
+    sa.Column('token_expires_at', mysql.DATETIME(timezone=True), nullable=False, comment='Token Expiry'),
+    sa.Column('calendar_id', mysql.VARCHAR(length=255), nullable=False, comment='Google Calendar ID'),
+    sa.Column('calendar_url', mysql.VARCHAR(length=512), nullable=False, comment='Public Calendar URL'),
+    sa.Column('sync_status', mysql.ENUM('DISCONNECTED', 'CONNECTED', 'SYNCING', 'ERROR'), nullable=False, comment='Sync Status'),
+    sa.Column('id', sa.BINARY(length=16), autoincrement=False, nullable=False),
+    sa.Column('created_at', mysql.DATETIME(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', mysql.DATETIME(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'), nullable=False),
+    sa.Column('user_id', mysql.BIGINT(unsigned=True), nullable=False),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_google_calendar_integration')),
+    sa.UniqueConstraint('google_user_id'),
     info={'shard_ids': {'shard1', 'shard0'}},
     mysql_engine='InnoDB'
     )
@@ -323,6 +388,9 @@ def downgrade_shard1() -> None:
     op.drop_table('event')
     op.drop_table('recurrence')
     op.drop_table('recurrence_rule')
+    op.drop_table('google_calendar_integration')
+    op.drop_index(op.f('ix_google_calendar_event_mapping_user_id'), table_name='google_calendar_event_mapping')
+    op.drop_table('google_calendar_event_mapping')
     op.drop_table('event_attendance_forecast')
     op.drop_index(op.f('ix_event_attendance_action_log_user_id'), table_name='event_attendance_action_log')
     op.drop_table('event_attendance_action_log')
