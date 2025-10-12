@@ -38,12 +38,12 @@ Completed
 - [x] Add environment variables for Google OAuth (No frontend env vars needed - OAuth handled server-side)
 - [x] Update `frontend/next.config.ts` if needed (No changes needed - using existing BACKEND_API_URL)
 
-### Milestone 8: Google OAuth Flow Components (Frontend PR #8)
+### Milestone 8: Google OAuth Flow Components (Frontend PR #8) ✅
 
-- [ ] Create GoogleCalendarAuth component in `frontend/src/components/organisms/specific/integrations/GoogleCalendarAuth/index.tsx`
-- [ ] Create OAuth callback page at `frontend/src/app/auth/google/callback/page.tsx`
-- [ ] Add OAuth URL generation utilities in `frontend/src/lib/utils/google-auth.ts`
-- [ ] Create loading and error states for authentication flow
+- [x] Create GoogleCalendarAuth component in `frontend/src/components/organisms/specific/integrations/GoogleCalendarAuth/index.tsx`
+- [x] Create OAuth callback page at `frontend/src/app/auth/google/callback/page.tsx`
+- [x] Add OAuth URL generation utilities in `frontend/src/lib/utils/google-auth.ts`
+- [x] Create loading and error states for authentication flow (integrated in callback page and GoogleCalendarStatusDisplay)
 
 ### Milestone 9: Calendar Integration UI (Frontend PR #9)
 
