@@ -31,12 +31,12 @@ Completed
 
 ## Frontend Implementation
 
-### Milestone 7: API Integration Layer (Frontend PR #7)
+### Milestone 7: API Integration Layer (Frontend PR #7) ✅
 
-- [ ] Add Google Calendar DTOs to `frontend/src/lib/api/dtos/google-calendar.ts`
-- [ ] Create API functions in `frontend/src/lib/api/google-calendar.ts` using existing patterns
-- [ ] Add environment variables for Google OAuth (NEXT_PUBLIC_GOOGLE_CLIENT_ID)
-- [ ] Update `frontend/next.config.ts` if needed for new environment variables
+- [x] Add Google Calendar DTOs to `frontend/src/lib/api/dtos/google-calendar.ts`
+- [x] Create API functions in `frontend/src/lib/api/google-calendar.ts` using existing patterns
+- [x] Add environment variables for Google OAuth (No frontend env vars needed - OAuth handled server-side)
+- [x] Update `frontend/next.config.ts` if needed (No changes needed - using existing BACKEND_API_URL)
 
 ### Milestone 8: Google OAuth Flow Components (Frontend PR #8)
 
