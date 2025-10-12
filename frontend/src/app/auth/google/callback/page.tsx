@@ -7,10 +7,10 @@ import { parseOAuthCallback, verifyOAuthState } from "@/lib/utils/google-auth";
 import { routerPush } from "@/lib/utils/router";
 import { NextPage } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
 import { toast } from "sonner";
 
-const GoogleCallbackPage: NextPage = (): React.JSX.Element => {
+const GoogleCallbackHandler = (): React.JSX.Element => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = React.useState<"loading" | "success" | "error">("loading");
@@ -132,6 +132,32 @@ const GoogleCallbackPage: NextPage = (): React.JSX.Element => {
       </div>
     );
   }
+};
+
+const LoadingFallback = (): React.JSX.Element => {
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-md p-8">
+        <div className="space-y-4 text-center">
+          <div className="flex justify-center">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold">Loading</h2>
+            <p className="text-muted-foreground">Please wait...</p>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+const GoogleCallbackPage: NextPage = (): React.JSX.Element => {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <GoogleCallbackHandler />
+    </Suspense>
+  );
 };
 
 export default GoogleCallbackPage;
