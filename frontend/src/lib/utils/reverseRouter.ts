@@ -8,6 +8,13 @@ export const ReverseRouter = {
   signin: {
     index: (): LinkProps => ({ href: "/signin" }),
   },
+  auth: {
+    google: {
+      callback: {
+        index: (): LinkProps => ({ href: "/auth/google/callback" }),
+      },
+    },
+  },
   events: {
     attend: {
       index: (): LinkProps => ({ href: "/events/attend" }),
