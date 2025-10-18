@@ -11,9 +11,14 @@ const AttendEventPage: NextPage = (): React.JSX.Element => {
       <div className="w-full space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">Attend events</h1>
-          <Button variant="outline" asChild>
-            <Link {...rr.events.edit.index()}>Edit Events</Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link {...rr.subscriptions.index()}>Followee Calendars</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link {...rr.events.edit.index()}>Edit Events</Link>
+            </Button>
+          </div>
         </div>
         <EventAttendanceCalendarForm />
       </div>
