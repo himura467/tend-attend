@@ -51,9 +51,9 @@ const GoogleCallbackHandler = (): React.JSX.Element => {
         setStatus("success");
         toast.success("Google Calendar connected successfully!");
 
-        // Redirect to settings or events page after a short delay
+        // Redirect to integrations page after a short delay
         setTimeout(() => {
-          routerPush({ href: "/events/edit" }, router);
+          routerPush({ href: "/settings/integrations" }, router);
         }, 2000);
       } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to connect Google Calendar";
@@ -98,8 +98,8 @@ const GoogleCallbackHandler = (): React.JSX.Element => {
               <h2 className="text-2xl font-semibold">Connection Failed</h2>
               <p className="text-muted-foreground">{errorMessage}</p>
             </div>
-            <Button onClick={() => routerPush({ href: "/events/edit" }, router)} className="w-full">
-              Return to Events
+            <Button onClick={() => routerPush({ href: "/settings/integrations" }, router)} className="w-full">
+              Return to Integrations
             </Button>
           </div>
         </Card>
@@ -126,7 +126,7 @@ const GoogleCallbackHandler = (): React.JSX.Element => {
                 </p>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">Redirecting to events page...</p>
+            <p className="text-sm text-muted-foreground">Redirecting to integrations page...</p>
           </div>
         </Card>
       </div>
