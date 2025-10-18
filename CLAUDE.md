@@ -45,12 +45,14 @@ Completed
 - [x] Add OAuth URL generation utilities in `frontend/src/lib/utils/google-auth.ts`
 - [x] Create loading and error states for authentication flow (integrated in callback page and GoogleCalendarStatusDisplay)
 
-### Milestone 9: Calendar Integration UI (Frontend PR #9)
+### Milestone 9: Calendar Integration UI (Frontend PR #9) ✅
 
-- [ ] Create GoogleCalendarSync component in `frontend/src/components/organisms/specific/integrations/GoogleCalendarSync/index.tsx`
-- [ ] Add calendar URL display and copy-to-clipboard functionality
-- [ ] Create integration status indicators using existing UI components
-- [ ] Add sync progress and error handling UI with toast notifications
+- [x] Create GoogleCalendarSync component in `frontend/src/components/organisms/specific/integrations/GoogleCalendarSync/index.tsx`
+- [x] Add calendar URL display and copy-to-clipboard functionality
+- [x] Create integration status indicators using existing UI components
+- [x] Add sync progress and error handling UI with toast notifications
+- [x] Create `/settings/integrations` page with connection/disconnection flow
+- [x] Update OAuth callback redirect to integrations page
 
 ### Milestone 10: Follow Flow Integration (Frontend PR #10)
 
@@ -61,10 +63,12 @@ Completed
 
 ### Milestone 11: Settings and Management (Frontend PR #11)
 
-- [ ] Create Google Calendar settings page following existing page structure
-- [ ] Add disconnect/reconnect functionality with proper state management
-- [ ] Create sync history and status display using existing UI patterns
-- [ ] Add calendar URL regeneration functionality if needed
+Note: This milestone has been integrated into Milestone 9 as the settings/integrations page already includes:
+
+- [x] Google Calendar settings page at `/settings/integrations`
+- [x] Disconnect/reconnect functionality with proper state management
+- [x] Sync status display using existing UI patterns
+- [ ] Calendar URL regeneration functionality if needed (to be determined)
 
 ### Milestone 12: Frontend Testing and Polish (Frontend PR #12)
 
