@@ -56,6 +56,10 @@ resource "aws_lambda_function" "backend" {
       AURORA_SEQUENCE_DBNAME          = var.sequence_dbname
       AURORA_SHARD_DBNAME_PREFIX      = var.shard_dbname_prefix
       ML_SERVER_URL                   = var.ml_server_url
+      GOOGLE_OAUTH_CLIENT_ID          = var.google_oauth_client_id
+      GOOGLE_OAUTH_CLIENT_SECRET      = var.google_oauth_client_secret
+      GOOGLE_OAUTH_REDIRECT_URI       = var.google_oauth_redirect_uri
+      GOOGLE_TOKENS_ENCRYPTION_KEY    = var.google_tokens_encryption_key
     }
   }
 }
