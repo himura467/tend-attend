@@ -50,3 +50,26 @@ output "shard_dbname_prefix" {
   description = "Prefix for shard database names"
   value       = local.fields["Shard DB Name Prefix"]
 }
+
+output "google_oauth_client_id" {
+  description = "Google OAuth Client ID for Calendar API"
+  value       = local.fields["Google OAuth Client ID"]
+  sensitive   = true
+}
+
+output "google_oauth_client_secret" {
+  description = "Google OAuth Client Secret for Calendar API"
+  value       = local.fields["Google OAuth Client Secret"]
+  sensitive   = true
+}
+
+output "google_oauth_redirect_uri" {
+  description = "Google OAuth Redirect URI for Calendar API"
+  value       = local.fields["Google OAuth Redirect URI"]
+}
+
+output "google_tokens_encryption_key" {
+  description = "Encryption key for Google OAuth tokens"
+  value       = local.fields["Google Tokens Encryption Key"]
+  sensitive   = true
+}
