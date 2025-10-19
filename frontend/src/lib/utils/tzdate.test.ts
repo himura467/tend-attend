@@ -174,6 +174,39 @@ describe(TZDate, () => {
       expect(isoString).toBe("2024-01-15T05:30:45.123Z");
       expect(new Date(isoString).getTime()).toBe(date.getTime());
     });
+
+    it("returns ISO string without Z suffix when excludeZ is true", () => {
+      const date = new TZDate("2024-01-15T14:30:45", "Pacific/Auckland");
+      const isoString = date.toISOString({ excludeZ: true });
+
+      expect(isoString).toBe("2024-01-15T01:30:45.000");
+      expect(isoString).not.toContain("Z");
+    });
+
+    it("returns ISO string with Z suffix when excludeZ is false", () => {
+      const date = new TZDate("2024-01-15T14:30:45", "Asia/Tokyo");
+      const isoString = date.toISOString({ excludeZ: false });
+
+      expect(isoString).toBe("2024-01-15T05:30:45.000Z");
+      expect(isoString).toContain("Z");
+    });
+
+    it("returns ISO string with Z suffix when excludeZ is undefined (default behavior)", () => {
+      const date = new TZDate("2024-01-15T14:30:45", "Europe/London");
+      const isoString = date.toISOString({});
+
+      expect(isoString).toBe("2024-01-15T14:30:45.000Z");
+      expect(isoString).toContain("Z");
+    });
+
+    it("handles excludeZ option for dates without time component", () => {
+      const date = new TZDate("2024-01-15", "America/New_York");
+      const isoStringWithZ = date.toISOString({ excludeZ: false });
+      const isoStringWithoutZ = date.toISOString({ excludeZ: true });
+
+      expect(isoStringWithZ).toBe("2024-01-15T05:00:00.000Z");
+      expect(isoStringWithoutZ).toBe("2024-01-15T05:00:00.000");
+    });
   });
 
   describe("toLocaleString method", () => {

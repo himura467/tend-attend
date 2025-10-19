@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import account, admin, auth, event, verify
+from app.api.routes import account, admin, auth, event, google_calendar, verify
 
 api_router = APIRouter()
 
@@ -26,6 +26,12 @@ api_router.include_router(
     event.router,
     prefix="/events",
     tags=["events"],
+)
+
+api_router.include_router(
+    google_calendar.router,
+    prefix="/google-calendar",
+    tags=["google-calendar"],
 )
 
 api_router.include_router(

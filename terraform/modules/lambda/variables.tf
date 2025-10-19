@@ -91,6 +91,29 @@ variable "ml_server_url" {
   type        = string
 }
 
+variable "google_oauth_client_id" {
+  description = "Google OAuth Client ID for Calendar API"
+  type        = string
+  sensitive   = true
+}
+
+variable "google_oauth_client_secret" {
+  description = "Google OAuth Client Secret for Calendar API"
+  type        = string
+  sensitive   = true
+}
+
+variable "google_oauth_redirect_uri" {
+  description = "Google OAuth Redirect URI for Calendar API"
+  type        = string
+}
+
+variable "google_tokens_encryption_key" {
+  description = "Encryption key for Google OAuth tokens"
+  type        = string
+  sensitive   = true
+}
+
 variable "qrcode_ecr_repository_url" {
   description = "ECR repository URL for the QR code Lambda function"
   type        = string

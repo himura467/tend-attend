@@ -51,7 +51,7 @@ class RecurrenceRuleRepository(
         bysecond: list[int] | None,
         byminute: list[int] | None,
         byhour: list[int] | None,
-        byday: list[list[int | Weekday]] | None,
+        byday: list[tuple[int, Weekday]] | None,
         bymonthday: list[int] | None,
         byyearday: list[int] | None,
         byweekno: list[int] | None,
@@ -89,7 +89,7 @@ class RecurrenceRuleRepository(
         bysecond: list[int] | None,
         byminute: list[int] | None,
         byhour: list[int] | None,
-        byday: list[list[int | Weekday]] | None,
+        byday: list[tuple[int, Weekday]] | None,
         bymonthday: list[int] | None,
         byyearday: list[int] | None,
         byweekno: list[int] | None,
@@ -135,8 +135,8 @@ class RecurrenceRepository(
         user_id: int,
         rrule_id: UUID,
         rrule: RecurrenceRuleEntity,
-        rdate: list[str],
-        exdate: list[str],
+        rdate: list[datetime],
+        exdate: list[datetime],
     ) -> RecurrenceEntity | None:
         recurrence = RecurrenceEntity(
             entity_id=entity_id,
@@ -151,8 +151,8 @@ class RecurrenceRepository(
     async def update_recurrence_async(
         self,
         entity_id: UUID,
-        rdate: list[str],
-        exdate: list[str],
+        rdate: list[datetime],
+        exdate: list[datetime],
     ) -> RecurrenceEntity | None:
         existing_recurrence = await self.read_with_rrule_by_id_or_none_async(entity_id)
         if existing_recurrence is None:

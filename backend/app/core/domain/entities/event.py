@@ -23,7 +23,7 @@ class RecurrenceRule(IEntity):
         bysecond: list[int] | None,
         byminute: list[int] | None,
         byhour: list[int] | None,
-        byday: list[list[int | Weekday]] | None,
+        byday: list[tuple[int, Weekday]] | None,
         bymonthday: list[int] | None,
         byyearday: list[int] | None,
         byweekno: list[int] | None,
@@ -56,8 +56,8 @@ class Recurrence(IEntity):
         user_id: int,
         rrule_id: UUID,
         rrule: RecurrenceRule,
-        rdate: list[str],
-        exdate: list[str],
+        rdate: list[datetime],
+        exdate: list[datetime],
     ) -> None:
         super().__init__(entity_id)
         self.user_id = user_id

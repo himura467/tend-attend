@@ -1,11 +1,14 @@
+import { RecurrenceDateEditor } from "@/components/organisms/shared/events/RecurrenceDateEditor";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useSSRSafeFormat } from "@/hooks/useSSRSafeFormat";
 import { useTimezone } from "@/hooks/useTimezone";
 import { cn } from "@/lib/utils";
-import { areEqualByRegExps } from "@/lib/utils/array";
+import { Frequency, hasRRule, matchesFrequency } from "@/lib/utils/icalendar";
+import { generateTimeOptions } from "@/lib/utils/timeOptions";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { CalendarIcon, Clock, Repeat } from "lucide-react";
@@ -13,8 +16,8 @@ import React from "react";
 
 type RecurrencesOption = {
   label: string;
-  value: string[];
-  regExps: RegExp[];
+  value?: string;
+  matcher: (rrules: string[]) => boolean;
 };
 
 type TimezoneOption = {
@@ -59,16 +62,20 @@ export const DateTimePicker = ({
   onTimezoneChange,
 }: DateTimePickerProps): React.JSX.Element => {
   const browserTimezone = useTimezone();
-  const timeOptions = React.useMemo(() => {
-    const options = [];
-    for (let hour = 0; hour < 24; hour++) {
-      for (const minute of [0, 15, 30, 45]) {
-        const time = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
-        options.push(time);
-      }
-    }
-    return options;
-  }, []);
+
+  const timeOptions = React.useMemo(() => generateTimeOptions(), []);
+
+  // SSR-safe date formatting to prevent hydration mismatches
+  const startTimeFormatted = useSSRSafeFormat(startDate, "HH:mm");
+  const endTimeFormatted = useSSRSafeFormat(endDate, "HH:mm");
+  const startDateFormatted = useSSRSafeFormat(startDate, "EEE MMM dd");
+  const endDateFormatted = useSSRSafeFormat(endDate, "EEE MMM dd");
+
+  const getDuration = (): string => {
+    const diff = endDate.getTime() - startDate.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    return `${hours}h`;
+  };
 
   const recurrencesOptions = React.useMemo((): RecurrencesOption[] => {
     const localStart = startDate.withTimeZone(browserTimezone);
@@ -80,53 +87,66 @@ export const DateTimePicker = ({
     return [
       {
         label: "Does not repeat",
-        value: [],
-        regExps: [],
+        value: undefined,
+        matcher: (rrules: string[]) => matchesFrequency(rrules),
       },
       {
         label: "Every day",
-        value: [`RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        regExps: [/^RRULE:FREQ=DAILY;BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
+        value: `RRULE:FREQ=DAILY;BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
+        matcher: (rrules: string[]) => matchesFrequency(rrules, Frequency.DAILY, 1),
       },
       {
         label: "Every week",
-        value: [`RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        regExps: [/^RRULE:FREQ=WEEKLY;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
+        value: `RRULE:FREQ=WEEKLY;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
+        matcher: (rrules: string[]) => matchesFrequency(rrules, Frequency.WEEKLY, 1),
       },
       {
         label: "Every 2 weeks",
-        value: [`RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        regExps: [/^RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=[A-Z]{2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
+        value: `RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=${dayOfWeek};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
+        matcher: (rrules: string[]) => matchesFrequency(rrules, Frequency.WEEKLY, 2),
       },
       {
         label: "Every month",
-        value: [`RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        regExps: [/^RRULE:FREQ=MONTHLY;BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
+        value: `RRULE:FREQ=MONTHLY;BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
+        matcher: (rrules: string[]) => matchesFrequency(rrules, Frequency.MONTHLY, 1),
       },
       {
         label: "Every year",
-        value: [`RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`],
-        regExps: [/^RRULE:FREQ=YEARLY;BYMONTH=\d{1,2};BYMONTHDAY=\d{1,2};BYHOUR=\d{1,2};BYMINUTE=\d{1,2};BYSECOND=0$/],
+        value: `RRULE:FREQ=YEARLY;BYMONTH=${month};BYMONTHDAY=${day};BYHOUR=${hour};BYMINUTE=${minute};BYSECOND=0`,
+        matcher: (rrules: string[]) => matchesFrequency(rrules, Frequency.YEARLY, 1),
       },
     ];
   }, [browserTimezone, startDate]);
 
-  const getDuration = (): string => {
-    const diff = endDate.getTime() - startDate.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    return `${hours}h`;
-  };
-
   const getRecurrencesOption = React.useCallback((): RecurrencesOption => {
-    const option = recurrencesOptions.find((r) => areEqualByRegExps(recurrences, r.regExps));
+    const option = recurrencesOptions.find((r) => r.matcher(recurrences));
     if (!option) throw new Error("Unsupported recurrences");
     return option;
   }, [recurrences, recurrencesOptions]);
 
-  React.useEffect(() => {
-    const option = getRecurrencesOption();
-    onRecurrencesChange(option.value);
-  }, [getRecurrencesOption, onRecurrencesChange]);
+  // Update recurrence rule with DTSTART and TZID, preserving existing RDATE/EXDATE entries
+  const updateRecurrenceRule = React.useCallback(
+    (newRRule?: string) => {
+      if (!newRRule) {
+        onRecurrencesChange([]);
+        return;
+      }
+
+      // Separate existing RDATE/EXDATE from RRULE and DTSTART entries
+      const preservedEntries = recurrences.filter(
+        (recurrence) => !recurrence.startsWith("RRULE:") && !recurrence.startsWith("DTSTART"),
+      );
+
+      // Add DTSTART with TZID for proper frontend RRule parsing
+      const dtstartEntry = isAllDay
+        ? `DTSTART;VALUE=DATE:${startDate.toISOString().split("T")[0].replace(/-/g, "")}`
+        : `DTSTART;TZID=${timezone}:${startDate.withTimeZone("UTC").toISOString().replace(/[-:]/g, "").split(".")[0]}`;
+
+      const updatedRecurrences = [dtstartEntry, newRRule, ...preservedEntries];
+      onRecurrencesChange(updatedRecurrences);
+    },
+    [recurrences, onRecurrencesChange, isAllDay, startDate, timezone],
+  );
 
   return (
     <div className="flex flex-col space-y-4 rounded-lg border p-4">
@@ -140,7 +160,7 @@ export const DateTimePicker = ({
                   variant="outline"
                   className={cn("w-[120px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}
                 >
-                  {format(startDate, "HH:mm")}
+                  {startTimeFormatted}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0" align="start">
@@ -170,7 +190,7 @@ export const DateTimePicker = ({
                   variant="outline"
                   className={cn("w-[120px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}
                 >
-                  {format(endDate, "HH:mm")}
+                  {endTimeFormatted}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0" align="start">
@@ -206,7 +226,7 @@ export const DateTimePicker = ({
                 variant="outline"
                 className={cn("w-[120px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}
               >
-                {format(startDate, "EEE MMM dd")}
+                {startDateFormatted}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -225,7 +245,7 @@ export const DateTimePicker = ({
                 variant="outline"
                 className={cn("w-[120px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}
               >
-                {format(endDate, "EEE MMM dd")}
+                {endDateFormatted}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -269,9 +289,9 @@ export const DateTimePicker = ({
                   variant="ghost"
                   className={cn(
                     "w-full justify-start font-normal",
-                    recurrences === r.value && "bg-accent text-accent-foreground",
+                    r.matcher(recurrences) && "bg-accent text-accent-foreground",
                   )}
-                  onClick={() => onRecurrencesChange(r.value)}
+                  onClick={() => updateRecurrenceRule(r.value)}
                 >
                   <span className="flex flex-col items-start">
                     <span>{r.label}</span>
@@ -296,6 +316,24 @@ export const DateTimePicker = ({
           </Select>
         )}
       </div>
+      {hasRRule(recurrences) && (
+        <div className="space-y-4 border-t pt-4">
+          <RecurrenceDateEditor
+            recurrences={recurrences}
+            onRecurrencesChange={onRecurrencesChange}
+            type="RDATE"
+            isAllDay={isAllDay}
+            defaultTime={startDate}
+          />
+          <RecurrenceDateEditor
+            recurrences={recurrences}
+            onRecurrencesChange={onRecurrencesChange}
+            type="EXDATE"
+            isAllDay={isAllDay}
+            defaultTime={startDate}
+          />
+        </div>
+      )}
     </div>
   );
 };

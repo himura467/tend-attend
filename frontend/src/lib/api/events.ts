@@ -10,12 +10,22 @@ import {
   GetMyEventsResponse,
   UpdateAttendancesRequest,
   UpdateAttendancesResponse,
+  UpdateEventRequest,
+  UpdateEventResponse,
 } from "@/lib/api/dtos/event";
 import { fetchWithSHA256Header } from "@/lib/utils/fetch";
 
 export const createEvent = async (data: CreateEventRequest): Promise<CreateEventResponse> => {
   return fetchWithSHA256Header<CreateEventResponse>("/events/create", {
     method: "POST",
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+};
+
+export const updateEvent = async (eventId: string, data: UpdateEventRequest): Promise<UpdateEventResponse> => {
+  return fetchWithSHA256Header<UpdateEventResponse>(`/events/${eventId}`, {
+    method: "PUT",
     body: JSON.stringify(data),
     credentials: "include",
   });

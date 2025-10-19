@@ -65,7 +65,7 @@ class RecurrenceRule(AbstractShardStaticBase):
             bysecond=self.bysecond,
             byminute=self.byminute,
             byhour=self.byhour,
-            byday=self.byday,
+            byday=[(int(i[0]), Weekday(str(i[1]))) for i in self.byday] if self.byday is not None else None,
             bymonthday=self.bymonthday,
             byyearday=self.byyearday,
             byweekno=self.byweekno,
@@ -86,7 +86,7 @@ class RecurrenceRule(AbstractShardStaticBase):
             bysecond=entity.bysecond,
             byminute=entity.byminute,
             byhour=entity.byhour,
-            byday=entity.byday,
+            byday=[list(i) for i in entity.byday] if entity.byday is not None else None,
             bymonthday=entity.bymonthday,
             byyearday=entity.byyearday,
             byweekno=entity.byweekno,
@@ -114,8 +114,8 @@ class Recurrence(AbstractShardStaticBase):
             user_id=self.user_id,
             rrule_id=bin_to_uuid(self.rrule_id),
             rrule=rrule,
-            rdate=self.rdate,
-            exdate=self.exdate,
+            rdate=[datetime.fromisoformat(dt_str) for dt_str in self.rdate],
+            exdate=[datetime.fromisoformat(dt_str) for dt_str in self.exdate],
         )
 
     @classmethod
@@ -124,8 +124,8 @@ class Recurrence(AbstractShardStaticBase):
             id=uuid_to_bin(entity.id),
             user_id=entity.user_id,
             rrule_id=uuid_to_bin(entity.rrule_id),
-            rdate=entity.rdate,
-            exdate=entity.exdate,
+            rdate=[dt.isoformat() for dt in entity.rdate],
+            exdate=[dt.isoformat() for dt in entity.exdate],
         )
 
 

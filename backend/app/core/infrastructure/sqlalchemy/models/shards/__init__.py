@@ -6,3 +6,4 @@ from .event import (  # noqa: F401
     Recurrence,
     RecurrenceRule,
 )
+from .google_calendar import GoogleCalendarEventMapping, GoogleCalendarIntegration  # noqa: F401

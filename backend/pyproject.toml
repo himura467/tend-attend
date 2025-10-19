@@ -10,6 +10,9 @@ dependencies = [
     "alembic>=1.16.4",
     "aws-advanced-python-wrapper>=1.2.0",
     "fastapi[standard]>=0.116.0",
+    "google-api-python-client>=2.182.0",
+    "google-auth>=2.40.3",
+    "google-auth-oauthlib>=1.2.2",
     "httpx>=0.28.1",
     "mangum>=0.19.0",
     "mysql-connector-python>=9.3.0",
@@ -37,7 +40,19 @@ module = "aws_advanced_python_wrapper"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = "googleapiclient.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "google_auth_oauthlib.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = "app.core.infrastructure.sqlalchemy.models.*"
+disallow_untyped_calls = false
+
+[[tool.mypy.overrides]]
+module = "app.core.infrastructure.google.*"
 disallow_untyped_calls = false
 
 [tool.ruff]

@@ -43,6 +43,14 @@ export interface CreateEventResponse {
   error_codes: number[];
 }
 
+export interface UpdateEventRequest {
+  event: Event;
+}
+
+export interface UpdateEventResponse {
+  error_codes: number[];
+}
+
 export interface AttendEventRequest {
   action: AttendanceActionType;
 }

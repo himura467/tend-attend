@@ -1,7 +1,6 @@
 import { getYmdDeltaDays, getYmdHm15DeltaMinutes, parseYmdDate, parseYmdHm15Date } from "@/lib/utils/date";
-import { parseRecurrence } from "@/lib/utils/icalendar";
+import { convertRRuleDateToTZDate, parseRecurrence, type RRuleOptions } from "@/lib/utils/icalendar";
 import { TZDate } from "@/lib/utils/tzdate";
-import { Options as RRuleOptions } from "rrule";
 
 export interface Event {
   id: string;
@@ -63,7 +62,7 @@ export const mapEventsToFullCalendar = (
         title: baseEvent.title,
         allDay: baseEvent.allDay,
         rrule: { ...rruleSet._rrule[0].options, dtstart: baseEvent.start },
-        exdate: rruleSet._exdate.map((date) => date.toISOString().split("T")[0]),
+        exdate: rruleSet._exdate.map((date) => date.toISOString().slice(0, -1)),
         duration: baseEvent.allDay
           ? {
               days: getYmdDeltaDays(parseYmdDate(event.dtstart, timezone), parseYmdDate(event.dtend, timezone)),
@@ -78,9 +77,7 @@ export const mapEventsToFullCalendar = (
     }
 
     rruleSet._rdate.forEach((rdate, index) => {
-      // Convert rdate from local timezone to UTC
-      const timezoneOffsetMs = new TZDate(rdate, timezone).getTimezoneOffset() * 60 * 1000;
-      const rdateStart = new TZDate(rdate.getTime() + timezoneOffsetMs);
+      const rdateStart = convertRRuleDateToTZDate(rdate, timezone, rruleSet.tzid());
       const originalDurationMs = baseEvent.end.getTime() - baseEvent.start.getTime();
       const rdateEnd = new TZDate(rdateStart.getTime() + originalDurationMs);
 

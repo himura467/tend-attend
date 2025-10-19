@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import date, datetime
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import httpx
@@ -69,26 +69,6 @@ from app.core.utils.icalendar import parse_recurrence, serialize_recurrence
 from app.core.utils.uuid import UUID, generate_uuid, str_to_uuid, uuid_to_str
 
 
-def listify_byday(
-    byday: list[tuple[int, Weekday]] | None,
-) -> list[list[int | Weekday]] | None:
-    return [list(i) for i in byday] if byday is not None else None
-
-
-def parse_byday(
-    byday: list[list[int | Weekday]] | None,
-) -> list[tuple[int, Weekday]] | None:
-    return [(int(i[0]), Weekday(str(i[1]))) for i in byday] if byday is not None else None
-
-
-def stringify_dates(dates: list[date]) -> list[str]:
-    return [d.isoformat() for d in dates]
-
-
-def parse_dates(dates: list[str]) -> list[date]:
-    return [date.fromisoformat(d) for d in dates]
-
-
 def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
     event_dto_list = []
     for event in events:
@@ -103,7 +83,7 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                     bysecond=event.recurrence.rrule.bysecond,
                     byminute=event.recurrence.rrule.byminute,
                     byhour=event.recurrence.rrule.byhour,
-                    byday=parse_byday(event.recurrence.rrule.byday),
+                    byday=event.recurrence.rrule.byday,
                     bymonthday=event.recurrence.rrule.bymonthday,
                     byyearday=event.recurrence.rrule.byyearday,
                     byweekno=event.recurrence.rrule.byweekno,
@@ -111,8 +91,8 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                     bysetpos=event.recurrence.rrule.bysetpos,
                     wkst=event.recurrence.rrule.wkst or Weekday.MO,
                 ),
-                rdate=(parse_dates(event.recurrence.rdate) if event.is_all_day else []),
-                exdate=(parse_dates(event.recurrence.exdate) if event.is_all_day else []),
+                rdate=event.recurrence.rdate,
+                exdate=event.recurrence.exdate,
             )
         event_dto_list.append(
             EventWithIdDto(
@@ -122,7 +102,7 @@ def serialize_events(events: set[EventEntity]) -> list[EventWithIdDto]:
                 dtstart=event.dtstart,
                 dtend=event.dtend,
                 is_all_day=event.is_all_day,
-                recurrence_list=serialize_recurrence(recurrence, event.is_all_day),
+                recurrence_list=serialize_recurrence(recurrence, event.dtstart, event.is_all_day, event.timezone),
                 timezone=event.timezone,
             )
         )
@@ -185,7 +165,7 @@ class EventUsecase(IUsecase):
                 bysecond=event.recurrence.rrule.bysecond,
                 byminute=event.recurrence.rrule.byminute,
                 byhour=event.recurrence.rrule.byhour,
-                byday=listify_byday(event.recurrence.rrule.byday),
+                byday=event.recurrence.rrule.byday,
                 bymonthday=event.recurrence.rrule.bymonthday,
                 byyearday=event.recurrence.rrule.byyearday,
                 byweekno=event.recurrence.rrule.byweekno,
@@ -201,8 +181,8 @@ class EventUsecase(IUsecase):
                 user_id=user_id,
                 rrule_id=recurrence_rule.id,
                 rrule=recurrence_rule,
-                rdate=stringify_dates(event.recurrence.rdate),
-                exdate=stringify_dates(event.recurrence.exdate),
+                rdate=event.recurrence.rdate,
+                exdate=event.recurrence.exdate,
             )
             if recurrence_entity is None:
                 raise ValueError("Failed to create recurrence")
@@ -280,7 +260,7 @@ class EventUsecase(IUsecase):
                         bysecond=recurrence.rrule.bysecond,
                         byminute=recurrence.rrule.byminute,
                         byhour=recurrence.rrule.byhour,
-                        byday=listify_byday(recurrence.rrule.byday),
+                        byday=recurrence.rrule.byday,
                         bymonthday=recurrence.rrule.bymonthday,
                         byyearday=recurrence.rrule.byyearday,
                         byweekno=recurrence.rrule.byweekno,
@@ -290,8 +270,8 @@ class EventUsecase(IUsecase):
                     )
                     await recurrence_repository.update_recurrence_async(
                         entity_id=existing_event.recurrence_id,
-                        rdate=stringify_dates(recurrence.rdate),
-                        exdate=stringify_dates(recurrence.exdate),
+                        rdate=recurrence.rdate,
+                        exdate=recurrence.exdate,
                     )
                     recurrence_id = existing_event.recurrence_id
                 else:
@@ -307,7 +287,7 @@ class EventUsecase(IUsecase):
                     bysecond=recurrence.rrule.bysecond,
                     byminute=recurrence.rrule.byminute,
                     byhour=recurrence.rrule.byhour,
-                    byday=listify_byday(recurrence.rrule.byday),
+                    byday=recurrence.rrule.byday,
                     bymonthday=recurrence.rrule.bymonthday,
                     byyearday=recurrence.rrule.byyearday,
                     byweekno=recurrence.rrule.byweekno,
@@ -323,8 +303,8 @@ class EventUsecase(IUsecase):
                     user_id=user_id,
                     rrule_id=recurrence_rule.id,
                     rrule=recurrence_rule,
-                    rdate=stringify_dates(recurrence.rdate),
-                    exdate=stringify_dates(recurrence.exdate),
+                    rdate=recurrence.rdate,
+                    exdate=recurrence.exdate,
                 )
                 if recurrence_entity is None:
                     raise ValueError("Failed to create recurrence")
