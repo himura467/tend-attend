@@ -19,8 +19,8 @@ importers:
         version: 1.9.2
     devDependencies:
       '@types/aws-lambda':
-        specifier: ^8.10.155
-        version: 8.10.155
+        specifier: ^8.10.156
+        version: 8.10.156
       '@types/jsdom':
         specifier: ^27.0.0
         version: 27.0.0
@@ -401,8 +401,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@types/aws-lambda@8.10.155':
-    resolution: {integrity: sha512-wd1XgoL0gy/ybo7WozUKQBd+IOgUkdfG6uUGI0fQOTEq06FBFdO7tmPDSxgjkFkl8GlfApvk5TvqZlAl0g+Lbg==}
+  '@types/aws-lambda@8.10.156':
+    resolution: {integrity: sha512-LElQP+QliVWykC7OF8dNr04z++HJCMO2lF7k9HuKoSDARqhcjHq8MzbrRwujCSDeBHIlvaimbuY/tVZL36KXFQ==}
 
   '@types/chai@5.2.2':
     resolution: {integrity: sha512-8kB30R7Hwqf40JPiKhVzodJs2Qc1ZJ5zuT3uzw5Hq/dhNCl3G3l83jfpdI1e20BP348+fV7VIL/+FxaXkqBmWg==}
@@ -1528,7 +1528,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.45.0':
     optional: true
 
-  '@types/aws-lambda@8.10.155': {}
+  '@types/aws-lambda@8.10.156': {}
 
   '@types/chai@5.2.2':
     dependencies:
