@@ -61,7 +61,7 @@ wheels = [
 
 [[package]]
 name = "aws-advanced-python-wrapper"
-version = "1.3.0"
+version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aws-xray-sdk" },
@@ -73,9 +73,9 @@ dependencies = [
     { name = "toml" },
     { name = "types-aws-xray-sdk" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/85/c8/ca0554647de1a031493d12b6be93c6bed1a6d9b8f472bc5953c0d9de18ee/aws_advanced_python_wrapper-1.3.0.tar.gz", hash = "sha256:7879bf391ad0abd824005a88a3f8110f39eef06d23860955ed9e9b3d82841422", size = 145722, upload-time = "2025-07-29T11:48:34.23Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/69/f8/2b75f557969c9dac069fd0d83ac0380959e142f4cf12134a0a83794b1e1f/aws_advanced_python_wrapper-1.4.0.tar.gz", hash = "sha256:ca4d8eda1691fdb2e9242484f0ba96133ac31d18b61657e66b620c6dece5f3bf", size = 148880, upload-time = "2025-10-17T22:41:02.509Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5b/41/8ebe9b5ad2779da898203586e41197be5970bbe1f0dfdc44385fd1222e59/aws_advanced_python_wrapper-1.3.0-py3-none-any.whl", hash = "sha256:78e30d9da2e9fe6878dd72caa529041bb9b20c2957292bd576ba4cf877065560", size = 200954, upload-time = "2025-07-29T11:48:32.604Z" },
+    { url = "https://files.pythonhosted.org/packages/f0/0d/6570b1b00bf86522d409f54bf9b666677c14c46db88713aa571b88f705a6/aws_advanced_python_wrapper-1.4.0-py3-none-any.whl", hash = "sha256:3db768722abc25aed5f4e680ccdff060336cd432ee303de211e5976c7c093035", size = 206302, upload-time = "2025-10-17T22:41:01.01Z" },
 ]
 
 [[package]]
