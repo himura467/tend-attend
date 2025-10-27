@@ -8,7 +8,7 @@ from app.core.dtos.admin import (
     StampRevisionResponse,
     UpgradeDbResponse,
 )
-from app.core.infrastructure.sqlalchemy.migrate_db import reset_aurora_db
+from app.core.infrastructure.sqlalchemy.migrate_db import reset_aurora_db_async
 from app.core.utils.alembic import get_alembic_config
 
 router = APIRouter()
@@ -19,8 +19,8 @@ router = APIRouter()
     name="Reset Aurora DB",
     response_model=ResetAuroraResponse,
 )
-def reset_aurora(_: bool = Depends(verify_admin_credentials)) -> ResetAuroraResponse:
-    reset_aurora_db()
+async def reset_aurora(_: bool = Depends(verify_admin_credentials)) -> ResetAuroraResponse:
+    await reset_aurora_db_async()
     return ResetAuroraResponse(error_codes=[])
 
 

@@ -8,14 +8,12 @@ dependencies = [
     "aiomysql>=0.2.0",
     "aiosmtplib>=4.0.1",
     "alembic>=1.16.4",
-    "aws-advanced-python-wrapper>=1.2.0",
     "fastapi[standard]>=0.116.0",
     "google-api-python-client>=2.182.0",
     "google-auth>=2.40.3",
     "google-auth-oauthlib>=1.2.2",
     "httpx>=0.28.1",
     "mangum>=0.19.0",
-    "mysql-connector-python>=9.3.0",
     "passlib[bcrypt]>=1.7.4",
     "pydantic>=2.11.7",
     "python-jose[cryptography]>=3.5.0",
@@ -36,7 +34,7 @@ strict = true
 exclude = [".venv", "alembic"]
 
 [[tool.mypy.overrides]]
-module = "aws_advanced_python_wrapper"
+module = "aiomysql"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
