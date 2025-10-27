@@ -3,7 +3,7 @@ from typing import Any
 from sqlalchemy import create_mock_engine
 from sqlalchemy.sql.ddl import ExecutableDDLElement
 
-from app.core.aws.aurora import execute
+from app.core.aws.aurora import execute_async
 from app.core.constants.constants import (
     AURORA_COMMON_DBNAME,
     AURORA_SEQUENCE_DBNAME,
@@ -47,15 +47,16 @@ async def reset_db_async() -> None:
                     await conn.run_sync(table.create)
 
 
-def reset_aurora_db() -> None:
+async def reset_aurora_db_async() -> None:
+    """Reset Aurora databases by dropping and recreating them."""
     assert AURORA_COMMON_DBNAME is not None
     assert AURORA_SEQUENCE_DBNAME is not None
     assert AURORA_SHARD_DBNAME_PREFIX is not None
-    execute(query=f"DROP DATABASE IF EXISTS {AURORA_COMMON_DBNAME}", dbname="mysql")
-    execute(query=f"CREATE DATABASE {AURORA_COMMON_DBNAME}", dbname="mysql")
-    execute(query=f"DROP DATABASE IF EXISTS {AURORA_SEQUENCE_DBNAME}", dbname="mysql")
-    execute(query=f"CREATE DATABASE {AURORA_SEQUENCE_DBNAME}", dbname="mysql")
+    await execute_async(query=f"DROP DATABASE IF EXISTS {AURORA_COMMON_DBNAME}", dbname="mysql")
+    await execute_async(query=f"CREATE DATABASE {AURORA_COMMON_DBNAME}", dbname="mysql")
+    await execute_async(query=f"DROP DATABASE IF EXISTS {AURORA_SEQUENCE_DBNAME}", dbname="mysql")
+    await execute_async(query=f"CREATE DATABASE {AURORA_SEQUENCE_DBNAME}", dbname="mysql")
     for i in range(DB_SHARD_COUNT):
         shard_dbname = f"{AURORA_SHARD_DBNAME_PREFIX}{i}"
-        execute(query=f"DROP DATABASE IF EXISTS {shard_dbname}", dbname="mysql")
-        execute(query=f"CREATE DATABASE {shard_dbname}", dbname="mysql")
+        await execute_async(query=f"DROP DATABASE IF EXISTS {shard_dbname}", dbname="mysql")
+        await execute_async(query=f"CREATE DATABASE {shard_dbname}", dbname="mysql")
