@@ -10,6 +10,9 @@
       "path": "backend"
     },
     {
+      "path": "ml"
+    },
+    {
       "path": "qrcode"
     },
     {
