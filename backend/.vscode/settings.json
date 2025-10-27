@@ -8,7 +8,7 @@
     },
     "editor.defaultFormatter": "charliermarsh.ruff"
   },
-  "ruff.configuration": "${workspaceFolder}/backend/pyproject.toml",
+  "ruff.configuration": "${workspaceFolder}/pyproject.toml",
   // https://github.com/microsoft/vscode-mypy
   "mypy-type-checker.args": [
     "--config-file=pyproject.toml"
