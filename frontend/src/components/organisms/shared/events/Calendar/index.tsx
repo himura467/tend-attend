@@ -10,7 +10,6 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import React from "react";
 
 interface CalendarProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   events: any[];
   onEventClick: (eventInfo: { id: string; start: TZDate; end: TZDate; title: string; allDay: boolean }) => void;
 }
