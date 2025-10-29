@@ -206,5 +206,11 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Private Data
+# Private data
 data/
+
+# ML outputs
+checkpoints/
+logs/
+visualizations/
+wandb/
