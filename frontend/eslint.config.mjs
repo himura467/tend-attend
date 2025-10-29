@@ -1,41 +1,19 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import nextPlugin from "@next/eslint-plugin-next";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import { defineConfig, globalIgnores } from "eslint/config";
+import tseslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const ignoreFiles = ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "src/components/ui/*.tsx"];
-
-const eslintRules = {
-  "prefer-const": "error",
-  "@typescript-eslint/explicit-function-return-type": "error",
-};
-
-const eslintConfig = [
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "src/components/ui/*.tsx"]),
   {
-    ignores: ignoreFiles,
-  },
-  {
-    rules: eslintRules,
-  },
-  // Workaround for https://github.com/microsoft/rushstack/issues/4965
-  {
-    name: "next/core-web-vitals",
     plugins: {
-      "@next/next": nextPlugin,
+      "@typescript-eslint": tseslint.plugin,
     },
     rules: {
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs["core-web-vitals"].rules,
+      "prefer-const": "error",
+      "@typescript-eslint/explicit-function-return-type": "error",
     },
   },
-  ...compat.extends("next/typescript"),
-];
+]);
 
 export default eslintConfig;
