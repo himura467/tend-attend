@@ -47,3 +47,12 @@ resource "aws_nat_gateway" "this" {
   subnet_id     = aws_subnet.public[count.index].id
   allocation_id = aws_subnet.public[count.index].id
 }
+
+resource "aws_route_table" "private" {
+  count  = length(data.aws_availability_zones.available.names)
+  vpc_id = aws_vpc.this.id
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.this.id
+}
