@@ -41,3 +41,9 @@ resource "aws_eip" "this" {
   count  = length(data.aws_availability_zones.available.names)
   domain = "vpc"
 }
+
+resource "aws_nat_gateway" "this" {
+  count         = length(data.aws_availability_zones.available.names)
+  subnet_id     = aws_subnet.public[count.index].id
+  allocation_id = aws_subnet.public[count.index].id
+}
