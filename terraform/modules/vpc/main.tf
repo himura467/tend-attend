@@ -61,7 +61,7 @@ resource "aws_route" "private_default" {
   count                  = length(data.aws_availability_zones.available.names)
   route_table_id         = aws_route_table.private[count.index].id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_nat_gateway.this[count.index].id
+  nat_gateway_id         = aws_nat_gateway.this[count.index].id
 }
 
 resource "aws_route" "public_default" {
