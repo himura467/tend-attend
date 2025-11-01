@@ -45,7 +45,7 @@ resource "aws_eip" "this" {
 resource "aws_nat_gateway" "this" {
   count         = length(data.aws_availability_zones.available.names)
   subnet_id     = aws_subnet.public[count.index].id
-  allocation_id = aws_subnet.public[count.index].id
+  allocation_id = aws_eip.this[count.index].id
 }
 
 resource "aws_route_table" "private" {
