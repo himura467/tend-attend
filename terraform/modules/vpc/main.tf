@@ -69,3 +69,15 @@ resource "aws_route" "public_default" {
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.this.id
 }
+
+resource "aws_route_table_association" "private" {
+  count          = length(data.aws_availability_zones.available.names)
+  route_table_id = aws_route_table.private[count.index].id
+  subnet_id      = aws_subnet.private[count.index].id
+}
+
+resource "aws_route_table_association" "public" {
+  count          = length(data.aws_availability_zones.available.names)
+  route_table_id = aws_route_table.public[count.index].id
+  subnet_id      = aws_subnet.public[count.index].id
+}
