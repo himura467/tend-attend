@@ -2,14 +2,11 @@ import { SignUpForm } from "@/components/organisms/specific/accounts/signup/Sign
 import { DialogTemplate } from "@/components/templates/DialogTemplate";
 import { rr } from "@/lib/utils/reverseRouter";
 import { NextPage } from "next";
-import { Locale, useTranslations } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import React from "react";
 
-const SignUpPage: NextPage = ({ params }: PageProps<"/[locale]">): React.JSX.Element => {
-  const { locale } = React.use(params);
-  setRequestLocale(locale as Locale);
+const SignUpPage: NextPage = (): React.JSX.Element => {
   const t = useTranslations("SignUpPage");
   return (
     <DialogTemplate>
