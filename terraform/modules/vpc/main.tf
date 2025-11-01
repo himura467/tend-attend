@@ -1,6 +1,6 @@
 locals {
   private_cidr = cidrsubnet(var.vpc_cidr, 1, 0)
-  # public_cidr = cidrsubnet(var.vpc_cidr, 1, 1)
+  public_cidr  = cidrsubnet(var.vpc_cidr, 1, 1)
 
   # This value is used to further divide the public/private CIDR blocks into subnets for each AZ.
   # We add +1 to the original VPC CIDR prefix because the public/private CIDRs have already been split once.
