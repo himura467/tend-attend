@@ -36,3 +36,8 @@ resource "aws_subnet" "public" {
 resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 }
+
+resource "aws_eip" "this" {
+  count  = length(data.aws_availability_zones.available.names)
+  domain = "vpc"
+}
