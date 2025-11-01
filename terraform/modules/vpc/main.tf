@@ -26,11 +26,11 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_subnet" "public" {
-  count                           = length(data.aws_availability_zones.available.names)
-  vpc_id                          = aws_vpc.this.id
-  cidr_block                      = cidrsubnet(local.public_cidr, local.subnet_bits, count.index)
-  availability_zone               = data.aws_availability_zones.available.names[count.index]
-  map_customer_owned_ip_on_launch = true
+  count                   = length(data.aws_availability_zones.available.names)
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = cidrsubnet(local.public_cidr, local.subnet_bits, count.index)
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = true
 }
 
 resource "aws_internet_gateway" "this" {
