@@ -9,6 +9,9 @@ export const ReverseRouter = {
       },
     },
   },
+  contact: {
+    index: (): LinkProps => ({ href: "/contact" }),
+  },
   events: {
     attend: {
       index: (): LinkProps => ({ href: "/events/attend" }),
@@ -16,6 +19,9 @@ export const ReverseRouter = {
     edit: {
       index: (): LinkProps => ({ href: "/events/edit" }),
     },
+  },
+  privacy: {
+    index: (): LinkProps => ({ href: "/privacy" }),
   },
   settings: {
     integrations: {

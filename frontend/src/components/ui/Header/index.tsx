@@ -9,12 +9,6 @@ export const Header = (): React.JSX.Element => {
         <Link {...rr.index()} className="text-muted-foreground hover:text-primary transition-colors">
           Home
         </Link>
-        <Link href="/about-us" className="text-muted-foreground hover:text-primary transition-colors">
-          About Us
-        </Link>
-        <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
-          Contact
-        </Link>
       </nav>
     </header>
   );

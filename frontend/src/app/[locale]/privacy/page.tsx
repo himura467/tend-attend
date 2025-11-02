@@ -1,4 +1,5 @@
 import { DialogTemplate } from "@/components/templates/DialogTemplate";
+import { rr } from "@/lib/utils/reverseRouter";
 import { NextPage } from "next";
 import Link from "next/link";
 import React from "react";
@@ -79,7 +80,7 @@ const PrivacyPolicyPage: NextPage = (): React.JSX.Element => {
             <h2 className="text-2xl font-semibold">Contact Us</h2>
             <p className="text-muted-foreground leading-relaxed">
               If you have any questions about this Privacy Policy, please visit our{" "}
-              <Link href="/contact" className="text-primary font-medium hover:underline">
+              <Link {...rr.contact.index()} className="text-primary font-medium hover:underline">
                 Contact Us
               </Link>{" "}
               page.
