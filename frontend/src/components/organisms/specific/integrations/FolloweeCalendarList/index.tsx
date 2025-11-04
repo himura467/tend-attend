@@ -89,7 +89,7 @@ export const FolloweeCalendarList = ({ className }: FolloweeCalendarListProps): 
     <div className={className}>
       <div className="space-y-4">
         <div className="space-y-2">
-          <h2 className="text-xl font-semibold">Followee Calendars ({calendars.length})</h2>
+          <h2 className="text-xl font-semibold">Followee Calendars</h2>
           <p className="text-sm text-muted-foreground">
             Subscribe to event calendars from people you follow. These calendars will automatically update when they add
             or modify events.
