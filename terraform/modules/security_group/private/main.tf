@@ -13,10 +13,11 @@ resource "aws_security_group" "aurora" {
   name   = "tend-attend-aurora-sg"
   vpc_id = var.vpc_id
   ingress {
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lambda.id]
+    description     = "Allow MySQL access from Lambda functions"
   }
   egress {
     from_port   = 0
