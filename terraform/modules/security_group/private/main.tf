@@ -24,9 +24,9 @@ resource "aws_vpc_security_group_ingress_rule" "aurora_mysql" {
   referenced_security_group_id = aws_security_group.lambda.id
 }
 
-resource "aws_vpc_security_group_egress_rule" "aurora_ipv4" {
+resource "aws_vpc_security_group_egress_rule" "aurora_ipv6" {
   security_group_id = aws_security_group.aurora.id
-  description       = "Allow all outbound IPv4 traffic"
+  description       = "Allow all outbound IPv6 traffic"
   ip_protocol       = "-1"
-  cidr_ipv4         = "0.0.0.0/0"
+  cidr_ipv6         = "::/0"
 }

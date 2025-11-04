@@ -24,6 +24,7 @@ resource "aws_rds_cluster" "aurora" {
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora.name
   db_subnet_group_name            = var.aurora_subnet_group_name
   vpc_security_group_ids          = var.aurora_security_group_ids
+  network_type                    = "DUAL"
   enable_http_endpoint            = true
   serverlessv2_scaling_configuration {
     max_capacity             = var.aurora_max_capacity
