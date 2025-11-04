@@ -1,3 +1,14 @@
+resource "aws_security_group" "lambda" {
+  name   = "tend-attend-lambda-sg"
+  vpc_id = var.vpc_id
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    ipv6_cidr_blocks = ["::/0"]
+  }
+}
+
 resource "aws_security_group" "aurora" {
   name   = "tend-attend-aurora-sg"
   vpc_id = var.vpc_id
