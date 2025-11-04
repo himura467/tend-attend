@@ -36,8 +36,9 @@ resource "aws_lambda_function" "backend" {
   timeout          = var.backend_lambda_timeout
   memory_size      = var.backend_lambda_memory_size
   vpc_config {
-    subnet_ids         = var.subnet_ids
-    security_group_ids = var.security_group_ids
+    subnet_ids                  = var.subnet_ids
+    security_group_ids          = var.security_group_ids
+    ipv6_allowed_for_dual_stack = true
   }
   environment {
     variables = {
