@@ -5,7 +5,7 @@ module "lambda" {
   backend_lambda_timeout       = 60
   backend_lambda_memory_size   = 512
   subnet_ids                   = module.vpc.private_subnets[*].id
-  security_group_ids           = [module.private_sg.aurora_sg_id]
+  security_group_ids           = [module.private_sg.lambda_sg_id]
   cookie_domain                = module.op.domain_name
   admin_username               = module.op.admin_username
   admin_password               = module.op.admin_password
