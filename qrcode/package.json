@@ -21,7 +21,7 @@
     "qr-code-styling": "^1.9.2"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.156",
+    "@types/aws-lambda": "^8.10.157",
     "@types/jsdom": "^27.0.0",
     "eslint": "^9.38.0",
     "npm-run-all2": "^8.0.4",
