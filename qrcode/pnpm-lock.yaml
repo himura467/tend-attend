@@ -19,8 +19,8 @@ importers:
         version: 1.9.2
     devDependencies:
       '@types/aws-lambda':
-        specifier: ^8.10.156
-        version: 8.10.156
+        specifier: ^8.10.157
+        version: 8.10.157
       '@types/jsdom':
         specifier: ^27.0.0
         version: 27.0.0
@@ -414,8 +414,8 @@ packages:
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
 
-  '@types/aws-lambda@8.10.156':
-    resolution: {integrity: sha512-LElQP+QliVWykC7OF8dNr04z++HJCMO2lF7k9HuKoSDARqhcjHq8MzbrRwujCSDeBHIlvaimbuY/tVZL36KXFQ==}
+  '@types/aws-lambda@8.10.157':
+    resolution: {integrity: sha512-ofjcRCO1N7tMZDSO11u5bFHPDfUFD3Q9YK9g4S4w8UDKuG3CNlw2lNK1sd3Itdo7JORygZmG4h9ZykS8dlXvMA==}
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -1500,7 +1500,7 @@ snapshots:
 
   '@standard-schema/spec@1.0.0': {}
 
-  '@types/aws-lambda@8.10.156': {}
+  '@types/aws-lambda@8.10.157': {}
 
   '@types/chai@5.2.3':
     dependencies:
