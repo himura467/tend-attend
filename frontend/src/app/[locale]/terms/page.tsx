@@ -69,6 +69,22 @@ const TermsOfServicePage: NextPage = (): React.JSX.Element => {
             </ul>
           </section>
           <section className="space-y-3">
+            <h2 className="text-2xl font-semibold">Termination</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              You may stop using Tend Attend at any time and may request account deletion through our service interface
+              or by contacting us.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              We reserve the right to suspend or terminate your account and access to the service immediately, without
+              prior notice or liability, if you breach these Terms or engage in conduct that we determine, in our sole
+              discretion, is inappropriate or harmful to us, other users, or third parties.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              Upon termination, your right to use the service will immediately cease. We may retain certain information
+              as required by law or for legitimate business purposes.
+            </p>
+          </section>
+          <section className="space-y-3">
             <h2 className="text-2xl font-semibold">Machine Learning and Data Processing</h2>
             <p className="text-muted-foreground leading-relaxed">
               By using our service, you acknowledge and agree that we may use your event attendance data to train and
@@ -123,22 +139,6 @@ const TermsOfServicePage: NextPage = (): React.JSX.Element => {
             <p className="text-muted-foreground leading-relaxed">
               While we strive to maintain service availability, we cannot guarantee uninterrupted access. The service
               may be temporarily unavailable due to maintenance, updates, or circumstances beyond our control.
-            </p>
-          </section>
-          <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Termination</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              You may stop using Tend Attend at any time and may request account deletion through our service interface
-              or by contacting us.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              We reserve the right to suspend or terminate your account and access to the service immediately, without
-              prior notice or liability, if you breach these Terms or engage in conduct that we determine, in our sole
-              discretion, is inappropriate or harmful to us, other users, or third parties.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
-              Upon termination, your right to use the service will immediately cease. We may retain certain information
-              as required by law or for legitimate business purposes.
             </p>
           </section>
           <section className="space-y-3">
