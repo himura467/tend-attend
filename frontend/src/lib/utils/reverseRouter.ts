@@ -37,6 +37,9 @@ export const ReverseRouter = {
   subscriptions: {
     index: (): LinkProps => ({ href: "/subscriptions" }),
   },
+  terms: {
+    index: (): LinkProps => ({ href: "/terms" }),
+  },
 };
 
 export const rr = ReverseRouter;
