@@ -10,7 +10,7 @@ const PrivacyPolicyPage: NextPage = (): React.JSX.Element => {
       <div className="w-full max-w-[800px] space-y-8">
         <div className="text-center">
           <h1 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">Privacy Policy</h1>
-          <p className="text-muted-foreground mt-2">Last updated: 2025/11/03</p>
+          <p className="text-muted-foreground mt-2">Last updated: 2025/11/07</p>
         </div>
         <div className="text-foreground space-y-6">
           <section className="space-y-3">
@@ -79,7 +79,7 @@ const PrivacyPolicyPage: NextPage = (): React.JSX.Element => {
           <section className="space-y-3">
             <h2 className="text-2xl font-semibold">Contact Us</h2>
             <p className="text-muted-foreground leading-relaxed">
-              If you have any questions about this Privacy Policy, please visit our{" "}
+              If you have any questions, concerns, or feedback about this Privacy Policy, please visit our{" "}
               <Link {...rr.contact.index()} className="text-primary font-medium hover:underline">
                 Contact Us
               </Link>{" "}
