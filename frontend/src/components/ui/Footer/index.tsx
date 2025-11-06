@@ -13,6 +13,9 @@ export const Footer = (): React.JSX.Element => {
         <Link {...rr.privacy.index()} className="text-xs underline-offset-4 hover:underline">
           Privacy Policy
         </Link>
+        <Link {...rr.terms.index()} className="text-xs underline-offset-4 hover:underline">
+          Terms of Service
+        </Link>
       </nav>
     </footer>
   );
