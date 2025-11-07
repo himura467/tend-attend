@@ -17,7 +17,7 @@ import { routerPush } from "@/lib/utils/router";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
 
@@ -38,6 +38,7 @@ const months = [
 
 export const SignUpForm = (): React.JSX.Element => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const timezone = useTimezone();
   const localNow = useLocalNow();
 
@@ -50,7 +51,17 @@ export const SignUpForm = (): React.JSX.Element => {
   const [followeeUsernames, setFolloweeUsernames] = React.useState<string[]>([]);
   const [followeeInput, setFolloweeInput] = React.useState("");
 
+  const followeesParam = searchParams.get("followees");
+  const initialFollowees = React.useMemo(() => followeesParam?.split(",").filter(Boolean) || [], [followeesParam]);
+  const hasInitialFollowees = initialFollowees.length > 0;
+
   const years = Array.from({ length: 100 }, (_, i) => localNow.getFullYear() - i);
+
+  React.useEffect(() => {
+    if (hasInitialFollowees) {
+      setFolloweeUsernames(initialFollowees);
+    }
+  }, [hasInitialFollowees, initialFollowees]);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -264,8 +275,9 @@ export const SignUpForm = (): React.JSX.Element => {
                 handleAddFollowee();
               }
             }}
+            disabled={hasInitialFollowees}
           />
-          <Button type="button" variant="secondary" onClick={handleAddFollowee}>
+          <Button type="button" variant="secondary" onClick={handleAddFollowee} disabled={hasInitialFollowees}>
             Add
           </Button>
         </div>
@@ -283,6 +295,7 @@ export const SignUpForm = (): React.JSX.Element => {
                       size="icon"
                       className="rounded-full h-4 w-4"
                       onClick={() => handleRemoveFollowee(name)}
+                      disabled={hasInitialFollowees}
                     >
                       <X className="h-3 w-3" />
                       <span className="sr-only">Remove {name}</span>
