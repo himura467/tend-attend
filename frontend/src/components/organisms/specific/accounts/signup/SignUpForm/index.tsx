@@ -16,7 +16,7 @@ import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
@@ -50,6 +50,7 @@ export const SignUpForm = (): React.JSX.Element => {
   const [email, setEmail] = React.useState("");
   const [followeeUsernames, setFolloweeUsernames] = React.useState<string[]>([]);
   const [followeeInput, setFolloweeInput] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const followeesParam = searchParams.get("followees");
   const initialFollowees = React.useMemo(() => followeesParam?.split(",").filter(Boolean) || [], [followeesParam]);
@@ -66,6 +67,9 @@ export const SignUpForm = (): React.JSX.Element => {
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     try {
       const response = await createUserAccount({
         username: username,
@@ -84,6 +88,8 @@ export const SignUpForm = (): React.JSX.Element => {
       }
     } catch {
       toast.error("Failed to create an account");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -307,8 +313,15 @@ export const SignUpForm = (): React.JSX.Element => {
           </div>
         )}
       </div>
-      <Button type="submit" className="w-full">
-        Create account
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? (
+          <>
+            <Loader2 className="animate-spin" />
+            Creating account...
+          </>
+        ) : (
+          "Create account"
+        )}
       </Button>
     </form>
   );
