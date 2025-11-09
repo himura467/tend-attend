@@ -1,5 +1,3 @@
-"use client";
-
 import { FolloweeCalendarList } from "@/components/organisms/specific/integrations/FolloweeCalendarList";
 import { DialogTemplate } from "@/components/templates/DialogTemplate";
 import { Button } from "@/components/ui/button";
