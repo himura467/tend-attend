@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createAuthSession } from "@/lib/api/auth";
 import { routerPush } from "@/lib/utils/router";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -18,10 +19,14 @@ export const SignInForm = ({ location }: SignInFormProps): React.JSX.Element => 
   const router = useRouter();
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     try {
       const response = await createAuthSession({
         username: username,
@@ -36,6 +41,8 @@ export const SignInForm = ({ location }: SignInFormProps): React.JSX.Element => 
       routerPush({ href: location }, router);
     } catch {
       toast.error("Failed to sign in");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -66,8 +73,15 @@ export const SignInForm = ({ location }: SignInFormProps): React.JSX.Element => 
       <Link href="/forgot-password" className="text-sm font-medium text-primary hover:text-primary/80">
         Forgot your password?
       </Link>
-      <Button type="submit" className="w-full">
-        Sign in
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? (
+          <>
+            <Loader2 className="animate-spin" />
+            Signing in...
+          </>
+        ) : (
+          "Sign in"
+        )}
       </Button>
     </form>
   );
