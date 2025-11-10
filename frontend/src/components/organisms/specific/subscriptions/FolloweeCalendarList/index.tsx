@@ -1,6 +1,6 @@
 "use client";
 
-import { FolloweeCalendarCard } from "@/components/organisms/specific/integrations/FolloweeCalendarCard";
+import { FolloweeCalendarCard } from "@/components/organisms/specific/subscriptions/FolloweeCalendarCard";
 import type { FolloweeCalendarInfo } from "@/lib/api/dtos/google-calendar";
 import { getFolloweeCalendars } from "@/lib/api/google-calendar";
 import { CalendarOff, Loader2 } from "lucide-react";

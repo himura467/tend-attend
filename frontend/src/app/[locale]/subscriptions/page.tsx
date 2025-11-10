@@ -1,4 +1,4 @@
-import { FolloweeCalendarList } from "@/components/organisms/specific/integrations/FolloweeCalendarList";
+import { FolloweeCalendarList } from "@/components/organisms/specific/subscriptions/FolloweeCalendarList";
 import { DialogTemplate } from "@/components/templates/DialogTemplate";
 import { Button } from "@/components/ui/button";
 import { rr } from "@/lib/utils/reverseRouter";
