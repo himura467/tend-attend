@@ -8,15 +8,14 @@ import React from "react";
 
 interface FolloweeCalendarCardProps {
   followee: FolloweeCalendarInfo;
-  className?: string;
 }
 
-export const FolloweeCalendarCard = ({ followee, className }: FolloweeCalendarCardProps): React.JSX.Element => {
+export const FolloweeCalendarCard = ({ followee }: FolloweeCalendarCardProps): React.JSX.Element => {
   const displayName = followee.nickname || followee.username;
   const addToGoogleCalendarUrl = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(followee.calendar_url)}`;
 
   return (
-    <Card className={className}>
+    <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="space-y-1.5">
