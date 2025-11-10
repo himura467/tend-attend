@@ -29,10 +29,10 @@ export default function AdminPage(): React.JSX.Element {
       if (result.error_codes.length === 0) {
         toast.success("Aurora DB reset completed successfully");
       } else {
-        toast.error(`Failed to reset Aurora DB`);
+        toast.error("Failed to reset Aurora DB");
       }
     } catch {
-      toast.error(`Failed to reset Aurora DB`);
+      toast.error("Failed to reset Aurora DB");
     } finally {
       setIsLoading(false);
     }
@@ -51,10 +51,10 @@ export default function AdminPage(): React.JSX.Element {
       if (result.error_codes.length === 0) {
         toast.success("Database upgrade completed successfully");
       } else {
-        toast.error(`Failed to upgrade database`);
+        toast.error("Failed to upgrade database");
       }
     } catch {
-      toast.error(`Failed to upgrade database`);
+      toast.error("Failed to upgrade database");
     } finally {
       setIsLoading(false);
     }
@@ -73,10 +73,10 @@ export default function AdminPage(): React.JSX.Element {
       if (result.error_codes.length === 0) {
         toast.success("Revision stamp completed successfully");
       } else {
-        toast.error(`Failed to stamp revision`);
+        toast.error("Failed to stamp revision");
       }
     } catch {
-      toast.error(`Failed to stamp revision`);
+      toast.error("Failed to stamp revision");
     } finally {
       setIsLoading(false);
     }
