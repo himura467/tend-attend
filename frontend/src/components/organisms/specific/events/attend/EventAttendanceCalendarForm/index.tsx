@@ -35,54 +35,54 @@ export const EventAttendanceCalendarForm = (): React.JSX.Element => {
     };
   }>({});
 
-  const fetchEvents = React.useCallback(async () => {
-    try {
-      const response = await getFollowingEvents();
-      if (response.error_codes.length === 0) {
-        setEvents(
-          response.events.map((event) => {
-            const dtstart = new TZDate(event.dtstart);
-            const dtend = new TZDate(event.dtend);
+  React.useEffect(() => {
+    const fetchEvents = async (): Promise<void> => {
+      try {
+        const response = await getFollowingEvents();
+        if (response.error_codes.length === 0) {
+          setEvents(
+            response.events.map((event) => {
+              const dtstart = new TZDate(event.dtstart);
+              const dtend = new TZDate(event.dtend);
 
-            return {
-              id: event.id,
-              summary: event.summary,
-              location: event.location,
-              dtstart: event.is_all_day
-                ? parseYmdDate(dtstart, event.timezone)
-                : parseYmdHm15Date(dtstart, event.timezone),
-              dtend: event.is_all_day ? parseYmdDate(dtend, event.timezone) : parseYmdHm15Date(dtend, event.timezone),
-              isAllDay: event.is_all_day,
-              recurrences: event.recurrence_list,
-              timezone: event.timezone,
-            };
-          }),
-        );
-      } else {
+              return {
+                id: event.id,
+                summary: event.summary,
+                location: event.location,
+                dtstart: event.is_all_day
+                  ? parseYmdDate(dtstart, event.timezone)
+                  : parseYmdHm15Date(dtstart, event.timezone),
+                dtend: event.is_all_day ? parseYmdDate(dtend, event.timezone) : parseYmdHm15Date(dtend, event.timezone),
+                isAllDay: event.is_all_day,
+                recurrences: event.recurrence_list,
+                timezone: event.timezone,
+              };
+            }),
+          );
+        } else {
+          toast.error("Failed to fetch events");
+        }
+      } catch {
         toast.error("Failed to fetch events");
       }
-    } catch {
-      toast.error("Failed to fetch events");
-    }
-  }, []);
+    };
 
-  const fetchAttendanceTimeForecasts = React.useCallback(async () => {
-    try {
-      const response = await getAttendanceTimeForecasts();
-      if (response.error_codes.length === 0) {
-        setAttendanceTimeForecastsWithUsername(response.attendance_time_forecasts_with_username);
-      } else {
+    const fetchAttendanceTimeForecasts = async (): Promise<void> => {
+      try {
+        const response = await getAttendanceTimeForecasts();
+        if (response.error_codes.length === 0) {
+          setAttendanceTimeForecastsWithUsername(response.attendance_time_forecasts_with_username);
+        } else {
+          toast.error("Failed to fetch attendance time forecasts");
+        }
+      } catch {
         toast.error("Failed to fetch attendance time forecasts");
       }
-    } catch {
-      toast.error("Failed to fetch attendance time forecasts");
-    }
-  }, []);
+    };
 
-  React.useEffect(() => {
     void fetchEvents();
     void fetchAttendanceTimeForecasts();
-  }, [fetchEvents, fetchAttendanceTimeForecasts]);
+  }, []);
 
   const fetchAttendances = React.useCallback(
     async (eventId: string, eventStart: TZDate, eventEnd: TZDate): Promise<void> => {
