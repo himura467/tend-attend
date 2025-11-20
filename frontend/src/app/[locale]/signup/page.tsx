@@ -1,9 +1,9 @@
 import { SignUpForm } from "@/components/organisms/specific/accounts/signup/SignUpForm";
 import { DialogTemplate } from "@/components/templates/DialogTemplate";
+import { Link } from "@/i18n/navigation";
 import { rr } from "@/lib/utils/reverseRouter";
 import { NextPage } from "next";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import React from "react";
 
 const SignUpPage: NextPage = (): React.JSX.Element => {

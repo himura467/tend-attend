@@ -1,9 +1,9 @@
 import { FolloweeCalendarList } from "@/components/organisms/specific/subscriptions/FolloweeCalendarList";
 import { DialogTemplate } from "@/components/templates/DialogTemplate";
 import { Button } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 import { rr } from "@/lib/utils/reverseRouter";
 import { NextPage } from "next";
-import Link from "next/link";
 import React from "react";
 
 const FolloweeCalendarsPage: NextPage = (): React.JSX.Element => {

@@ -1,7 +1,7 @@
 import { DialogTemplate } from "@/components/templates/DialogTemplate";
+import { Link } from "@/i18n/navigation";
 import { rr } from "@/lib/utils/reverseRouter";
 import { NextPage } from "next";
-import Link from "next/link";
 import React from "react";
 
 const PrivacyPolicyPage: NextPage = (): React.JSX.Element => {
