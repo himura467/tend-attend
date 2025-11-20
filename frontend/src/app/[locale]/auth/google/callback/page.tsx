@@ -2,17 +2,19 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useRouter } from "@/i18n/navigation";
 import { handleGoogleCalendarOAuthCallback } from "@/lib/api/google-calendar";
 import { parseOAuthCallback, verifyOAuthState } from "@/lib/utils/google-auth";
 import { routerPush } from "@/lib/utils/router";
 import { NextPage } from "next";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
 import { toast } from "sonner";
 
 const GoogleCallbackHandler = (): React.JSX.Element => {
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const [status, setStatus] = React.useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = React.useState<string>("");
   const [calendarUrl, setCalendarUrl] = React.useState<string>("");
