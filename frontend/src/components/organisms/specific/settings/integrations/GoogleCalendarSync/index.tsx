@@ -3,53 +3,59 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useClipboard } from "@/hooks/useClipboard";
+import { useShare } from "@/hooks/useShare";
 import type { GoogleCalendarSyncStatus } from "@/lib/api/dtos/google-calendar";
 import { syncGoogleCalendar } from "@/lib/api/google-calendar";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Copy, ExternalLink, Loader2, RefreshCw, XCircle } from "lucide-react";
+import { CheckCircle2, Copy, Loader2, RefreshCw, Share2, XCircle } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
 interface GoogleCalendarSyncProps {
+  googleEmail: string | null;
   calendarUrl: string | null;
-  initialSyncStatus?: GoogleCalendarSyncStatus | null;
-  googleEmail?: string | null;
-  className?: string;
-  onSyncComplete?: (eventsSynced: number) => void;
-  onSyncError?: (error: Error) => void;
+  initialSyncStatus: GoogleCalendarSyncStatus | null;
 }
 
 export const GoogleCalendarSync = ({
-  calendarUrl,
-  initialSyncStatus = "connected",
   googleEmail,
-  className,
-  onSyncComplete,
-  onSyncError,
+  calendarUrl,
+  initialSyncStatus,
 }: GoogleCalendarSyncProps): React.JSX.Element => {
+  const { copy, isSupported: isCopySupported } = useClipboard();
+  const { share, canShare } = useShare();
+
   const [syncStatus, setSyncStatus] = React.useState<GoogleCalendarSyncStatus | null>(initialSyncStatus);
-  const [isSyncing, setIsSyncing] = React.useState(false);
   const [lastSyncedCount, setLastSyncedCount] = React.useState<number | null>(null);
+  const [isSyncing, setIsSyncing] = React.useState(false);
+
+  const addToGoogleCalendarUrl = calendarUrl
+    ? `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(calendarUrl)}`
+    : null;
+  const shareData: ShareData | null = addToGoogleCalendarUrl
+    ? {
+        text: "Subscribe to my events on Google Calendar",
+        title: "Subscribe to my calendar",
+        url: addToGoogleCalendarUrl,
+      }
+    : null;
+  const isShareSupported = shareData ? canShare(shareData) : false;
 
   const handleCopyUrl = async (): Promise<void> => {
-    if (!calendarUrl) return;
-
-    try {
-      await navigator.clipboard.writeText(calendarUrl);
-      toast.success("Calendar URL copied to clipboard");
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error("Failed to copy URL");
-      toast.error(err.message);
-    }
+    if (!addToGoogleCalendarUrl) return;
+    await copy(addToGoogleCalendarUrl, "Calendar subscription link copied to clipboard");
   };
-
+  const handleShareUrl = async (): Promise<void> => {
+    if (!shareData) return;
+    await share(shareData);
+  };
   const handleSync = async (): Promise<void> => {
-    setIsSyncing(true);
     setSyncStatus("syncing");
+    setIsSyncing(true);
 
     try {
       const response = await syncGoogleCalendar();
-
       if (response.error_codes.length > 0) {
         throw new Error("Failed to sync calendar");
       }
@@ -59,13 +65,11 @@ export const GoogleCalendarSync = ({
 
       if (response.events_synced !== null) {
         toast.success(`Successfully synced ${response.events_synced} event${response.events_synced !== 1 ? "s" : ""}`);
-        onSyncComplete?.(response.events_synced);
       }
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error("Failed to sync calendar");
+    } catch (e) {
+      const error = e instanceof Error ? e : new Error("Failed to sync calendar");
       setSyncStatus("error");
-      toast.error(err.message);
-      onSyncError?.(err);
+      toast.error(error.message);
     } finally {
       setIsSyncing(false);
     }
@@ -106,11 +110,10 @@ export const GoogleCalendarSync = ({
         };
     }
   };
-
   const statusConfig = getSyncStatusConfig(syncStatus);
 
   return (
-    <Card className={cn("", className)}>
+    <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="space-y-1.5">
@@ -125,63 +128,55 @@ export const GoogleCalendarSync = ({
           </Badge>
         </div>
       </CardHeader>
-
       <CardContent className="space-y-4">
-        {calendarUrl && (
+        {addToGoogleCalendarUrl && (
           <div className="space-y-3">
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Your Calendar URL</h4>
+            <div>
+              <h4 className="text-sm font-medium">Share Calendar with Followers</h4>
               <p className="text-xs text-muted-foreground">
-                Share this URL with your followers so they can subscribe to your events in their Google Calendar app.
+                Share your calendar subscription link so followers can add your events to their Google Calendar
               </p>
             </div>
-
-            <div className="flex gap-2">
-              <div className="flex-1 rounded-md border bg-muted/50 px-3 py-2 text-sm font-mono truncate">
-                {calendarUrl}
+            {(isShareSupported || isCopySupported) && (
+              <div className="flex gap-2">
+                {isShareSupported && (
+                  <Button variant="outline" className="flex-1" onClick={handleShareUrl}>
+                    <Share2 />
+                    Share Calendar
+                  </Button>
+                )}
+                {isCopySupported && (
+                  <Button variant="outline" onClick={handleCopyUrl} title="Copy calendar subscription link">
+                    <Copy />
+                    Copy URL
+                  </Button>
+                )}
               </div>
-              <Button variant="outline" size="sm" onClick={handleCopyUrl} title="Copy to clipboard">
-                <Copy />
-                Copy
-              </Button>
-              <Button variant="outline" size="sm" asChild title="Open in Google Calendar">
-                <a href={calendarUrl} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink />
-                </a>
-              </Button>
-            </div>
-
-            <div className="rounded-md bg-muted/50 p-3 space-y-2">
-              <p className="text-xs font-medium">How to subscribe:</p>
-              <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-                <li>Copy the calendar URL above</li>
-                <li>Open Google Calendar in your browser</li>
-                <li>Click the &quot;+&quot; button next to &quot;Other calendars&quot;</li>
-                <li>Select &quot;From URL&quot;</li>
-                <li>Paste the calendar URL and click &quot;Add calendar&quot;</li>
-              </ol>
+            )}
+            <div className="rounded-md bg-muted/50 p-3">
+              <p className="text-xs font-medium">How it works:</p>
+              <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside mt-2">
+                <li>Click &quot;Share Calendar&quot; to send the subscription link to followers</li>
+                <li>Followers click the link to add your calendar to their Google Calendar</li>
+                <li>They&apos;ll automatically see all your events</li>
+              </ul>
             </div>
           </div>
         )}
-
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h4 className="text-sm font-medium">Sync Events</h4>
-              <p className="text-xs text-muted-foreground">
-                Manually sync your events to Google Calendar
-                {lastSyncedCount !== null &&
-                  ` (Last synced: ${lastSyncedCount} event${lastSyncedCount !== 1 ? "s" : ""})`}
-              </p>
-            </div>
+          <div>
+            <h4 className="text-sm font-medium">Sync Events</h4>
+            <p className="text-xs text-muted-foreground">
+              Manually sync your events to Google Calendar
+              {lastSyncedCount !== null &&
+                ` (Last synced: ${lastSyncedCount} event${lastSyncedCount !== 1 ? "s" : ""})`}
+            </p>
           </div>
-
           <Button onClick={handleSync} disabled={isSyncing || syncStatus === "disconnected"} className="w-full">
             <RefreshCw className={cn(isSyncing && "animate-spin")} />
-            {isSyncing ? "Syncing..." : "Sync Now"}
+            {isSyncing ? "Syncing..." : "Sync"}
           </Button>
         </div>
-
         {syncStatus === "error" && (
           <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3">
             <p className="text-xs text-destructive font-medium">

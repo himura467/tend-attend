@@ -7,17 +7,11 @@ import { generateOAuthState, storeOAuthState } from "@/lib/utils/google-auth";
 import React from "react";
 import { toast } from "sonner";
 
-interface GoogleCalendarAuthProps {
-  onAuthStart?: () => void;
-  onAuthError?: (error: Error) => void;
-}
-
-export const GoogleCalendarAuth = ({ onAuthStart, onAuthError }: GoogleCalendarAuthProps): React.JSX.Element => {
+export const GoogleCalendarAuth = (): React.JSX.Element => {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const handleConnect = async (): Promise<void> => {
     setIsLoading(true);
-    onAuthStart?.();
 
     try {
       // Generate and store state for CSRF protection
@@ -33,10 +27,10 @@ export const GoogleCalendarAuth = ({ onAuthStart, onAuthError }: GoogleCalendarA
 
       // Redirect to Google OAuth
       window.location.href = response.authorization_url;
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error("Failed to connect Google Calendar");
-      toast.error(err.message);
-      onAuthError?.(err);
+    } catch (e) {
+      const error = e instanceof Error ? e : new Error("Failed to connect Google Calendar");
+      toast.error(error.message);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -50,7 +44,6 @@ export const GoogleCalendarAuth = ({ onAuthStart, onAuthError }: GoogleCalendarA
             Sync your events to Google Calendar and share a public calendar URL with your followers.
           </p>
         </div>
-
         <div className="space-y-3">
           <div className="text-sm space-y-1">
             <p className="font-medium">What you&apos;ll get:</p>
@@ -60,7 +53,6 @@ export const GoogleCalendarAuth = ({ onAuthStart, onAuthError }: GoogleCalendarA
               <li>Updates sync automatically when you modify events</li>
             </ul>
           </div>
-
           <Button onClick={handleConnect} disabled={isLoading} className="w-full">
             {isLoading ? "Connecting..." : "Connect Google Calendar"}
           </Button>
