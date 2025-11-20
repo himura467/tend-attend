@@ -1,4 +1,4 @@
-import { LinkProps } from "next/link";
+import { LinkProps } from "@/i18n/navigation";
 
 export const ReverseRouter = {
   index: (): LinkProps => ({ href: "/" }),

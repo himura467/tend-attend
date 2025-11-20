@@ -4,11 +4,11 @@ import { GoogleCalendarAuth } from "@/components/organisms/specific/integrations
 import { GoogleCalendarSync } from "@/components/organisms/specific/integrations/GoogleCalendarSync";
 import { DialogTemplate } from "@/components/templates/DialogTemplate";
 import { Button } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 import type { GoogleCalendarSyncStatus } from "@/lib/api/dtos/google-calendar";
 import { disconnectGoogleCalendar, getGoogleCalendarStatus } from "@/lib/api/google-calendar";
 import { rr } from "@/lib/utils/reverseRouter";
 import { NextPage } from "next";
-import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
 

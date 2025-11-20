@@ -2,13 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { handleGoogleCalendarOAuthCallback } from "@/lib/api/google-calendar";
 import { parseOAuthCallback, verifyOAuthState } from "@/lib/utils/google-auth";
 import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
 import { NextPage } from "next";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
 import { toast } from "sonner";

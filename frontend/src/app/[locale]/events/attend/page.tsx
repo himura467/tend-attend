@@ -1,9 +1,9 @@
 import { EventAttendanceCalendarForm } from "@/components/organisms/specific/events/attend/EventAttendanceCalendarForm";
 import { DialogTemplate } from "@/components/templates/DialogTemplate";
 import { Button } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 import { rr } from "@/lib/utils/reverseRouter";
 import { NextPage } from "next";
-import Link from "next/link";
 
 const AttendEventPage: NextPage = (): React.JSX.Element => {
   return (
