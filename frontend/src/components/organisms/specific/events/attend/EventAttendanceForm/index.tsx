@@ -5,8 +5,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { useTimezone } from "@/hooks/useTimezone";
+import { useRouter } from "@/i18n/navigation";
 import { attendEvent, getGuestAttendanceStatus, updateAttendances } from "@/lib/api/events";
 import { AttendanceAction, AttendanceActionType } from "@/lib/types/event/attendance";
+import { rr } from "@/lib/utils/reverseRouter";
+import { routerPush } from "@/lib/utils/router";
 import { TZDate } from "@/lib/utils/tzdate";
 import { Edit, Plus, Save, Trash2, X } from "lucide-react";
 import React from "react";
@@ -36,6 +39,7 @@ export const EventAttendanceForm = ({
   attendances,
   onAttendanceUpdate,
 }: EventAttendanceFormProps): React.JSX.Element => {
+  const router = useRouter();
   const timezone = useTimezone();
   const localNow = useLocalNow();
 
@@ -91,6 +95,18 @@ export const EventAttendanceForm = ({
           await fetchAttendanceStatus();
           if (eventStart && eventEnd) {
             await onAttendanceUpdate(eventId, eventStart, eventEnd);
+          }
+
+          // Show toast with navigation to goals page
+          if (action === AttendanceAction.ATTEND) {
+            toast.message("Would you like to record your goals?", {
+              action: {
+                label: "Record Goals",
+                onClick: () => {
+                  routerPush(rr.events.goals.index(), router);
+                },
+              },
+            });
           }
         } else {
           // TODO: Error message should be received from backend
