@@ -8,8 +8,8 @@ import React from "react";
 
 export const FolloweeCalendarList = (): React.JSX.Element => {
   const [calendars, setCalendars] = React.useState<FolloweeCalendarInfo[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     const loadCalendars = async (): Promise<void> => {
@@ -20,9 +20,9 @@ export const FolloweeCalendarList = (): React.JSX.Element => {
         }
         setCalendars(response.calendars);
         setError(null);
-      } catch (error) {
-        const err = error instanceof Error ? error : new Error("Failed to load followee calendars");
-        setError(err.message);
+      } catch (e) {
+        const error = e instanceof Error ? e : new Error("Failed to load followee calendars");
+        setError(error.message);
       } finally {
         setIsLoading(false);
       }
@@ -87,8 +87,8 @@ export const FolloweeCalendarList = (): React.JSX.Element => {
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {calendars.map((followee) => (
-          <FolloweeCalendarCard key={followee.username} followee={followee} />
+        {calendars.map((calendar) => (
+          <FolloweeCalendarCard key={calendar.username} calendar={calendar} />
         ))}
       </div>
     </div>

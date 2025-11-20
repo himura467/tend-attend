@@ -7,12 +7,12 @@ import { Calendar, Plus } from "lucide-react";
 import React from "react";
 
 interface FolloweeCalendarCardProps {
-  followee: FolloweeCalendarInfo;
+  calendar: FolloweeCalendarInfo;
 }
 
-export const FolloweeCalendarCard = ({ followee }: FolloweeCalendarCardProps): React.JSX.Element => {
-  const displayName = followee.nickname || followee.username;
-  const addToGoogleCalendarUrl = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(followee.calendar_url)}`;
+export const FolloweeCalendarCard = ({ calendar }: FolloweeCalendarCardProps): React.JSX.Element => {
+  const displayName = calendar.nickname || calendar.username;
+  const addToGoogleCalendarUrl = `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(calendar.calendar_url)}`;
 
   return (
     <Card>
@@ -23,7 +23,7 @@ export const FolloweeCalendarCard = ({ followee }: FolloweeCalendarCardProps): R
               <Calendar className="size-5" />
               {displayName}
             </CardTitle>
-            <CardDescription>@{followee.username}</CardDescription>
+            <CardDescription>@{calendar.username}</CardDescription>
           </div>
           <Button variant="default" size="sm" asChild>
             <a href={addToGoogleCalendarUrl} target="_blank" rel="noopener noreferrer">
