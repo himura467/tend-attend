@@ -63,14 +63,3 @@ export const parseOAuthCallback = (
     error: searchParams.get("error"),
   };
 };
-
-/**
- * Build the OAuth redirect URI for Google Calendar integration
- * @returns The redirect URI based on current origin
- */
-export const getOAuthRedirectUri = (): string => {
-  if (typeof window === "undefined") {
-    return "";
-  }
-  return `${window.location.origin}/auth/google/callback`;
-};
