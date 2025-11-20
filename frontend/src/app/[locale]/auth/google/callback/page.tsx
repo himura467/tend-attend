@@ -5,8 +5,10 @@ import { Card } from "@/components/ui/card";
 import { useRouter } from "@/i18n/navigation";
 import { handleGoogleCalendarOAuthCallback } from "@/lib/api/google-calendar";
 import { parseOAuthCallback, verifyOAuthState } from "@/lib/utils/google-auth";
+import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
 import { NextPage } from "next";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
 import { toast } from "sonner";
@@ -55,8 +57,8 @@ const GoogleCallbackHandler = (): React.JSX.Element => {
 
         // Redirect to integrations page after a short delay
         setTimeout(() => {
-          routerPush({ href: "/settings/integrations" }, router);
-        }, 2000);
+          routerPush(rr.settings.integrations.index(), router);
+        }, 1000);
       } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to connect Google Calendar";
         setErrorMessage(message);
@@ -65,7 +67,7 @@ const GoogleCallbackHandler = (): React.JSX.Element => {
       }
     };
 
-    handleCallback();
+    void handleCallback();
   }, [searchParams, router]);
 
   if (status === "loading") {
@@ -100,8 +102,8 @@ const GoogleCallbackHandler = (): React.JSX.Element => {
               <h2 className="text-2xl font-semibold">Connection Failed</h2>
               <p className="text-muted-foreground">{errorMessage}</p>
             </div>
-            <Button onClick={() => routerPush({ href: "/settings/integrations" }, router)} className="w-full">
-              Return to Integrations
+            <Button asChild className="w-full">
+              <Link {...rr.settings.integrations.index()}>Return to Integrations</Link>
             </Button>
           </div>
         </Card>
