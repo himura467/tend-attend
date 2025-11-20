@@ -3,11 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "@/i18n/navigation";
 import { createAuthSession } from "@/lib/api/auth";
 import { routerPush } from "@/lib/utils/router";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
 
@@ -17,6 +17,7 @@ interface SignInFormProps {
 
 export const SignInForm = ({ location }: SignInFormProps): React.JSX.Element => {
   const router = useRouter();
+
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
