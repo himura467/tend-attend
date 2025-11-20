@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
+import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { Inter } from "next/font/google";
 import React from "react";
@@ -29,8 +30,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   return (
     <html lang={locale}>
       <body className={cn("antialiased", fontHeading.variable, fontBody.variable)}>
-        <main>{children}</main>
-        <Toaster />
+        <NextIntlClientProvider>
+          <main>{children}</main>
+          <Toaster />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

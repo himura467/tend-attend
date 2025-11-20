@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { useTimezone } from "@/hooks/useTimezone";
+import { useRouter } from "@/i18n/navigation";
 import { createUserAccount } from "@/lib/api/accounts";
 import { Gender, GenderRecord, GenderType } from "@/lib/types/account/gender";
 import { cn } from "@/lib/utils";
@@ -17,7 +18,7 @@ import { routerPush } from "@/lib/utils/router";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { Loader2, X } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
 

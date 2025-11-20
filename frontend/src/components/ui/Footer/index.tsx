@@ -1,5 +1,5 @@
+import { Link } from "@/i18n/navigation";
 import { rr } from "@/lib/utils/reverseRouter";
-import Link from "next/link";
 import React from "react";
 
 export const Footer = (): React.JSX.Element => {
