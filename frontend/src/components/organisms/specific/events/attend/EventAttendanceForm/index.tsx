@@ -97,13 +97,22 @@ export const EventAttendanceForm = ({
             await onAttendanceUpdate(eventId, eventStart, eventEnd);
           }
 
-          // Show toast with navigation to goals page
+          // Show toast with navigation to goals or reviews page
           if (action === AttendanceAction.ATTEND) {
             toast.message("Would you like to record your goals?", {
               action: {
                 label: "Record Goals",
                 onClick: () => {
                   routerPush(rr.events.goals.index(), router);
+                },
+              },
+            });
+          } else if (action === AttendanceAction.LEAVE) {
+            toast.message("Would you like to record your reviews?", {
+              action: {
+                label: "Record Reviews",
+                onClick: () => {
+                  routerPush(rr.events.reviews.index(), router);
                 },
               },
             });

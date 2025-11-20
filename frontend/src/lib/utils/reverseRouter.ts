@@ -22,6 +22,9 @@ export const ReverseRouter = {
     goals: {
       index: (): LinkProps => ({ href: "/events/goals" }),
     },
+    reviews: {
+      index: (): LinkProps => ({ href: "/events/reviews" }),
+    },
   },
   privacy: {
     index: (): LinkProps => ({ href: "/privacy" }),
