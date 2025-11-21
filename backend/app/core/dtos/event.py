@@ -100,3 +100,27 @@ class GetAttendanceTimeForecastsResponse(BaseModelWithErrorCodes):
     attendance_time_forecasts_with_username: dict[str, dict[int, AttendanceTimeForecastsWithUsername]] = Field(
         ..., title="Attendance Time Forecasts with Username"
     )
+
+
+class CreateOrUpdateGoalRequest(BaseModel):
+    goal_text: str = Field(..., title="Goal Text")
+
+
+class CreateOrUpdateGoalResponse(BaseModelWithErrorCodes):
+    pass
+
+
+class GetGoalResponse(BaseModelWithErrorCodes):
+    goal_text: str = Field(..., title="Goal Text")
+
+
+class CreateOrUpdateReviewRequest(BaseModel):
+    review_text: str = Field(..., title="Review Text")
+
+
+class CreateOrUpdateReviewResponse(BaseModelWithErrorCodes):
+    pass
+
+
+class GetReviewResponse(BaseModelWithErrorCodes):
+    review_text: str = Field(..., title="Review Text")

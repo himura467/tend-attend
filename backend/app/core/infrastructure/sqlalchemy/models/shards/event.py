@@ -8,6 +8,7 @@ from sqlalchemy.dialects.mysql import (
     ENUM,
     JSON,
     SMALLINT,
+    TEXT,
     VARCHAR,
 )
 from sqlalchemy.exc import StatementError
@@ -23,6 +24,8 @@ from app.core.domain.entities.event import (
 from app.core.domain.entities.event import (
     EventAttendanceForecast as EventAttendanceForecastEntity,
 )
+from app.core.domain.entities.event import EventGoal as EventGoalEntity
+from app.core.domain.entities.event import EventReview as EventReviewEntity
 from app.core.domain.entities.event import Recurrence as RecurrenceEntity
 from app.core.domain.entities.event import RecurrenceRule as RecurrenceRuleEntity
 from app.core.features.event import (
@@ -292,4 +295,76 @@ UniqueConstraint(
     EventAttendanceForecast.user_id,
     EventAttendanceForecast.event_id,
     EventAttendanceForecast.start,
+)
+
+
+class EventGoal(AbstractShardDynamicBase):
+    event_id: Mapped[bytes] = mapped_column(
+        BINARY(16),
+        nullable=False,
+        comment="Event ID",
+    )
+    start: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Event Start Time")
+    goal_text: Mapped[str] = mapped_column(TEXT, nullable=False, comment="Goal Description")
+
+    def to_entity(self) -> EventGoalEntity:
+        return EventGoalEntity(
+            entity_id=bin_to_uuid(self.id),
+            user_id=self.user_id,
+            event_id=bin_to_uuid(self.event_id),
+            start=self.start,
+            goal_text=self.goal_text,
+        )
+
+    @classmethod
+    def from_entity(cls, entity: EventGoalEntity) -> "EventGoal":
+        return cls(
+            id=uuid_to_bin(entity.id),
+            user_id=entity.user_id,
+            event_id=uuid_to_bin(entity.event_id),
+            start=entity.start,
+            goal_text=entity.goal_text,
+        )
+
+
+UniqueConstraint(
+    EventGoal.user_id,
+    EventGoal.event_id,
+    EventGoal.start,
+)
+
+
+class EventReview(AbstractShardDynamicBase):
+    event_id: Mapped[bytes] = mapped_column(
+        BINARY(16),
+        nullable=False,
+        comment="Event ID",
+    )
+    start: Mapped[datetime] = mapped_column(DATETIME(timezone=True), nullable=False, comment="Event Start Time")
+    review_text: Mapped[str] = mapped_column(TEXT, nullable=False, comment="Review Description")
+
+    def to_entity(self) -> EventReviewEntity:
+        return EventReviewEntity(
+            entity_id=bin_to_uuid(self.id),
+            user_id=self.user_id,
+            event_id=bin_to_uuid(self.event_id),
+            start=self.start,
+            review_text=self.review_text,
+        )
+
+    @classmethod
+    def from_entity(cls, entity: EventReviewEntity) -> "EventReview":
+        return cls(
+            id=uuid_to_bin(entity.id),
+            user_id=entity.user_id,
+            event_id=uuid_to_bin(entity.event_id),
+            start=entity.start,
+            review_text=entity.review_text,
+        )
+
+
+UniqueConstraint(
+    EventReview.user_id,
+    EventReview.event_id,
+    EventReview.start,
 )

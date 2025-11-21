@@ -13,6 +13,8 @@ from app.core.domain.entities.event import (
 from app.core.domain.entities.event import (
     EventAttendanceForecast as EventAttendanceForecastEntity,
 )
+from app.core.domain.entities.event import EventGoal as EventGoalEntity
+from app.core.domain.entities.event import EventReview as EventReviewEntity
 from app.core.domain.entities.event import Recurrence as RecurrenceEntity
 from app.core.domain.entities.event import RecurrenceRule as RecurrenceRuleEntity
 from app.core.features.event import (
@@ -26,6 +28,8 @@ from app.core.infrastructure.sqlalchemy.models.shards.event import (
     EventAttendance,
     EventAttendanceActionLog,
     EventAttendanceForecast,
+    EventGoal,
+    EventReview,
     Recurrence,
     RecurrenceRule,
 )
@@ -462,5 +466,103 @@ class EventAttendanceForecastRepository(
         return await self.read_all_async(
             where=[
                 self._model.event_id.in_(uuid_to_bin(event_id) for event_id in event_ids),
+            ],
+        )
+
+
+class EventGoalRepository(
+    AbstractRepository[EventGoalEntity, EventGoal],
+):
+    @property
+    def _model(self) -> type[EventGoal]:
+        return EventGoal
+
+    async def create_or_update_event_goal_async(
+        self,
+        entity_id: UUID,
+        user_id: int,
+        event_id: UUID,
+        start: datetime,
+        goal_text: str,
+    ) -> EventGoalEntity | None:
+        existing_goal = await self.read_by_user_id_and_event_id_and_start_or_none_async(user_id, event_id, start)
+        if existing_goal:
+            updated_goal = EventGoalEntity(
+                entity_id=existing_goal.id,
+                user_id=user_id,
+                event_id=event_id,
+                start=start,
+                goal_text=goal_text,
+            )
+            return await self.update_async(updated_goal)
+        new_goal = EventGoalEntity(
+            entity_id=entity_id,
+            user_id=user_id,
+            event_id=event_id,
+            start=start,
+            goal_text=goal_text,
+        )
+        return await self.create_async(new_goal)
+
+    async def read_by_user_id_and_event_id_and_start_or_none_async(
+        self,
+        user_id: int,
+        event_id: UUID,
+        start: datetime,
+    ) -> EventGoalEntity | None:
+        return await self.read_one_or_none_async(
+            where=[
+                self._model.user_id == user_id,
+                self._model.event_id == uuid_to_bin(event_id),
+                self._model.start == start,
+            ],
+        )
+
+
+class EventReviewRepository(
+    AbstractRepository[EventReviewEntity, EventReview],
+):
+    @property
+    def _model(self) -> type[EventReview]:
+        return EventReview
+
+    async def create_or_update_event_review_async(
+        self,
+        entity_id: UUID,
+        user_id: int,
+        event_id: UUID,
+        start: datetime,
+        review_text: str,
+    ) -> EventReviewEntity | None:
+        existing_review = await self.read_by_user_id_and_event_id_and_start_or_none_async(user_id, event_id, start)
+        if existing_review:
+            updated_review = EventReviewEntity(
+                entity_id=existing_review.id,
+                user_id=user_id,
+                event_id=event_id,
+                start=start,
+                review_text=review_text,
+            )
+            return await self.update_async(updated_review)
+        new_review = EventReviewEntity(
+            entity_id=entity_id,
+            user_id=user_id,
+            event_id=event_id,
+            start=start,
+            review_text=review_text,
+        )
+        return await self.create_async(new_review)
+
+    async def read_by_user_id_and_event_id_and_start_or_none_async(
+        self,
+        user_id: int,
+        event_id: UUID,
+        start: datetime,
+    ) -> EventReviewEntity | None:
+        return await self.read_one_or_none_async(
+            where=[
+                self._model.user_id == user_id,
+                self._model.event_id == uuid_to_bin(event_id),
+                self._model.start == start,
             ],
         )
