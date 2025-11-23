@@ -95,3 +95,29 @@ export interface GetAttendanceTimeForecastsResponse {
   };
   error_codes: number[];
 }
+
+export interface CreateOrUpdateGoalRequest {
+  goal_text: string;
+}
+
+export interface CreateOrUpdateGoalResponse {
+  error_codes: number[];
+}
+
+export interface GetGoalResponse {
+  goal_text: string;
+  error_codes: number[];
+}
+
+export interface CreateOrUpdateReviewRequest {
+  review_text: string;
+}
+
+export interface CreateOrUpdateReviewResponse {
+  error_codes: number[];
+}
+
+export interface GetReviewResponse {
+  review_text: string;
+  error_codes: number[];
+}
