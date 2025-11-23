@@ -3,6 +3,8 @@ from .event import (  # noqa: F401
     EventAttendance,
     EventAttendanceActionLog,
     EventAttendanceForecast,
+    EventGoal,
+    EventReview,
     Recurrence,
     RecurrenceRule,
 )

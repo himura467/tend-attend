@@ -22,12 +22,16 @@ from app.core.dtos.event import (
 from app.core.dtos.event import (
     AttendEventResponse,
     CreateEventResponse,
+    CreateOrUpdateGoalResponse,
+    CreateOrUpdateReviewResponse,
     ForecastAttendanceTimeResponse,
     GetAttendanceHistoryResponse,
     GetAttendanceTimeForecastsResponse,
     GetFollowingEventsResponse,
+    GetGoalResponse,
     GetGuestAttendanceStatusResponse,
     GetMyEventsResponse,
+    GetReviewResponse,
     UpdateAttendancesResponse,
     UpdateEventResponse,
 )
@@ -60,7 +64,9 @@ from app.core.infrastructure.sqlalchemy.repositories.event import (
     EventAttendanceActionLogRepository,
     EventAttendanceForecastRepository,
     EventAttendanceRepository,
+    EventGoalRepository,
     EventRepository,
+    EventReviewRepository,
     RecurrenceRepository,
     RecurrenceRuleRepository,
 )
@@ -731,3 +737,139 @@ class EventUsecase(IUsecase):
             attendance_time_forecasts_with_username=attendance_time_forecasts_with_username,
             error_codes=[],
         )
+
+    @rollbackable
+    async def create_or_update_goal_async(
+        self,
+        guest_id: UUID,
+        event_id_str: str,
+        start: datetime,
+        goal_text: str,
+    ) -> CreateOrUpdateGoalResponse:
+        user_account_repository = UserAccountRepository(self.uow)
+        event_repository = EventRepository(self.uow)
+        event_goal_repository = EventGoalRepository(self.uow)
+
+        event_id = str_to_uuid(event_id_str)
+
+        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
+        if guest is None:
+            return CreateOrUpdateGoalResponse(error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        user_id = guest.user_id
+
+        event = await event_repository.read_by_id_or_none_async(event_id)
+        if event is None:
+            return CreateOrUpdateGoalResponse(error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        goal_entity = await event_goal_repository.create_or_update_event_goal_async(
+            entity_id=generate_uuid(),
+            user_id=user_id,
+            event_id=event.id,
+            start=start,
+            goal_text=goal_text,
+        )
+        if goal_entity is None:
+            raise ValueError("Failed to create or update goal")
+
+        return CreateOrUpdateGoalResponse(error_codes=[])
+
+    async def get_goal_async(
+        self,
+        guest_id: UUID,
+        event_id_str: str,
+        start: datetime,
+    ) -> GetGoalResponse:
+        user_account_repository = UserAccountRepository(self.uow)
+        event_repository = EventRepository(self.uow)
+        event_goal_repository = EventGoalRepository(self.uow)
+
+        event_id = str_to_uuid(event_id_str)
+
+        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
+        if guest is None:
+            return GetGoalResponse(goal_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        user_id = guest.user_id
+
+        event = await event_repository.read_by_id_or_none_async(event_id)
+        if event is None:
+            return GetGoalResponse(goal_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        goal_entity = await event_goal_repository.read_by_user_id_and_event_id_and_start_or_none_async(
+            user_id=user_id,
+            event_id=event.id,
+            start=start,
+        )
+        if goal_entity is None:
+            return GetGoalResponse(goal_text="", error_codes=[])
+
+        return GetGoalResponse(goal_text=goal_entity.goal_text, error_codes=[])
+
+    @rollbackable
+    async def create_or_update_review_async(
+        self,
+        guest_id: UUID,
+        event_id_str: str,
+        start: datetime,
+        review_text: str,
+    ) -> CreateOrUpdateReviewResponse:
+        user_account_repository = UserAccountRepository(self.uow)
+        event_repository = EventRepository(self.uow)
+        event_review_repository = EventReviewRepository(self.uow)
+
+        event_id = str_to_uuid(event_id_str)
+
+        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
+        if guest is None:
+            return CreateOrUpdateReviewResponse(error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        user_id = guest.user_id
+
+        event = await event_repository.read_by_id_or_none_async(event_id)
+        if event is None:
+            return CreateOrUpdateReviewResponse(error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        review_entity = await event_review_repository.create_or_update_event_review_async(
+            entity_id=generate_uuid(),
+            user_id=user_id,
+            event_id=event.id,
+            start=start,
+            review_text=review_text,
+        )
+        if review_entity is None:
+            raise ValueError("Failed to create or update review")
+
+        return CreateOrUpdateReviewResponse(error_codes=[])
+
+    async def get_review_async(
+        self,
+        guest_id: UUID,
+        event_id_str: str,
+        start: datetime,
+    ) -> GetReviewResponse:
+        user_account_repository = UserAccountRepository(self.uow)
+        event_repository = EventRepository(self.uow)
+        event_review_repository = EventReviewRepository(self.uow)
+
+        event_id = str_to_uuid(event_id_str)
+
+        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
+        if guest is None:
+            return GetReviewResponse(review_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        user_id = guest.user_id
+
+        event = await event_repository.read_by_id_or_none_async(event_id)
+        if event is None:
+            return GetReviewResponse(review_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        review_entity = await event_review_repository.read_by_user_id_and_event_id_and_start_or_none_async(
+            user_id=user_id,
+            event_id=event.id,
+            start=start,
+        )
+        if review_entity is None:
+            return GetReviewResponse(review_text="", error_codes=[])
+
+        return GetReviewResponse(review_text=review_entity.review_text, error_codes=[])

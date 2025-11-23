@@ -182,3 +182,35 @@ class EventAttendanceForecast(IEntity):
         self.start = start
         self.forecasted_attended_at = forecasted_attended_at
         self.forecasted_duration = forecasted_duration
+
+
+class EventGoal(IEntity):
+    def __init__(
+        self,
+        entity_id: UUID,
+        user_id: int,
+        event_id: UUID,
+        start: datetime,
+        goal_text: str,
+    ) -> None:
+        super().__init__(entity_id)
+        self.user_id = user_id
+        self.event_id = event_id
+        self.start = start
+        self.goal_text = goal_text
+
+
+class EventReview(IEntity):
+    def __init__(
+        self,
+        entity_id: UUID,
+        user_id: int,
+        event_id: UUID,
+        start: datetime,
+        review_text: str,
+    ) -> None:
+        super().__init__(entity_id)
+        self.user_id = user_id
+        self.event_id = event_id
+        self.start = start
+        self.review_text = review_text
