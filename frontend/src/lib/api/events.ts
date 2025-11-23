@@ -3,11 +3,17 @@ import {
   AttendEventResponse,
   CreateEventRequest,
   CreateEventResponse,
+  CreateOrUpdateGoalRequest,
+  CreateOrUpdateGoalResponse,
+  CreateOrUpdateReviewRequest,
+  CreateOrUpdateReviewResponse,
   GetAttendanceHistoryResponse,
   GetAttendanceTimeForecastsResponse,
   GetFollowingEventsResponse,
+  GetGoalResponse,
   GetGuestAttendanceStatusResponse,
   GetMyEventsResponse,
+  GetReviewResponse,
   UpdateAttendancesRequest,
   UpdateAttendancesResponse,
   UpdateEventRequest,
@@ -88,6 +94,44 @@ export const getGuestAttendanceStatus = async (
 
 export const getAttendanceTimeForecasts = async (): Promise<GetAttendanceTimeForecastsResponse> => {
   return fetchWithSHA256Header<GetAttendanceTimeForecastsResponse>(`/events/attend/forecast`, {
+    method: "GET",
+    credentials: "include",
+  });
+};
+
+export const createOrUpdateGoal = async (
+  data: CreateOrUpdateGoalRequest,
+  eventId: string,
+  start: string,
+): Promise<CreateOrUpdateGoalResponse> => {
+  return fetchWithSHA256Header<CreateOrUpdateGoalResponse>(`/events/goals/${eventId}/${start}`, {
+    method: "POST",
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+};
+
+export const getGoal = async (eventId: string, start: string): Promise<GetGoalResponse> => {
+  return fetchWithSHA256Header<GetGoalResponse>(`/events/goals/${eventId}/${start}`, {
+    method: "GET",
+    credentials: "include",
+  });
+};
+
+export const createOrUpdateReview = async (
+  data: CreateOrUpdateReviewRequest,
+  eventId: string,
+  start: string,
+): Promise<CreateOrUpdateReviewResponse> => {
+  return fetchWithSHA256Header<CreateOrUpdateReviewResponse>(`/events/reviews/${eventId}/${start}`, {
+    method: "POST",
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
+};
+
+export const getReview = async (eventId: string, start: string): Promise<GetReviewResponse> => {
+  return fetchWithSHA256Header<GetReviewResponse>(`/events/reviews/${eventId}/${start}`, {
     method: "GET",
     credentials: "include",
   });
