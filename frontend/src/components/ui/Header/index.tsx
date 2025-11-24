@@ -1,3 +1,4 @@
+import { AuthNav } from "@/components/ui/Header/AuthNav";
 import { Link } from "@/i18n/navigation";
 import { rr } from "@/lib/utils/reverseRouter";
 import Image from "next/image";
@@ -11,6 +12,7 @@ export const Header = (): React.JSX.Element => {
           <Image src="/logo.svg" alt="Home" width={32} height={32} />
         </Link>
       </nav>
+      <AuthNav />
     </header>
   );
 };

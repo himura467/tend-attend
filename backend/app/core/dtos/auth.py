@@ -10,3 +10,11 @@ class AuthSessionResponse(BaseModelWithErrorCodes):
 
 class CreateAuthSessionResponse(BaseModelWithErrorCodes):
     pass
+
+
+class RevokeAuthSessionResponse(BaseModelWithErrorCodes):
+    pass
+
+
+class GetAuthStatusResponse(BaseModelWithErrorCodes):
+    is_authenticated: bool = Field(..., title="Is Authenticated")
