@@ -7,6 +7,15 @@ export interface CreateAuthSessionResponse {
   error_codes: string[];
 }
 
+export interface RevokeAuthSessionResponse {
+  error_codes: string[];
+}
+
+export interface GetAuthStatusResponse {
+  is_authenticated: boolean;
+  error_codes: string[];
+}
+
 export interface BasicAuthCredentials {
   username: string;
   password: string;
