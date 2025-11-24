@@ -10,6 +10,7 @@ from app.core.constants.constants import (
 )
 from app.core.dtos.auth import (
     CreateAuthSessionResponse,
+    RevokeAuthSessionResponse,
 )
 from app.core.infrastructure.sqlalchemy.db import get_db_async
 from app.core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
@@ -55,3 +56,23 @@ async def create_auth_session(
     )
 
     return CreateAuthSessionResponse(error_codes=res.error_codes)
+
+
+@router.delete(
+    path="/sessions",
+    name="Revoke Auth Session",
+    response_model=RevokeAuthSessionResponse,
+)
+async def revoke_auth_session(
+    response: Response,
+) -> RevokeAuthSessionResponse:
+    response.delete_cookie(
+        key=SESSION_TOKEN_NAME,
+        path="/",
+        domain=COOKIE_DOMAIN,
+        secure=True,
+        httponly=True,
+        samesite="strict",
+    )
+
+    return RevokeAuthSessionResponse(error_codes=[])
