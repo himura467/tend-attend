@@ -10,3 +10,7 @@ class AuthSessionResponse(BaseModelWithErrorCodes):
 
 class CreateAuthSessionResponse(BaseModelWithErrorCodes):
     pass
+
+
+class RevokeAuthSessionResponse(BaseModelWithErrorCodes):
+    pass
