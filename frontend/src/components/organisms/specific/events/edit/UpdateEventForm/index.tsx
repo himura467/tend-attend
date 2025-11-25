@@ -101,7 +101,7 @@ export const UpdateEventForm = ({
             </FormItem>
           )}
         />
-        <div>
+        <div className="space-y-2">
           <FormLabel>Event Time</FormLabel>
           <DateTimePicker
             startDate={startDate}
