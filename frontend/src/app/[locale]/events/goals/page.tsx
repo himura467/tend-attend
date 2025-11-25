@@ -1,7 +1,7 @@
 "use client";
 
 import { GoalForm } from "@/components/organisms/specific/events/goals/GoalForm";
-import { DialogTemplate } from "@/components/templates/DialogTemplate";
+import { SidebarTemplate } from "@/components/templates/SidebarTemplate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NextPage } from "next";
 import { useSearchParams } from "next/navigation";
@@ -13,7 +13,7 @@ const GoalPage: NextPage = (): React.JSX.Element => {
 
   if (!eventId || !start) {
     return (
-      <DialogTemplate>
+      <SidebarTemplate>
         <div className="w-full space-y-6">
           <h1 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">Goal Page</h1>
           <Card>
@@ -25,12 +25,12 @@ const GoalPage: NextPage = (): React.JSX.Element => {
             </CardContent>
           </Card>
         </div>
-      </DialogTemplate>
+      </SidebarTemplate>
     );
   }
 
   return (
-    <DialogTemplate>
+    <SidebarTemplate>
       <div className="w-full space-y-6">
         <h1 className="text-foreground text-3xl font-bold tracking-tight sm:text-4xl">Event Goal</h1>
         <Card>
@@ -42,7 +42,7 @@ const GoalPage: NextPage = (): React.JSX.Element => {
           </CardContent>
         </Card>
       </div>
-    </DialogTemplate>
+    </SidebarTemplate>
   );
 };
 
