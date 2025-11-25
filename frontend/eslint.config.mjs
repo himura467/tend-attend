@@ -4,7 +4,14 @@ import tseslint from "typescript-eslint";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "src/components/ui/*.tsx"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "src/components/ui/*.tsx",
+    "src/hooks/use-mobile.ts",
+  ]),
   {
     plugins: {
       "@typescript-eslint": tseslint.plugin,
