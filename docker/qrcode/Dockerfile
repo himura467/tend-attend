@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/nodejs:22 AS builder
+FROM public.ecr.aws/lambda/nodejs:24 AS builder
 ARG PNPM_VERSION
 WORKDIR /build
 RUN npm install -g pnpm@${PNPM_VERSION}
@@ -7,7 +7,7 @@ COPY ../qrcode/src/ ./src/
 RUN pnpm install --frozen-lockfile
 RUN pnpm build
 
-FROM public.ecr.aws/lambda/nodejs:22
+FROM public.ecr.aws/lambda/nodejs:24
 ARG PNPM_VERSION
 WORKDIR ${LAMBDA_TASK_ROOT}
 RUN npm install -g pnpm@${PNPM_VERSION}
