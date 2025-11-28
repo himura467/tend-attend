@@ -90,12 +90,12 @@ export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.E
     },
     {
       title: "Goals",
-      url: "/events/goals",
+      url: rr.events.goals.index().href,
       icon: TargetIcon,
     },
     {
       title: "Reviews",
-      url: "/events/reviews",
+      url: rr.events.reviews.index().href,
       icon: StarIcon,
     },
     {
