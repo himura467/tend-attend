@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 
 const InvitePage: NextPage = (): React.JSX.Element => {
   const searchParams = useSearchParams();
+
   const from = searchParams.get("from");
 
   if (!from) {
