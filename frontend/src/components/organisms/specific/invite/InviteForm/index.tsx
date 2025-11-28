@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useBaseUrl } from "@/hooks/useBaseUrl";
 import { useClipboard } from "@/hooks/useClipboard";
 import { useShare } from "@/hooks/useShare";
 import { rr } from "@/lib/utils/reverseRouter";
@@ -16,10 +17,10 @@ interface InviteFormProps {
 }
 
 export const InviteForm = ({ from }: InviteFormProps): React.JSX.Element => {
+  const baseUrl = useBaseUrl();
   const { copy } = useClipboard();
   const { share, canShare } = useShare();
 
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const signupLinkProps = rr.signup.index([from]);
   const signupPathname =
     typeof signupLinkProps.href === "string" ? signupLinkProps.href : signupLinkProps.href.pathname;
