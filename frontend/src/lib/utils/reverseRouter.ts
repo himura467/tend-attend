@@ -23,7 +23,7 @@ export const ReverseRouter = {
       index: (eventId?: string, start?: string): LinkProps => ({
         href: {
           pathname: "/events/goals",
-          query: eventId && start ? { event_id: eventId, start } : undefined,
+          query: eventId && start ? { "event-id": eventId, start } : undefined,
         },
       }),
     },
@@ -31,7 +31,7 @@ export const ReverseRouter = {
       index: (eventId?: string, start?: string): LinkProps => ({
         href: {
           pathname: "/events/reviews",
-          query: eventId && start ? { event_id: eventId, start } : undefined,
+          query: eventId && start ? { "event-id": eventId, start } : undefined,
         },
       }),
     },
