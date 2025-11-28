@@ -36,6 +36,14 @@ export const ReverseRouter = {
       }),
     },
   },
+  invite: {
+    index: (from: string): LinkProps => ({
+      href: {
+        pathname: "/invite",
+        query: { from },
+      },
+    }),
+  },
   privacy: {
     index: (): LinkProps => ({ href: "/privacy" }),
   },
@@ -48,7 +56,12 @@ export const ReverseRouter = {
     index: (): LinkProps => ({ href: "/signin" }),
   },
   signup: {
-    index: (): LinkProps => ({ href: "/signup" }),
+    index: (followees?: string[]): LinkProps => ({
+      href: {
+        pathname: "/signup",
+        query: followees && followees.length > 0 ? { followees: followees.join(",") } : undefined,
+      },
+    }),
   },
   subscriptions: {
     index: (): LinkProps => ({ href: "/subscriptions" }),
