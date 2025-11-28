@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 
 const GoalPage: NextPage = (): React.JSX.Element => {
   const searchParams = useSearchParams();
-  const eventId = searchParams.get("event_id");
+  const eventId = searchParams.get("event-id");
   const start = searchParams.get("start");
 
   if (!eventId || !start) {
@@ -21,7 +21,7 @@ const GoalPage: NextPage = (): React.JSX.Element => {
               <CardTitle>Missing Parameters</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Please provide event_id and start parameters.</p>
+              <p className="text-muted-foreground">Please provide event-id and start parameters.</p>
             </CardContent>
           </Card>
         </div>
