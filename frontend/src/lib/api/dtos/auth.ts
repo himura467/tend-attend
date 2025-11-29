@@ -12,7 +12,8 @@ export interface RevokeAuthSessionResponse {
 }
 
 export interface GetAuthStatusResponse {
-  is_authenticated: boolean;
+  username: string | null;
+  group: string | null;
   error_codes: string[];
 }
 
