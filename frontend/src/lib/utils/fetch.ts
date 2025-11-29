@@ -1,6 +1,5 @@
 import { getPayloadHash, prepareBody, SHA256_HEADER } from "@/lib/utils/aws-sig-v4";
-
-const BASE_URL = process.env.BACKEND_API_URL || "http://localhost:8000";
+import { BACKEND_API_URL } from "@/lib/utils/url";
 
 async function addSHA256Header(init?: RequestInit): Promise<Headers> {
   const headers = new Headers(init?.headers);
@@ -22,7 +21,7 @@ async function fetchWithSHA256Header<T>(input: RequestInfo | URL, init?: Request
     ...init,
     headers,
   };
-  const url = typeof input === "string" && !input.startsWith("http") ? `${BASE_URL}${input}` : input;
+  const url = typeof input === "string" && !input.startsWith("http") ? `${BACKEND_API_URL}${input}` : input;
   const response = await fetch(url, initWithHeaders);
   if (!response.ok) {
     throw new Error(response.statusText);
