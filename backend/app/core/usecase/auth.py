@@ -38,6 +38,7 @@ class AuthUsecase(IUsecase):
 
         return Account(
             account_id=account_id,
+            username=user_account.username,
             group=user_account.group,
             disabled=False,
         )

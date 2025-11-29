@@ -28,5 +28,6 @@ class Gender(str, Enum):
 @dataclass(frozen=True)
 class Account:
     account_id: UUID
+    username: str
     group: Group
     disabled: bool
