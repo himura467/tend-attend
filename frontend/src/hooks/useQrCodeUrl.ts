@@ -3,39 +3,30 @@ import { BACKEND_API_URL, formatUrl } from "@/lib/utils/url";
 import React from "react";
 
 /**
- * Hook to generate QR code URLs from LinkProps with optional dimensions
+ * Hook to generate QR code URLs from LinkProps with optional query parameters
  * The QR code service expects a path starting with /qrcode followed by the target URL path
- * Optional width and height can be provided as query parameters
- * @returns Function that takes LinkProps and optional width/height, returns a QR code backend URL
+ * Optional query parameters can be provided to customize the QR code (e.g., width, height, image, etc.)
+ * @returns Function that takes LinkProps and optional query parameters, returns a QR code backend URL
  */
-export const useQrCodeUrl = (): ((linkProps: LinkProps, options?: { width?: number; height?: number }) => string) => {
-  return React.useCallback((linkProps: LinkProps, options?: { width?: number; height?: number }): string => {
+export const useQrCodeUrl = (): ((linkProps: LinkProps, queryParams?: Record<string, string | number>) => string) => {
+  return React.useCallback((linkProps: LinkProps, queryParams?: Record<string, string | number>): string => {
     let modifiedHref = linkProps.href;
 
-    // Add width and height to query if provided and not already present
-    if (options?.width || options?.height) {
+    // Add query parameters if provided and not already present
+    if (queryParams && Object.keys(queryParams).length > 0) {
       const existingQuery =
         typeof modifiedHref === "object" && modifiedHref.query && typeof modifiedHref.query === "object"
           ? modifiedHref.query
           : {};
       const newQuery = { ...existingQuery };
 
-      if (options.width) {
-        if (existingQuery.width) {
+      for (const [key, value] of Object.entries(queryParams)) {
+        if (existingQuery[key]) {
           console.warn(
-            `useQrCodeUrl: width=${options.width} provided as argument but width=${existingQuery.width} already exists in query parameters. Using existing value.`,
+            `useQrCodeUrl: ${key}=${value} provided as argument but ${key}=${existingQuery[key]} already exists in query parameters. Using existing value.`,
           );
         } else {
-          newQuery.width = options.width.toString();
-        }
-      }
-      if (options.height) {
-        if (existingQuery.height) {
-          console.warn(
-            `useQrCodeUrl: height=${options.height} provided as argument but height=${existingQuery.height} already exists in query parameters. Using existing value.`,
-          );
-        } else {
-          newQuery.height = options.height.toString();
+          newQuery[key] = typeof value === "number" ? value.toString() : value;
         }
       }
 

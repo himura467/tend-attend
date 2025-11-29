@@ -27,7 +27,12 @@ export const InviteForm = ({ from }: InviteFormProps): React.JSX.Element => {
 
   const signupLinkProps = rr.signup.index([from]);
   const signupUrl = generateExternalUrl(signupLinkProps);
-  const qrCodeUrl = generateQrCodeUrl(signupLinkProps, { width: QR_CODE_SIZE, height: QR_CODE_SIZE });
+  const logoUrl = generateExternalUrl(rr.logo.index());
+  const qrCodeUrl = generateQrCodeUrl(signupLinkProps, {
+    width: QR_CODE_SIZE,
+    height: QR_CODE_SIZE,
+    image: logoUrl,
+  });
 
   const shareData = {
     text: `Follow ${from} on Tend Attend`,
