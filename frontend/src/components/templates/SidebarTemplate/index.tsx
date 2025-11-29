@@ -19,7 +19,16 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { getAuthStatus, revokeAuthSession } from "@/lib/api/auth";
 import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
-import { CalendarIcon, EditIcon, LogOutIcon, PlugIcon, SettingsIcon, StarIcon, TargetIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  EditIcon,
+  LogOutIcon,
+  PlugIcon,
+  SettingsIcon,
+  StarIcon,
+  TargetIcon,
+  UserPlusIcon,
+} from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import { toast } from "sonner";
@@ -31,24 +40,28 @@ interface SidebarTemplateProps {
 export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.Element => {
   const router = useRouter();
 
+  const [username, setUsername] = React.useState<string | null>(null);
+  const [group, setGroup] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSigningOut, setIsSigningOut] = React.useState(false);
 
   React.useEffect(() => {
-    const checkAuth = async (): Promise<void> => {
+    const getAuth = async (): Promise<void> => {
       try {
         const response = await getAuthStatus();
-        if (response.error_codes.length > 0 || !response.is_authenticated) {
+        if (response.error_codes.length > 0 || !response.username) {
           routerPush(rr.signin.index(), router);
           return;
         }
+        setUsername(response.username);
+        setGroup(response.group);
         setIsLoading(false);
       } catch {
         routerPush(rr.signin.index(), router);
       }
     };
 
-    void checkAuth();
+    void getAuth();
   }, [router]);
 
   const handleSignOut = async (): Promise<void> => {
@@ -69,18 +82,25 @@ export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.E
     }
   };
 
-  const hostNavItems = [
-    {
-      title: "Edit Events",
-      url: rr.events.edit.index().href,
-      icon: EditIcon,
-    },
-    {
-      title: "Integrations",
-      url: rr.settings.integrations.index().href,
-      icon: PlugIcon,
-    },
-  ];
+  const hostNavItems = username
+    ? [
+        {
+          title: "Edit Events",
+          url: rr.events.edit.index().href,
+          icon: EditIcon,
+        },
+        {
+          title: "Integrations",
+          url: rr.settings.integrations.index().href,
+          icon: PlugIcon,
+        },
+        {
+          title: "Invite Users",
+          url: rr.invite.index(username).href,
+          icon: UserPlusIcon,
+        },
+      ]
+    : [];
 
   const guestNavItems = [
     {
@@ -135,24 +155,26 @@ export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.E
             </SidebarMenu>
           </SidebarHeader>
           <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel>For Hosts</SidebarGroupLabel>
-              <SidebarSeparator />
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {hostNavItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <Link href={item.url}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+            {group === "HOST" && (
+              <SidebarGroup>
+                <SidebarGroupLabel>For Hosts</SidebarGroupLabel>
+                <SidebarSeparator />
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {hostNavItems.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild>
+                          <Link href={item.url}>
+                            <item.icon />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
             <SidebarGroup>
               <SidebarGroupLabel>For Guests</SidebarGroupLabel>
               <SidebarSeparator />

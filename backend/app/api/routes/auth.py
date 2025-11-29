@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
-from app.api.deps import check_authentication
+from app.api.deps import get_current_account
 from app.core.constants.constants import (
     COOKIE_DOMAIN,
     SESSION_TOKEN_NAME,
@@ -14,6 +14,7 @@ from app.core.dtos.auth import (
     GetAuthStatusResponse,
     RevokeAuthSessionResponse,
 )
+from app.core.features.account import Account
 from app.core.infrastructure.sqlalchemy.db import get_db_async
 from app.core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
 from app.core.usecase.auth import AuthUsecase
@@ -86,6 +87,8 @@ async def revoke_auth_session(
     response_model=GetAuthStatusResponse,
 )
 async def get_auth_status(
-    is_authenticated: bool = Depends(check_authentication),
+    account: Account | None = Depends(get_current_account),
 ) -> GetAuthStatusResponse:
-    return GetAuthStatusResponse(error_codes=[], is_authenticated=is_authenticated)
+    if account is None or account.disabled:
+        return GetAuthStatusResponse(error_codes=[], username=None, group=None)
+    return GetAuthStatusResponse(error_codes=[], username=account.username, group=account.group.value)
