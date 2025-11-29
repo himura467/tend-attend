@@ -109,19 +109,19 @@ def verify_admin_credentials(credentials: HTTPBasicCredentials = Depends(parse_b
     return True
 
 
-async def check_authentication(
+async def get_current_account(
     request: Request,
     session: AsyncSession = Depends(get_db_async),
-) -> bool:
+) -> Account | None:
     session_token = request.cookies.get(SESSION_TOKEN_NAME)
     if not session_token:
-        return False
+        return None
 
     uow = SqlalchemyUnitOfWork(session=session)
     usecase = AuthUsecase(uow=uow)
 
     try:
         account = await usecase.get_account_by_session_token(session_token)
-        return account is not None and not account.disabled
+        return account
     except Exception:
-        return False
+        return None

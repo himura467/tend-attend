@@ -17,4 +17,5 @@ class RevokeAuthSessionResponse(BaseModelWithErrorCodes):
 
 
 class GetAuthStatusResponse(BaseModelWithErrorCodes):
-    is_authenticated: bool = Field(..., title="Is Authenticated")
+    username: str | None = Field(None, title="Username")
+    group: str | None = Field(None, title="Group")
