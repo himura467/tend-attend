@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useClipboard } from "@/hooks/useClipboard";
+import { useExternalUrl } from "@/hooks/useExternalUrl";
+import { useQrCodeUrl } from "@/hooks/useQrCodeUrl";
 import { useShare } from "@/hooks/useShare";
 import { rr } from "@/lib/utils/reverseRouter";
 import { Copy, Share2 } from "lucide-react";
@@ -16,21 +18,14 @@ interface InviteFormProps {
 }
 
 export const InviteForm = ({ from }: InviteFormProps): React.JSX.Element => {
+  const generateExternalUrl = useExternalUrl();
+  const generateQrCodeUrl = useQrCodeUrl();
   const { copy } = useClipboard();
   const { share, canShare } = useShare();
 
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const signupLinkProps = rr.signup.index([from]);
-  const signupPathname =
-    typeof signupLinkProps.href === "string" ? signupLinkProps.href : signupLinkProps.href.pathname;
-  const signupQuery =
-    typeof signupLinkProps.href === "object" && signupLinkProps.href.query
-      ? `?${new URLSearchParams(signupLinkProps.href.query as Record<string, string>).toString()}`
-      : "";
-  const signupPath = `${signupPathname}${signupQuery}`;
-  const signupUrl = `${baseUrl}${signupPath}`;
-  const qrCodePath = `/qrcode${signupPath}`;
-  const qrCodeUrl = `${baseUrl}${qrCodePath}`;
+  const signupUrl = generateExternalUrl(signupLinkProps);
+  const qrCodeUrl = generateQrCodeUrl(signupLinkProps);
 
   const shareData = {
     text: `Follow ${from} on Tend Attend`,

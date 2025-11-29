@@ -469,7 +469,8 @@ describe(removeRDate, () => {
   it("returns original recurrences when no RDATE to remove", () => {
     const recurrences = ["RRULE:FREQ=WEEKLY"];
     const date = new TZDate(2024, 0, 15, 10, 0, 0, 0);
-    const result = removeRDate(recurrences, date);
+    const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const result = removeRDate(recurrences, date, localTimezone);
 
     expect(result).toEqual(recurrences);
   });
@@ -477,9 +478,8 @@ describe(removeRDate, () => {
   it("removes specified RDATE entry", () => {
     const recurrences = ["RRULE:FREQ=WEEKLY", "RDATE:20240115T100000Z,20240125T140000Z"];
     const dateToRemove = new TZDate("2024-01-15T10:00:00", "UTC").withTimeZone("UTC");
-    const result = removeRDate(recurrences, dateToRemove);
-
     const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const result = removeRDate(recurrences, dateToRemove, localTimezone);
     const rdates = getRDates(result, localTimezone);
     expect(rdates).toHaveLength(1);
     expect(rdates[0]).toEqual(new TZDate(2024, 0, 25, 14, 0, 0, 0));
@@ -490,7 +490,8 @@ describe(removeEXDate, () => {
   it("returns original recurrences when no EXDATE to remove", () => {
     const recurrences = ["RRULE:FREQ=DAILY"];
     const date = new TZDate(2024, 0, 16, 10, 0, 0, 0);
-    const result = removeEXDate(recurrences, date);
+    const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const result = removeEXDate(recurrences, date, localTimezone);
 
     expect(result).toEqual(recurrences);
   });
@@ -498,9 +499,8 @@ describe(removeEXDate, () => {
   it("removes specified EXDATE entry", () => {
     const recurrences = ["RRULE:FREQ=DAILY", "EXDATE:20240116T100000Z,20240118T100000Z"];
     const dateToRemove = new TZDate("2024-01-16T10:00:00", "UTC").withTimeZone("UTC");
-    const result = removeEXDate(recurrences, dateToRemove);
-
     const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const result = removeEXDate(recurrences, dateToRemove, localTimezone);
     const exdates = getEXDates(result, localTimezone);
     expect(exdates).toHaveLength(1);
     expect(exdates[0]).toEqual(new TZDate(2024, 0, 18, 10, 0, 0, 0));
