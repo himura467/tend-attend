@@ -11,27 +11,27 @@ import { toast } from "sonner";
 export const AuthNav = (): React.JSX.Element => {
   const router = useRouter();
 
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const [username, setUsername] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSigningOut, setIsSigningOut] = React.useState(false);
 
   React.useEffect(() => {
-    const checkAuth = async (): Promise<void> => {
+    const getAuth = async (): Promise<void> => {
       try {
         const response = await getAuthStatus();
         if (response.error_codes.length > 0) {
-          setIsAuthenticated(false);
+          setUsername(null);
         } else {
-          setIsAuthenticated(response.is_authenticated);
+          setUsername(response.username);
         }
       } catch {
-        setIsAuthenticated(false);
+        setUsername(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    void checkAuth();
+    void getAuth();
   }, []);
 
   const handleSignOut = async (): Promise<void> => {
@@ -43,7 +43,7 @@ export const AuthNav = (): React.JSX.Element => {
         toast.error("Failed to sign out");
         return;
       }
-      setIsAuthenticated(false);
+      setUsername(null);
       toast.success("Signed out successfully");
       routerPush(rr.index(), router);
     } catch {
@@ -62,7 +62,7 @@ export const AuthNav = (): React.JSX.Element => {
     );
   }
 
-  if (isAuthenticated) {
+  if (username) {
     return (
       <Button variant="outline" onClick={handleSignOut} disabled={isSigningOut}>
         {isSigningOut ? "Signing out..." : "Sign Out"}

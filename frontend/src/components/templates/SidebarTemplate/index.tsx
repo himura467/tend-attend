@@ -46,7 +46,7 @@ export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.E
   const [isSigningOut, setIsSigningOut] = React.useState(false);
 
   React.useEffect(() => {
-    const checkAuth = async (): Promise<void> => {
+    const getAuth = async (): Promise<void> => {
       try {
         const response = await getAuthStatus();
         if (response.error_codes.length > 0 || !response.username) {
@@ -61,7 +61,7 @@ export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.E
       }
     };
 
-    void checkAuth();
+    void getAuth();
   }, [router]);
 
   const handleSignOut = async (): Promise<void> => {
