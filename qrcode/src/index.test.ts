@@ -587,4 +587,60 @@ describe(handler, () => {
       "png",
     );
   });
+
+  it("should append non-styling query parameters to the target URL", async () => {
+    const mockBuffer = Buffer.from("mock-data-with-params");
+    mockGenerateQRCode.mockResolvedValue(mockBuffer);
+
+    const event: LambdaFunctionURLEvent = {
+      version: "2.0",
+      routeKey: "$default",
+      rawPath: "/qrcode/signup",
+      rawQueryString: "followees=john%2Cjane&width=300&dotsColor=%23FF0000",
+      cookies: [],
+      headers: {},
+      queryStringParameters: {
+        followees: "john,jane",
+        width: "300",
+        dotsColor: "#FF0000",
+      },
+      requestContext: {
+        accountId: "123456789012",
+        apiId: "api-id",
+        domainName: "example.com",
+        domainPrefix: "api",
+        http: {
+          method: "GET",
+          path: "/qrcode/signup",
+          protocol: "HTTP/1.1",
+          sourceIp: "127.0.0.1",
+          userAgent: "Custom User Agent String",
+        },
+        requestId: "id",
+        routeKey: "$default",
+        stage: "$default",
+        time: "12/Mar/2020:19:03:58 +0000",
+        timeEpoch: 1583348638390,
+      },
+      body: undefined,
+      pathParameters: {},
+      isBase64Encoded: false,
+      stageVariables: {},
+    };
+
+    const result = (await handler(event)) as APIGatewayProxyStructuredResultV2;
+
+    expect(result.statusCode).toBe(200);
+    expect(result.headers?.["Content-Type"]).toBe("image/png");
+    expect(mockGenerateQRCode).toHaveBeenCalledWith(
+      {
+        width: 300,
+        dotsOptions: {
+          color: "#FF0000",
+        },
+        data: "https://example.com/signup?followees=john%2Cjane",
+      },
+      "png",
+    );
+  });
 });
