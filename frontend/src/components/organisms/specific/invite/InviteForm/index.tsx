@@ -17,6 +17,8 @@ interface InviteFormProps {
   from: string;
 }
 
+const QR_CODE_SIZE = 400;
+
 export const InviteForm = ({ from }: InviteFormProps): React.JSX.Element => {
   const generateExternalUrl = useExternalUrl();
   const generateQrCodeUrl = useQrCodeUrl();
@@ -25,7 +27,12 @@ export const InviteForm = ({ from }: InviteFormProps): React.JSX.Element => {
 
   const signupLinkProps = rr.signup.index([from]);
   const signupUrl = generateExternalUrl(signupLinkProps);
-  const qrCodeUrl = generateQrCodeUrl(signupLinkProps);
+  const logoUrl = generateExternalUrl(rr.logo.index());
+  const qrCodeUrl = generateQrCodeUrl(signupLinkProps, {
+    width: QR_CODE_SIZE,
+    height: QR_CODE_SIZE,
+    image: logoUrl,
+  });
 
   const shareData = {
     text: `Follow ${from} on Tend Attend`,
@@ -53,10 +60,10 @@ export const InviteForm = ({ from }: InviteFormProps): React.JSX.Element => {
             <Image
               src={qrCodeUrl}
               alt="Invite QR Code"
-              width={400}
-              height={400}
-              className="h-auto w-full max-w-[400px]"
+              width={QR_CODE_SIZE}
+              height={QR_CODE_SIZE}
               unoptimized
+              className="h-auto w-full max-w-[400px]"
             />
           </div>
           <p className="text-center text-sm text-muted-foreground">Scan this QR code to sign up and follow {from}</p>

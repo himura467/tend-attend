@@ -2,6 +2,34 @@ import { LambdaFunctionURLEvent, LambdaFunctionURLResult } from "aws-lambda";
 import { generateQRCode, QRCodeOptions } from "./qrCodeGenerator";
 
 /**
+ * Set of query parameter names that are used for QR code styling
+ * Any parameters NOT in this set will be appended to the target URL
+ */
+const QR_CODE_STYLE_PARAMS = new Set([
+  "type",
+  "shape",
+  "width",
+  "height",
+  "margin",
+  "image",
+  "typeNumber",
+  "mode",
+  "errorCorrectionLevel",
+  "hideBackgroundDots",
+  "imageSize",
+  "imageMargin",
+  "dotsType",
+  "dotsColor",
+  "cornersSquareType",
+  "cornersSquareColor",
+  "cornersDotType",
+  "cornersDotColor",
+  "backgroundRound",
+  "backgroundColor",
+  "outputType",
+]);
+
+/**
  * AWS Lambda handler function
  * @param event Event from Lambda function URLs
  * @returns HTTP response
@@ -27,7 +55,6 @@ export const handler = async (event: LambdaFunctionURLEvent): Promise<LambdaFunc
     }
 
     const pathAfterQRCode = rawPath.substring(qrCodePattern.length);
-    const data = `https://${domainName}/${pathAfterQRCode}`;
 
     // Get QR code options and output type from query parameters
     const queryParams = event.queryStringParameters || {};
@@ -96,6 +123,20 @@ export const handler = async (event: LambdaFunctionURLEvent): Promise<LambdaFunc
     }
 
     const outputType: "png" | "svg" = queryParams.outputType === "svg" ? "svg" : "png"; // Default is 'png'
+
+    // Collect query parameters that are NOT QR code styling parameters
+    const targetUrlParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(queryParams)) {
+      if (!QR_CODE_STYLE_PARAMS.has(key) && value !== undefined) {
+        targetUrlParams.append(key, value);
+      }
+    }
+    const targetQueryString = targetUrlParams.toString();
+
+    // Construct the data URL with remaining query parameters
+    const data = targetQueryString
+      ? `https://${domainName}/${pathAfterQRCode}?${targetQueryString}`
+      : `https://${domainName}/${pathAfterQRCode}`;
 
     // Set data to qrCodeOptions
     qrCodeOptions.data = data;
