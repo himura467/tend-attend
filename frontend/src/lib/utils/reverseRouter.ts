@@ -2,6 +2,9 @@ import { LinkProps } from "@/i18n/navigation";
 
 export const ReverseRouter = {
   index: (): LinkProps => ({ href: "/" }),
+  logo: {
+    index: (): LinkProps => ({ href: "/logo.svg" }),
+  },
   auth: {
     google: {
       callback: {
