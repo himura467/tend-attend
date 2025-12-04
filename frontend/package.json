@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@next/eslint-plugin-next": "^16.0.4",
+    "@next/eslint-plugin-next": "^16.0.5",
     "@tailwindcss/postcss": "^4",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^24.10.1",
