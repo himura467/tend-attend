@@ -23,7 +23,7 @@ from multimodal_timesfm.utils.seed import set_seed
 from timesfm.pytorch_patched_decoder import PatchedTimeSeriesDecoder, TimesFMConfig
 from torch.utils.data import ConcatDataset
 
-from configs import ModelConfig
+from configs.model import ModelConfig
 from core.cross_validation import (
     create_fold_datasets,
     get_all_entities,

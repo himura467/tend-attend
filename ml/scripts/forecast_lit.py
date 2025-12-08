@@ -20,7 +20,7 @@ from timesfm import TimesFm, TimesFmCheckpoint
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from configs import ModelConfig
+from configs.model import ModelConfig
 from core.cross_validation import create_fold_datasets
 
 
