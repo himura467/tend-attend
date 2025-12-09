@@ -56,7 +56,12 @@ export const ReverseRouter = {
     },
   },
   signin: {
-    index: (): LinkProps => ({ href: "/signin" }),
+    index: (location?: string): LinkProps => ({
+      href: {
+        pathname: "/signin",
+        query: { location },
+      },
+    }),
   },
   signup: {
     index: (followees?: string[]): LinkProps => ({
