@@ -15,7 +15,7 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { getAuthStatus, revokeAuthSession } from "@/lib/api/auth";
 import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
@@ -39,6 +39,7 @@ interface SidebarTemplateProps {
 
 export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.Element => {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [username, setUsername] = React.useState<string | null>(null);
   const [group, setGroup] = React.useState<string | null>(null);
@@ -50,19 +51,19 @@ export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.E
       try {
         const response = await getAuthStatus();
         if (response.error_codes.length > 0 || !response.username) {
-          routerPush(rr.signin.index(), router);
+          routerPush(rr.signin.index(pathname), router);
           return;
         }
         setUsername(response.username);
         setGroup(response.group);
         setIsLoading(false);
       } catch {
-        routerPush(rr.signin.index(), router);
+        routerPush(rr.signin.index(pathname), router);
       }
     };
 
     void getAuth();
-  }, [router]);
+  }, [router, pathname]);
 
   const handleSignOut = async (): Promise<void> => {
     if (isSigningOut) return;
