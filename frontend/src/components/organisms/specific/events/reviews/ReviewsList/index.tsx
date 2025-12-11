@@ -1,11 +1,11 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "@/i18n/navigation";
 import { ReviewInfo } from "@/lib/api/dtos/event";
 import { getEventReviews } from "@/lib/api/events";
 import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface ReviewsListProps {
