@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createOrUpdateGoal, getGoal } from "@/lib/api/events";
+import { createOrUpdateGoal, getGuestGoal } from "@/lib/api/events";
 import { Loader2 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
@@ -11,9 +11,10 @@ import { toast } from "sonner";
 interface GoalFormProps {
   eventId: string;
   start: string;
+  guestId: string;
 }
 
-export const GoalForm = ({ eventId, start }: GoalFormProps): React.JSX.Element => {
+export const GoalForm = ({ eventId, start, guestId }: GoalFormProps): React.JSX.Element => {
   const [goalText, setGoalText] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -21,7 +22,7 @@ export const GoalForm = ({ eventId, start }: GoalFormProps): React.JSX.Element =
   React.useEffect(() => {
     const loadGoal = async (): Promise<void> => {
       try {
-        const response = await getGoal(eventId, start);
+        const response = await getGuestGoal(eventId, start, guestId);
         if (response.error_codes.length === 0) {
           setGoalText(response.goal_text);
         }
@@ -33,7 +34,7 @@ export const GoalForm = ({ eventId, start }: GoalFormProps): React.JSX.Element =
     };
 
     void loadGoal();
-  }, [eventId, start]);
+  }, [eventId, start, guestId]);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
