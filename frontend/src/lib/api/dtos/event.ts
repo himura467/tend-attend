@@ -35,6 +35,18 @@ export interface AttendanceTimeForecastsWithUsername {
   attendance_time_forecasts: AttendanceTimeForecast[];
 }
 
+export interface GoalInfo {
+  account_id: string;
+  username: string;
+  goal_text: string;
+}
+
+export interface ReviewInfo {
+  account_id: string;
+  username: string;
+  review_text: string;
+}
+
 export interface CreateEventRequest {
   event: Event;
 }
@@ -109,6 +121,11 @@ export interface GetGuestGoalResponse {
   error_codes: number[];
 }
 
+export interface GetEventGoalsResponse {
+  goals: GoalInfo[];
+  error_codes: number[];
+}
+
 export interface CreateOrUpdateReviewRequest {
   review_text: string;
 }
@@ -119,5 +136,10 @@ export interface CreateOrUpdateReviewResponse {
 
 export interface GetGuestReviewResponse {
   review_text: string;
+  error_codes: number[];
+}
+
+export interface GetEventReviewsResponse {
+  reviews: ReviewInfo[];
   error_codes: number[];
 }

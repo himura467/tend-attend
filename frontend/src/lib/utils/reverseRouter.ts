@@ -16,6 +16,28 @@ export const ReverseRouter = {
     index: (): LinkProps => ({ href: "/contact" }),
   },
   events: {
+    event: {
+      goals: {
+        goal: {
+          index: (eventId: string, start: string, guestId: string): LinkProps => ({
+            href: `/events/${eventId}/${start}/goals/${guestId}`,
+          }),
+        },
+        index: (eventId: string, start: string): LinkProps => ({
+          href: `/events/${eventId}/${start}/goals`,
+        }),
+      },
+      reviews: {
+        review: {
+          index: (eventId: string, start: string, guestId: string): LinkProps => ({
+            href: `/events/${eventId}/${start}/reviews/${guestId}`,
+          }),
+        },
+        index: (eventId: string, start: string): LinkProps => ({
+          href: `/events/${eventId}/${start}/reviews`,
+        }),
+      },
+    },
     attend: {
       index: (): LinkProps => ({ href: "/events/attend" }),
     },
@@ -23,20 +45,10 @@ export const ReverseRouter = {
       index: (): LinkProps => ({ href: "/events/edit" }),
     },
     goals: {
-      index: (eventId?: string, start?: string): LinkProps => ({
-        href: {
-          pathname: "/events/goals",
-          query: eventId && start ? { "event-id": eventId, start } : undefined,
-        },
-      }),
+      index: (): LinkProps => ({ href: "/events/goals" }),
     },
     reviews: {
-      index: (eventId?: string, start?: string): LinkProps => ({
-        href: {
-          pathname: "/events/reviews",
-          query: eventId && start ? { "event-id": eventId, start } : undefined,
-        },
-      }),
+      index: (): LinkProps => ({ href: "/events/reviews" }),
     },
   },
   invite: {
