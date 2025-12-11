@@ -68,6 +68,9 @@ class UserAccountRepository(AbstractRepository[UserAccountEntity, UserAccount]):
     async def read_by_user_id_or_none_async(self, user_id: int) -> UserAccountEntity | None:
         return await self.read_one_or_none_async(where=[self._model.user_id == user_id])
 
+    async def read_by_user_ids_async(self, user_ids: set[int]) -> set[UserAccountEntity]:
+        return await self.read_all_async(where=[self._model.user_id.in_(user_ids)])
+
     async def read_by_username_or_none_async(self, username: str) -> UserAccountEntity | None:
         return await self.read_one_or_none_async(
             where=[self._model.username == username],
