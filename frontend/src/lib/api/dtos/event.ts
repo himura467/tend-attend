@@ -104,7 +104,7 @@ export interface CreateOrUpdateGoalResponse {
   error_codes: number[];
 }
 
-export interface GetGoalResponse {
+export interface GetGuestGoalResponse {
   goal_text: string;
   error_codes: number[];
 }
@@ -117,7 +117,7 @@ export interface CreateOrUpdateReviewResponse {
   error_codes: number[];
 }
 
-export interface GetReviewResponse {
+export interface GetGuestReviewResponse {
   review_text: string;
   error_codes: number[];
 }
