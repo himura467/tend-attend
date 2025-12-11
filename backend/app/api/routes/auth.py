@@ -18,6 +18,7 @@ from app.core.features.account import Account
 from app.core.infrastructure.sqlalchemy.db import get_db_async
 from app.core.infrastructure.sqlalchemy.unit_of_work import SqlalchemyUnitOfWork
 from app.core.usecase.auth import AuthUsecase
+from app.core.utils.uuid import uuid_to_str
 
 router = APIRouter()
 
@@ -90,5 +91,10 @@ async def get_auth_status(
     account: Account | None = Depends(get_current_account),
 ) -> GetAuthStatusResponse:
     if account is None or account.disabled:
-        return GetAuthStatusResponse(error_codes=[], username=None, group=None)
-    return GetAuthStatusResponse(error_codes=[], username=account.username, group=account.group.value)
+        return GetAuthStatusResponse(error_codes=[], account_id=None, username=None, group=None)
+    return GetAuthStatusResponse(
+        error_codes=[],
+        account_id=uuid_to_str(account.account_id),
+        username=account.username,
+        group=account.group.value,
+    )

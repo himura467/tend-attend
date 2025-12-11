@@ -12,6 +12,7 @@ export interface RevokeAuthSessionResponse {
 }
 
 export interface GetAuthStatusResponse {
+  account_id: string | null;
   username: string | null;
   group: string | null;
   error_codes: string[];
