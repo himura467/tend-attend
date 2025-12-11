@@ -10,10 +10,10 @@ import {
   GetAttendanceHistoryResponse,
   GetAttendanceTimeForecastsResponse,
   GetFollowingEventsResponse,
-  GetGoalResponse,
   GetGuestAttendanceStatusResponse,
+  GetGuestGoalResponse,
+  GetGuestReviewResponse,
   GetMyEventsResponse,
-  GetReviewResponse,
   UpdateAttendancesRequest,
   UpdateAttendancesResponse,
   UpdateEventRequest,
@@ -111,8 +111,8 @@ export const createOrUpdateGoal = async (
   });
 };
 
-export const getGoal = async (eventId: string, start: string): Promise<GetGoalResponse> => {
-  return fetchWithSHA256Header<GetGoalResponse>(`/events/goals/${eventId}/${start}`, {
+export const getGuestGoal = async (eventId: string, start: string, guestId: string): Promise<GetGuestGoalResponse> => {
+  return fetchWithSHA256Header<GetGuestGoalResponse>(`/events/goals/${eventId}/${start}/guests/${guestId}`, {
     method: "GET",
     credentials: "include",
   });
@@ -130,8 +130,12 @@ export const createOrUpdateReview = async (
   });
 };
 
-export const getReview = async (eventId: string, start: string): Promise<GetReviewResponse> => {
-  return fetchWithSHA256Header<GetReviewResponse>(`/events/reviews/${eventId}/${start}`, {
+export const getGuestReview = async (
+  eventId: string,
+  start: string,
+  guestId: string,
+): Promise<GetGuestReviewResponse> => {
+  return fetchWithSHA256Header<GetGuestReviewResponse>(`/events/reviews/${eventId}/${start}/guests/${guestId}`, {
     method: "GET",
     credentials: "include",
   });
