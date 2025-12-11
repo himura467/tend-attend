@@ -1,9 +1,9 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "@/i18n/navigation";
 import { GoalInfo } from "@/lib/api/dtos/event";
 import { getEventGoals } from "@/lib/api/events";
-import { useRouter } from "@/i18n/navigation";
 import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
 import { useEffect, useState } from "react";
