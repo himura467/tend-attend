@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createOrUpdateReview, getReview } from "@/lib/api/events";
+import { createOrUpdateReview, getGuestReview } from "@/lib/api/events";
 import { Loader2 } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
@@ -11,9 +11,10 @@ import { toast } from "sonner";
 interface ReviewFormProps {
   eventId: string;
   start: string;
+  guestId: string;
 }
 
-export const ReviewForm = ({ eventId, start }: ReviewFormProps): React.JSX.Element => {
+export const ReviewForm = ({ eventId, start, guestId }: ReviewFormProps): React.JSX.Element => {
   const [reviewText, setReviewText] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -21,7 +22,7 @@ export const ReviewForm = ({ eventId, start }: ReviewFormProps): React.JSX.Eleme
   React.useEffect(() => {
     const loadReview = async (): Promise<void> => {
       try {
-        const response = await getReview(eventId, start);
+        const response = await getGuestReview(eventId, start, guestId);
         if (response.error_codes.length === 0) {
           setReviewText(response.review_text);
         }
@@ -33,7 +34,7 @@ export const ReviewForm = ({ eventId, start }: ReviewFormProps): React.JSX.Eleme
     };
 
     void loadReview();
-  }, [eventId, start]);
+  }, [eventId, start, guestId]);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
