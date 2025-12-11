@@ -28,10 +28,10 @@ from app.core.dtos.event import (
     GetAttendanceHistoryResponse,
     GetAttendanceTimeForecastsResponse,
     GetFollowingEventsResponse,
-    GetGoalResponse,
     GetGuestAttendanceStatusResponse,
+    GetGuestGoalResponse,
+    GetGuestReviewResponse,
     GetMyEventsResponse,
-    GetReviewResponse,
     UpdateAttendancesResponse,
     UpdateEventResponse,
 )
@@ -774,27 +774,28 @@ class EventUsecase(IUsecase):
 
         return CreateOrUpdateGoalResponse(error_codes=[])
 
-    async def get_goal_async(
+    async def get_guest_goal_async(
         self,
-        guest_id: UUID,
         event_id_str: str,
         start: datetime,
-    ) -> GetGoalResponse:
-        user_account_repository = UserAccountRepository(self.uow)
+        guest_id_str: str,
+    ) -> GetGuestGoalResponse:
         event_repository = EventRepository(self.uow)
+        user_account_repository = UserAccountRepository(self.uow)
         event_goal_repository = EventGoalRepository(self.uow)
 
         event_id = str_to_uuid(event_id_str)
-
-        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
-        if guest is None:
-            return GetGoalResponse(goal_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
-
-        user_id = guest.user_id
+        guest_id = str_to_uuid(guest_id_str)
 
         event = await event_repository.read_by_id_or_none_async(event_id)
         if event is None:
-            return GetGoalResponse(goal_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+            return GetGuestGoalResponse(goal_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
+        if guest is None:
+            return GetGuestGoalResponse(goal_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        user_id = guest.user_id
 
         goal_entity = await event_goal_repository.read_by_user_id_and_event_id_and_start_or_none_async(
             user_id=user_id,
@@ -802,9 +803,9 @@ class EventUsecase(IUsecase):
             start=start,
         )
         if goal_entity is None:
-            return GetGoalResponse(goal_text="", error_codes=[])
+            return GetGuestGoalResponse(goal_text="", error_codes=[])
 
-        return GetGoalResponse(goal_text=goal_entity.goal_text, error_codes=[])
+        return GetGuestGoalResponse(goal_text=goal_entity.goal_text, error_codes=[])
 
     @rollbackable
     async def create_or_update_review_async(
@@ -842,27 +843,28 @@ class EventUsecase(IUsecase):
 
         return CreateOrUpdateReviewResponse(error_codes=[])
 
-    async def get_review_async(
+    async def get_guest_review_async(
         self,
-        guest_id: UUID,
         event_id_str: str,
         start: datetime,
-    ) -> GetReviewResponse:
-        user_account_repository = UserAccountRepository(self.uow)
+        guest_id_str: str,
+    ) -> GetGuestReviewResponse:
         event_repository = EventRepository(self.uow)
+        user_account_repository = UserAccountRepository(self.uow)
         event_review_repository = EventReviewRepository(self.uow)
 
         event_id = str_to_uuid(event_id_str)
-
-        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
-        if guest is None:
-            return GetReviewResponse(review_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
-
-        user_id = guest.user_id
+        guest_id = str_to_uuid(guest_id_str)
 
         event = await event_repository.read_by_id_or_none_async(event_id)
         if event is None:
-            return GetReviewResponse(review_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+            return GetGuestReviewResponse(review_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
+        if guest is None:
+            return GetGuestReviewResponse(review_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        user_id = guest.user_id
 
         review_entity = await event_review_repository.read_by_user_id_and_event_id_and_start_or_none_async(
             user_id=user_id,
@@ -870,6 +872,6 @@ class EventUsecase(IUsecase):
             start=start,
         )
         if review_entity is None:
-            return GetReviewResponse(review_text="", error_codes=[])
+            return GetGuestReviewResponse(review_text="", error_codes=[])
 
-        return GetReviewResponse(review_text=review_entity.review_text, error_codes=[])
+        return GetGuestReviewResponse(review_text=review_entity.review_text, error_codes=[])

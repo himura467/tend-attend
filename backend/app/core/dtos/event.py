@@ -110,7 +110,7 @@ class CreateOrUpdateGoalResponse(BaseModelWithErrorCodes):
     pass
 
 
-class GetGoalResponse(BaseModelWithErrorCodes):
+class GetGuestGoalResponse(BaseModelWithErrorCodes):
     goal_text: str = Field(..., title="Goal Text")
 
 
@@ -122,5 +122,5 @@ class CreateOrUpdateReviewResponse(BaseModelWithErrorCodes):
     pass
 
 
-class GetReviewResponse(BaseModelWithErrorCodes):
+class GetGuestReviewResponse(BaseModelWithErrorCodes):
     review_text: str = Field(..., title="Review Text")
