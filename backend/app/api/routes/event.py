@@ -272,6 +272,7 @@ async def get_guest_goal(
     usecase = EventUsecase(uow=uow)
 
     return await usecase.get_guest_goal_async(
+        requester_id=account.account_id,
         event_id_str=event_id,
         start=start,
         guest_id_str=guest_id,
@@ -319,6 +320,7 @@ async def get_guest_review(
     usecase = EventUsecase(uow=uow)
 
     return await usecase.get_guest_review_async(
+        requester_id=account.account_id,
         event_id_str=event_id,
         start=start,
         guest_id_str=guest_id,

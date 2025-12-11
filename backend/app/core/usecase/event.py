@@ -776,6 +776,7 @@ class EventUsecase(IUsecase):
 
     async def get_guest_goal_async(
         self,
+        requester_id: UUID,
         event_id_str: str,
         start: datetime,
         guest_id_str: str,
@@ -790,6 +791,16 @@ class EventUsecase(IUsecase):
         event = await event_repository.read_by_id_or_none_async(event_id)
         if event is None:
             return GetGuestGoalResponse(goal_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        requester = await user_account_repository.read_with_followees_by_id_or_none_async(requester_id)
+        if requester is None:
+            return GetGuestGoalResponse(goal_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        is_host = event.user_id == requester.user_id
+        is_follower = any(followee.user_id == event.user_id for followee in requester.followees)
+
+        if not is_host and not is_follower:
+            return GetGuestGoalResponse(goal_text="", error_codes=[ErrorCode.EVENT_ACCESS_DENIED])
 
         guest = await user_account_repository.read_by_id_or_none_async(guest_id)
         if guest is None:
@@ -845,6 +856,7 @@ class EventUsecase(IUsecase):
 
     async def get_guest_review_async(
         self,
+        requester_id: UUID,
         event_id_str: str,
         start: datetime,
         guest_id_str: str,
@@ -859,6 +871,16 @@ class EventUsecase(IUsecase):
         event = await event_repository.read_by_id_or_none_async(event_id)
         if event is None:
             return GetGuestReviewResponse(review_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        requester = await user_account_repository.read_with_followees_by_id_or_none_async(requester_id)
+        if requester is None:
+            return GetGuestReviewResponse(review_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        is_host = event.user_id == requester.user_id
+        is_follower = any(followee.user_id == event.user_id for followee in requester.followees)
+
+        if not is_host and not is_follower:
+            return GetGuestReviewResponse(review_text="", error_codes=[ErrorCode.EVENT_ACCESS_DENIED])
 
         guest = await user_account_repository.read_by_id_or_none_async(guest_id)
         if guest is None:
