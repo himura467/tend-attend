@@ -27,16 +27,20 @@ from app.core.dtos.event import (
     ForecastAttendanceTimeResponse,
     GetAttendanceHistoryResponse,
     GetAttendanceTimeForecastsResponse,
+    GetEventGoalsResponse,
+    GetEventReviewsResponse,
     GetFollowingEventsResponse,
-    GetGoalResponse,
     GetGuestAttendanceStatusResponse,
+    GetGuestGoalResponse,
+    GetGuestReviewResponse,
     GetMyEventsResponse,
-    GetReviewResponse,
     UpdateAttendancesResponse,
     UpdateEventResponse,
 )
 from app.core.dtos.event import Event as EventDto
 from app.core.dtos.event import EventWithId as EventWithIdDto
+from app.core.dtos.event import GoalInfo as GoalInfoDto
+from app.core.dtos.event import ReviewInfo as ReviewInfoDto
 from app.core.dtos.ml_dto.account import UserAccount as UserAccountMLDto
 from app.core.dtos.ml_dto.event import Event as EventMLDto
 from app.core.dtos.ml_dto.event import (
@@ -774,27 +778,39 @@ class EventUsecase(IUsecase):
 
         return CreateOrUpdateGoalResponse(error_codes=[])
 
-    async def get_goal_async(
+    async def get_guest_goal_async(
         self,
-        guest_id: UUID,
+        requester_id: UUID,
         event_id_str: str,
         start: datetime,
-    ) -> GetGoalResponse:
-        user_account_repository = UserAccountRepository(self.uow)
+        guest_id_str: str,
+    ) -> GetGuestGoalResponse:
         event_repository = EventRepository(self.uow)
+        user_account_repository = UserAccountRepository(self.uow)
         event_goal_repository = EventGoalRepository(self.uow)
 
         event_id = str_to_uuid(event_id_str)
-
-        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
-        if guest is None:
-            return GetGoalResponse(goal_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
-
-        user_id = guest.user_id
+        guest_id = str_to_uuid(guest_id_str)
 
         event = await event_repository.read_by_id_or_none_async(event_id)
         if event is None:
-            return GetGoalResponse(goal_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+            return GetGuestGoalResponse(goal_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        requester = await user_account_repository.read_with_followees_by_id_or_none_async(requester_id)
+        if requester is None:
+            return GetGuestGoalResponse(goal_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        is_host = event.user_id == requester.user_id
+        is_follower = any(followee.user_id == event.user_id for followee in requester.followees)
+
+        if not is_host and not is_follower:
+            return GetGuestGoalResponse(goal_text="", error_codes=[ErrorCode.EVENT_ACCESS_DENIED])
+
+        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
+        if guest is None:
+            return GetGuestGoalResponse(goal_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        user_id = guest.user_id
 
         goal_entity = await event_goal_repository.read_by_user_id_and_event_id_and_start_or_none_async(
             user_id=user_id,
@@ -802,9 +818,58 @@ class EventUsecase(IUsecase):
             start=start,
         )
         if goal_entity is None:
-            return GetGoalResponse(goal_text="", error_codes=[])
+            return GetGuestGoalResponse(goal_text="", error_codes=[])
 
-        return GetGoalResponse(goal_text=goal_entity.goal_text, error_codes=[])
+        return GetGuestGoalResponse(goal_text=goal_entity.goal_text, error_codes=[])
+
+    async def get_event_goals_async(
+        self,
+        requester_id: UUID,
+        event_id_str: str,
+        start: datetime,
+    ) -> GetEventGoalsResponse:
+        event_repository = EventRepository(self.uow)
+        user_account_repository = UserAccountRepository(self.uow)
+        event_goal_repository = EventGoalRepository(self.uow)
+
+        event_id = str_to_uuid(event_id_str)
+
+        event = await event_repository.read_by_id_or_none_async(event_id)
+        if event is None:
+            return GetEventGoalsResponse(goals=[], error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        requester = await user_account_repository.read_with_followees_by_id_or_none_async(requester_id)
+        if requester is None:
+            return GetEventGoalsResponse(goals=[], error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        is_host = event.user_id == requester.user_id
+        is_follower = any(followee.user_id == event.user_id for followee in requester.followees)
+
+        if not is_host and not is_follower:
+            return GetEventGoalsResponse(goals=[], error_codes=[ErrorCode.EVENT_ACCESS_DENIED])
+
+        goal_entities = await event_goal_repository.read_by_event_id_and_start_async(
+            event_id=event.id,
+            start=start,
+        )
+
+        guest_ids = {goal_entity.user_id for goal_entity in goal_entities}
+        guests = await user_account_repository.read_by_user_ids_async(guest_ids)
+        guest_account_map = {g.user_id: g for g in guests}
+
+        goals: list[GoalInfoDto] = []
+        for goal_entity in goal_entities:
+            guest = guest_account_map.get(goal_entity.user_id)
+            if guest is not None:
+                goals.append(
+                    GoalInfoDto(
+                        account_id=uuid_to_str(guest.id),
+                        username=guest.username,
+                        goal_text=goal_entity.goal_text,
+                    )
+                )
+
+        return GetEventGoalsResponse(goals=goals, error_codes=[])
 
     @rollbackable
     async def create_or_update_review_async(
@@ -842,27 +907,39 @@ class EventUsecase(IUsecase):
 
         return CreateOrUpdateReviewResponse(error_codes=[])
 
-    async def get_review_async(
+    async def get_guest_review_async(
         self,
-        guest_id: UUID,
+        requester_id: UUID,
         event_id_str: str,
         start: datetime,
-    ) -> GetReviewResponse:
-        user_account_repository = UserAccountRepository(self.uow)
+        guest_id_str: str,
+    ) -> GetGuestReviewResponse:
         event_repository = EventRepository(self.uow)
+        user_account_repository = UserAccountRepository(self.uow)
         event_review_repository = EventReviewRepository(self.uow)
 
         event_id = str_to_uuid(event_id_str)
-
-        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
-        if guest is None:
-            return GetReviewResponse(review_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
-
-        user_id = guest.user_id
+        guest_id = str_to_uuid(guest_id_str)
 
         event = await event_repository.read_by_id_or_none_async(event_id)
         if event is None:
-            return GetReviewResponse(review_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+            return GetGuestReviewResponse(review_text="", error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        requester = await user_account_repository.read_with_followees_by_id_or_none_async(requester_id)
+        if requester is None:
+            return GetGuestReviewResponse(review_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        is_host = event.user_id == requester.user_id
+        is_follower = any(followee.user_id == event.user_id for followee in requester.followees)
+
+        if not is_host and not is_follower:
+            return GetGuestReviewResponse(review_text="", error_codes=[ErrorCode.EVENT_ACCESS_DENIED])
+
+        guest = await user_account_repository.read_by_id_or_none_async(guest_id)
+        if guest is None:
+            return GetGuestReviewResponse(review_text="", error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        user_id = guest.user_id
 
         review_entity = await event_review_repository.read_by_user_id_and_event_id_and_start_or_none_async(
             user_id=user_id,
@@ -870,6 +947,55 @@ class EventUsecase(IUsecase):
             start=start,
         )
         if review_entity is None:
-            return GetReviewResponse(review_text="", error_codes=[])
+            return GetGuestReviewResponse(review_text="", error_codes=[])
 
-        return GetReviewResponse(review_text=review_entity.review_text, error_codes=[])
+        return GetGuestReviewResponse(review_text=review_entity.review_text, error_codes=[])
+
+    async def get_event_reviews_async(
+        self,
+        requester_id: UUID,
+        event_id_str: str,
+        start: datetime,
+    ) -> GetEventReviewsResponse:
+        event_repository = EventRepository(self.uow)
+        user_account_repository = UserAccountRepository(self.uow)
+        event_review_repository = EventReviewRepository(self.uow)
+
+        event_id = str_to_uuid(event_id_str)
+
+        event = await event_repository.read_by_id_or_none_async(event_id)
+        if event is None:
+            return GetEventReviewsResponse(reviews=[], error_codes=[ErrorCode.EVENT_NOT_FOUND])
+
+        requester = await user_account_repository.read_with_followees_by_id_or_none_async(requester_id)
+        if requester is None:
+            return GetEventReviewsResponse(reviews=[], error_codes=[ErrorCode.ACCOUNT_NOT_FOUND])
+
+        is_host = event.user_id == requester.user_id
+        is_follower = any(followee.user_id == event.user_id for followee in requester.followees)
+
+        if not is_host and not is_follower:
+            return GetEventReviewsResponse(reviews=[], error_codes=[ErrorCode.EVENT_ACCESS_DENIED])
+
+        review_entities = await event_review_repository.read_by_event_id_and_start_async(
+            event_id=event.id,
+            start=start,
+        )
+
+        guest_ids = {review_entity.user_id for review_entity in review_entities}
+        guests = await user_account_repository.read_by_user_ids_async(guest_ids)
+        guest_account_map = {g.user_id: g for g in guests}
+
+        reviews: list[ReviewInfoDto] = []
+        for review_entity in review_entities:
+            guest = guest_account_map.get(review_entity.user_id)
+            if guest is not None:
+                reviews.append(
+                    ReviewInfoDto(
+                        account_id=uuid_to_str(guest.id),
+                        username=guest.username,
+                        review_text=review_entity.review_text,
+                    )
+                )
+
+        return GetEventReviewsResponse(reviews=reviews, error_codes=[])

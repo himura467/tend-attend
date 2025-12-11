@@ -15,6 +15,7 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { getAuthStatus, revokeAuthSession } from "@/lib/api/auth";
 import { rr } from "@/lib/utils/reverseRouter";
@@ -41,6 +42,7 @@ export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.E
   const router = useRouter();
   const pathname = usePathname();
 
+  const [accountId, setAccountId] = React.useState<string | null>(null);
   const [username, setUsername] = React.useState<string | null>(null);
   const [group, setGroup] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -54,6 +56,7 @@ export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.E
           routerPush(rr.signin.index(pathname), router);
           return;
         }
+        setAccountId(response.account_id);
         setUsername(response.username);
         setGroup(response.group);
         setIsLoading(false);
@@ -135,34 +138,54 @@ export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.E
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-[100dvh] w-full">
-        <Sidebar side="left" variant="sidebar" collapsible="icon">
-          <SidebarHeader>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild size="lg">
-                  <Link {...rr.index()}>
-                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
-                      <Image src="/logo.svg" alt="Home" width={32} height={32} />
-                    </div>
-                    <div className="flex flex-col gap-0.5 leading-none">
-                      <span className="font-semibold">Tend Attend</span>
-                      <span className="text-xs">Event Management</span>
-                    </div>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarHeader>
-          <SidebarContent>
-            {group === "HOST" && (
+    <AuthProvider accountId={accountId}>
+      <SidebarProvider>
+        <div className="flex min-h-[100dvh] w-full">
+          <Sidebar side="left" variant="sidebar" collapsible="icon">
+            <SidebarHeader>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild size="lg">
+                    <Link {...rr.index()}>
+                      <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
+                        <Image src="/logo.svg" alt="Home" width={32} height={32} />
+                      </div>
+                      <div className="flex flex-col gap-0.5 leading-none">
+                        <span className="font-semibold">Tend Attend</span>
+                        <span className="text-xs">Event Management</span>
+                      </div>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarHeader>
+            <SidebarContent>
+              {group === "HOST" && (
+                <SidebarGroup>
+                  <SidebarGroupLabel>For Hosts</SidebarGroupLabel>
+                  <SidebarSeparator />
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {hostNavItems.map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton asChild>
+                            <Link href={item.url}>
+                              <item.icon />
+                              <span>{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              )}
               <SidebarGroup>
-                <SidebarGroupLabel>For Hosts</SidebarGroupLabel>
+                <SidebarGroupLabel>For Guests</SidebarGroupLabel>
                 <SidebarSeparator />
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {hostNavItems.map((item) => (
+                    {guestNavItems.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton asChild>
                           <Link href={item.url}>
@@ -175,42 +198,24 @@ export const SidebarTemplate = ({ children }: SidebarTemplateProps): React.JSX.E
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
-            )}
-            <SidebarGroup>
-              <SidebarGroupLabel>For Guests</SidebarGroupLabel>
-              <SidebarSeparator />
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {guestNavItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <Link href={item.url}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-          <SidebarFooter>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleSignOut} disabled={isSigningOut}>
-                  <LogOutIcon />
-                  <span>{isSigningOut ? "Signing out..." : "Sign Out"}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarFooter>
-          <SidebarRail />
-        </Sidebar>
-        <main className="flex flex-1 flex-col overflow-auto">
-          <div className="container mx-auto flex max-w-[1200px] flex-1 px-4 py-12 sm:px-6 lg:px-8">{children}</div>
-        </main>
-      </div>
-    </SidebarProvider>
+            </SidebarContent>
+            <SidebarFooter>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={handleSignOut} disabled={isSigningOut}>
+                    <LogOutIcon />
+                    <span>{isSigningOut ? "Signing out..." : "Sign Out"}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarFooter>
+            <SidebarRail />
+          </Sidebar>
+          <main className="flex flex-1 flex-col overflow-auto">
+            <div className="container mx-auto flex max-w-[1200px] flex-1 px-4 py-12 sm:px-6 lg:px-8">{children}</div>
+          </main>
+        </div>
+      </SidebarProvider>
+    </AuthProvider>
   );
 };

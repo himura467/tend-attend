@@ -16,11 +16,13 @@ from app.core.dtos.event import (
     ForecastAttendanceTimeResponse,
     GetAttendanceHistoryResponse,
     GetAttendanceTimeForecastsResponse,
+    GetEventGoalsResponse,
+    GetEventReviewsResponse,
     GetFollowingEventsResponse,
-    GetGoalResponse,
     GetGuestAttendanceStatusResponse,
+    GetGuestGoalResponse,
+    GetGuestReviewResponse,
     GetMyEventsResponse,
-    GetReviewResponse,
     UpdateAttendancesRequest,
     UpdateAttendancesResponse,
     UpdateEventRequest,
@@ -257,21 +259,44 @@ async def create_or_update_goal(
 
 
 @router.get(
-    path="/goals/{event_id}/{start}",
-    name="Get Goal",
-    response_model=GetGoalResponse,
+    path="/goals/{event_id}/{start}/guests/{guest_id}",
+    name="Get Guest Goal",
+    response_model=GetGuestGoalResponse,
 )
-async def get_goal(
+async def get_guest_goal(
+    event_id: str,
+    start: datetime,
+    guest_id: str,
+    session: AsyncSession = Depends(get_db_async),
+    account: Account = Depends(AccessControl(permit={Role.GUEST})),
+) -> GetGuestGoalResponse:
+    uow = SqlalchemyUnitOfWork(session=session)
+    usecase = EventUsecase(uow=uow)
+
+    return await usecase.get_guest_goal_async(
+        requester_id=account.account_id,
+        event_id_str=event_id,
+        start=start,
+        guest_id_str=guest_id,
+    )
+
+
+@router.get(
+    path="/goals/{event_id}/{start}",
+    name="Get Event Goals",
+    response_model=GetEventGoalsResponse,
+)
+async def get_event_goals(
     event_id: str,
     start: datetime,
     session: AsyncSession = Depends(get_db_async),
     account: Account = Depends(AccessControl(permit={Role.GUEST})),
-) -> GetGoalResponse:
+) -> GetEventGoalsResponse:
     uow = SqlalchemyUnitOfWork(session=session)
     usecase = EventUsecase(uow=uow)
 
-    return await usecase.get_goal_async(
-        guest_id=account.account_id,
+    return await usecase.get_event_goals_async(
+        requester_id=account.account_id,
         event_id_str=event_id,
         start=start,
     )
@@ -303,21 +328,44 @@ async def create_or_update_review(
 
 
 @router.get(
-    path="/reviews/{event_id}/{start}",
-    name="Get Review",
-    response_model=GetReviewResponse,
+    path="/reviews/{event_id}/{start}/guests/{guest_id}",
+    name="Get Guest Review",
+    response_model=GetGuestReviewResponse,
 )
-async def get_review(
+async def get_guest_review(
+    event_id: str,
+    start: datetime,
+    guest_id: str,
+    session: AsyncSession = Depends(get_db_async),
+    account: Account = Depends(AccessControl(permit={Role.GUEST})),
+) -> GetGuestReviewResponse:
+    uow = SqlalchemyUnitOfWork(session=session)
+    usecase = EventUsecase(uow=uow)
+
+    return await usecase.get_guest_review_async(
+        requester_id=account.account_id,
+        event_id_str=event_id,
+        start=start,
+        guest_id_str=guest_id,
+    )
+
+
+@router.get(
+    path="/reviews/{event_id}/{start}",
+    name="Get Event Reviews",
+    response_model=GetEventReviewsResponse,
+)
+async def get_event_reviews(
     event_id: str,
     start: datetime,
     session: AsyncSession = Depends(get_db_async),
     account: Account = Depends(AccessControl(permit={Role.GUEST})),
-) -> GetReviewResponse:
+) -> GetEventReviewsResponse:
     uow = SqlalchemyUnitOfWork(session=session)
     usecase = EventUsecase(uow=uow)
 
-    return await usecase.get_review_async(
-        guest_id=account.account_id,
+    return await usecase.get_event_reviews_async(
+        requester_id=account.account_id,
         event_id_str=event_id,
         start=start,
     )

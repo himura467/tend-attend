@@ -17,5 +17,6 @@ class RevokeAuthSessionResponse(BaseModelWithErrorCodes):
 
 
 class GetAuthStatusResponse(BaseModelWithErrorCodes):
+    account_id: str | None = Field(None, title="Account ID")
     username: str | None = Field(None, title="Username")
     group: str | None = Field(None, title="Group")

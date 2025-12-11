@@ -518,6 +518,18 @@ class EventGoalRepository(
             ],
         )
 
+    async def read_by_event_id_and_start_async(
+        self,
+        event_id: UUID,
+        start: datetime,
+    ) -> set[EventGoalEntity]:
+        return await self.read_all_async(
+            where=[
+                self._model.event_id == uuid_to_bin(event_id),
+                self._model.start == start,
+            ],
+        )
+
 
 class EventReviewRepository(
     AbstractRepository[EventReviewEntity, EventReview],
@@ -562,6 +574,18 @@ class EventReviewRepository(
         return await self.read_one_or_none_async(
             where=[
                 self._model.user_id == user_id,
+                self._model.event_id == uuid_to_bin(event_id),
+                self._model.start == start,
+            ],
+        )
+
+    async def read_by_event_id_and_start_async(
+        self,
+        event_id: UUID,
+        start: datetime,
+    ) -> set[EventReviewEntity]:
+        return await self.read_all_async(
+            where=[
                 self._model.event_id == uuid_to_bin(event_id),
                 self._model.start == start,
             ],

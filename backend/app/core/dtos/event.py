@@ -42,6 +42,18 @@ class AttendanceTimeForecastsWithUsername(BaseModel):
     attendance_time_forecasts: list[AttendanceTimeForecast] = Field(..., title="Attendance Time Forecasts")
 
 
+class GoalInfo(BaseModel):
+    account_id: str = Field(..., title="Account ID")
+    username: str = Field(..., title="Username")
+    goal_text: str = Field(..., title="Goal Text")
+
+
+class ReviewInfo(BaseModel):
+    account_id: str = Field(..., title="Account ID")
+    username: str = Field(..., title="Username")
+    review_text: str = Field(..., title="Review Text")
+
+
 class CreateEventRequest(BaseModel):
     event: Event = Field(..., title="Event")
 
@@ -110,8 +122,12 @@ class CreateOrUpdateGoalResponse(BaseModelWithErrorCodes):
     pass
 
 
-class GetGoalResponse(BaseModelWithErrorCodes):
+class GetGuestGoalResponse(BaseModelWithErrorCodes):
     goal_text: str = Field(..., title="Goal Text")
+
+
+class GetEventGoalsResponse(BaseModelWithErrorCodes):
+    goals: list[GoalInfo] = Field(..., title="Event Goals")
 
 
 class CreateOrUpdateReviewRequest(BaseModel):
@@ -122,5 +138,9 @@ class CreateOrUpdateReviewResponse(BaseModelWithErrorCodes):
     pass
 
 
-class GetReviewResponse(BaseModelWithErrorCodes):
+class GetGuestReviewResponse(BaseModelWithErrorCodes):
     review_text: str = Field(..., title="Review Text")
+
+
+class GetEventReviewsResponse(BaseModelWithErrorCodes):
+    reviews: list[ReviewInfo] = Field(..., title="Event Reviews")

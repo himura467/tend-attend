@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLocalNow } from "@/hooks/useLocalNow";
 import { useTimezone } from "@/hooks/useTimezone";
 import { useRouter } from "@/i18n/navigation";
@@ -42,6 +43,7 @@ export const EventAttendanceForm = ({
   const router = useRouter();
   const timezone = useTimezone();
   const localNow = useLocalNow();
+  const { accountId } = useAuth();
 
   const [attend, setAttend] = React.useState<boolean | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -98,21 +100,35 @@ export const EventAttendanceForm = ({
           }
 
           // Show toast with navigation to goals or reviews page
-          if (action === AttendanceAction.ATTEND) {
+          if (action === AttendanceAction.ATTEND && accountId) {
             toast.message("Would you like to record your goals?", {
               action: {
                 label: "Record Goals",
                 onClick: () => {
-                  routerPush(rr.events.goals.index(eventId, utcEventStart.toISOString()), router);
+                  routerPush(
+                    rr.events.event.goals.goal.index(
+                      eventId,
+                      encodeURIComponent(utcEventStart.toISOString()),
+                      accountId,
+                    ),
+                    router,
+                  );
                 },
               },
             });
-          } else if (action === AttendanceAction.LEAVE) {
+          } else if (action === AttendanceAction.LEAVE && accountId) {
             toast.message("Would you like to record your reviews?", {
               action: {
                 label: "Record Reviews",
                 onClick: () => {
-                  routerPush(rr.events.reviews.index(eventId, utcEventStart.toISOString()), router);
+                  routerPush(
+                    rr.events.event.reviews.review.index(
+                      eventId,
+                      encodeURIComponent(utcEventStart.toISOString()),
+                      accountId,
+                    ),
+                    router,
+                  );
                 },
               },
             });
