@@ -16,6 +16,28 @@ export const ReverseRouter = {
     index: (): LinkProps => ({ href: "/contact" }),
   },
   events: {
+    event: {
+      goals: {
+        goal: {
+          index: (eventId: string, start: string, guestId: string): LinkProps => ({
+            href: `/events/${eventId}/${start}/goals/${guestId}`,
+          }),
+        },
+        index: (eventId: string, start: string): LinkProps => ({
+          href: `/events/${eventId}/${start}/goals`,
+        }),
+      },
+      reviews: {
+        review: {
+          index: (eventId: string, start: string, guestId: string): LinkProps => ({
+            href: `/events/${eventId}/${start}/reviews/${guestId}`,
+          }),
+        },
+        index: (eventId: string, start: string): LinkProps => ({
+          href: `/events/${eventId}/${start}/reviews`,
+        }),
+      },
+    },
     attend: {
       index: (): LinkProps => ({ href: "/events/attend" }),
     },
