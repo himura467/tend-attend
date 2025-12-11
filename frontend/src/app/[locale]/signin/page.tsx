@@ -6,7 +6,14 @@ import { formatUrl } from "@/lib/utils/url";
 import { NextPage } from "next";
 import React from "react";
 
-const SignInPage: NextPage = (): React.JSX.Element => {
+interface SignInPageProps {
+  searchParams: Promise<{ location?: string }>;
+}
+
+const SignInPage: NextPage<SignInPageProps> = async ({ searchParams }): Promise<React.JSX.Element> => {
+  const query = await searchParams;
+  const location = query.location ?? formatUrl(rr.events.attend.index().href);
+
   return (
     <DialogTemplate>
       <div className="w-full max-w-[600px] space-y-6">
@@ -19,7 +26,7 @@ const SignInPage: NextPage = (): React.JSX.Element => {
             </Link>
           </p>
         </div>
-        <SignInForm location={formatUrl(rr.events.attend.index().href)} />
+        <SignInForm location={location} />
       </div>
     </DialogTemplate>
   );

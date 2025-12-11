@@ -114,6 +114,10 @@ export const SignUpForm = (): React.JSX.Element => {
           type="text"
           placeholder="Enter your username"
           required
+          pattern="[a-zA-Z0-9_]+"
+          minLength={1}
+          maxLength={32}
+          title="Username must be 1-32 characters long and contain only letters, numbers, and underscores"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
