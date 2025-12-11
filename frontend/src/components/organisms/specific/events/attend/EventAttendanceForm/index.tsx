@@ -105,7 +105,14 @@ export const EventAttendanceForm = ({
               action: {
                 label: "Record Goals",
                 onClick: () => {
-                  routerPush(rr.events.event.goals.goal.index(eventId, utcEventStart.toISOString(), accountId), router);
+                  routerPush(
+                    rr.events.event.goals.goal.index(
+                      eventId,
+                      encodeURIComponent(utcEventStart.toISOString()),
+                      accountId,
+                    ),
+                    router,
+                  );
                 },
               },
             });
@@ -115,7 +122,11 @@ export const EventAttendanceForm = ({
                 label: "Record Reviews",
                 onClick: () => {
                   routerPush(
-                    rr.events.event.reviews.review.index(eventId, utcEventStart.toISOString(), accountId),
+                    rr.events.event.reviews.review.index(
+                      eventId,
+                      encodeURIComponent(utcEventStart.toISOString()),
+                      accountId,
+                    ),
                     router,
                   );
                 },
