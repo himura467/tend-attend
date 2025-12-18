@@ -148,6 +148,16 @@ export const DateTimePicker = ({
     [recurrences, onRecurrencesChange, isAllDay, startDate, timezone],
   );
 
+  React.useEffect(() => {
+    if (!hasRRule(recurrences)) return;
+    const currentOption = recurrencesOptions.find((r) => r.matcher(recurrences));
+    if (!currentOption?.value) return;
+    const existingRRule = recurrences.find((r) => r.startsWith("RRULE:"));
+    if (existingRRule !== currentOption.value) {
+      updateRecurrenceRule(currentOption.value);
+    }
+  }, [recurrences, recurrencesOptions, startDate, updateRecurrenceRule]);
+
   return (
     <div className="flex flex-col space-y-4 rounded-lg border p-4">
       {!isAllDay && (
