@@ -100,6 +100,7 @@ export const UpdateEventForm = ({
         <div className="space-y-2">
           <FormLabel>Event Time</FormLabel>
           <DateTimePicker
+            eventId={selectedEvent.id}
             startDate={startDate}
             endDate={endDate}
             onStartDateChange={onStartDateChange}

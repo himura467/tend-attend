@@ -123,7 +123,6 @@ export const RecurrenceDateEditor = ({
         <h4 className="text-sm font-medium">{title}</h4>
         <p className="text-xs text-muted-foreground">{description}</p>
       </div>
-
       {displayDates.length > 0 && (
         <div className="space-y-2">
           {displayDates.map((dateItem, index) => (
@@ -137,7 +136,6 @@ export const RecurrenceDateEditor = ({
           ))}
         </div>
       )}
-
       <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" className="w-full">
