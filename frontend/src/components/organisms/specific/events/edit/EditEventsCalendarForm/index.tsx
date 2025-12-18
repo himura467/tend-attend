@@ -23,7 +23,6 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
   const [endDate, setEndDate] = React.useState<TZDate>(localNow.startOfDay().addDays(1));
   const [isAllDay, setIsAllDay] = React.useState<boolean>(true);
   const [recurrences, setRecurrences] = React.useState<string[]>([]);
-  const [timezone, setTimezone] = React.useState<string>(browserTimezone);
 
   const fetchEvents = React.useCallback(async () => {
     try {
@@ -70,7 +69,7 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
           dtend: endDate.withTimeZone("UTC").toISOString(),
           is_all_day: isAllDay,
           recurrence_list: recurrences,
-          timezone: timezone,
+          timezone: browserTimezone,
         },
       });
 
@@ -99,7 +98,7 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
           dtend: endDate.withTimeZone("UTC").toISOString(),
           is_all_day: isAllDay,
           recurrence_list: recurrences,
-          timezone: timezone,
+          timezone: browserTimezone,
         },
       });
 
@@ -124,7 +123,6 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
     setEndDate(localNow.startOfDay().addDays(1));
     setIsAllDay(true);
     setRecurrences([]);
-    setTimezone(browserTimezone);
   };
 
   const handleStartDateChange = (date: TZDate): void => {
@@ -154,7 +152,6 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
     setEndDate(event.dtend);
     setIsAllDay(event.isAllDay);
     setRecurrences(event.recurrences);
-    setTimezone(event.timezone);
   };
 
   const handleCancelUpdate = (): void => {
@@ -190,8 +187,6 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
             onIsAllDayChange={handleIsAllDayChange}
             recurrences={recurrences}
             onRecurrencesChange={setRecurrences}
-            timezone={timezone}
-            onTimezoneChange={setTimezone}
           />
         ) : (
           <CreateEventForm
@@ -204,8 +199,6 @@ export const EditEventsCalendarForm = (): React.JSX.Element => {
             onIsAllDayChange={handleIsAllDayChange}
             recurrences={recurrences}
             onRecurrencesChange={setRecurrences}
-            timezone={timezone}
-            onTimezoneChange={setTimezone}
           />
         )}
       </div>

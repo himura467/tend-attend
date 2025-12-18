@@ -31,8 +31,6 @@ interface UpdateEventFormProps {
   onIsAllDayChange: (isAllDay: boolean) => void;
   recurrences: string[];
   onRecurrencesChange: (recurrences: string[]) => void;
-  timezone: string;
-  onTimezoneChange: (timezone: string) => void;
 }
 
 export const UpdateEventForm = ({
@@ -47,8 +45,6 @@ export const UpdateEventForm = ({
   onIsAllDayChange,
   recurrences,
   onRecurrencesChange,
-  timezone,
-  onTimezoneChange,
 }: UpdateEventFormProps): React.JSX.Element => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -104,6 +100,7 @@ export const UpdateEventForm = ({
         <div className="space-y-2">
           <FormLabel>Event Time</FormLabel>
           <DateTimePicker
+            eventId={selectedEvent.id}
             startDate={startDate}
             endDate={endDate}
             onStartDateChange={onStartDateChange}
@@ -112,8 +109,6 @@ export const UpdateEventForm = ({
             onIsAllDayChange={onIsAllDayChange}
             recurrences={recurrences}
             onRecurrencesChange={onRecurrencesChange}
-            timezone={timezone}
-            onTimezoneChange={onTimezoneChange}
           />
         </div>
         <div className="flex space-x-2">

@@ -2,7 +2,6 @@ import { RecurrenceDateEditor } from "@/components/organisms/shared/events/Recur
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useSSRSafeFormat } from "@/hooks/useSSRSafeFormat";
 import { useTimezone } from "@/hooks/useTimezone";
@@ -20,23 +19,8 @@ type RecurrencesOption = {
   matcher: (rrules: string[]) => boolean;
 };
 
-type TimezoneOption = {
-  label: string;
-  value: string;
-};
-
-const timezoneOptions: TimezoneOption[] = [
-  {
-    label: "UTC",
-    value: "UTC",
-  },
-  {
-    label: "Tokyo",
-    value: "Asia/Tokyo",
-  },
-];
-
 interface DateTimePickerProps {
+  eventId?: string;
   startDate: TZDate;
   endDate: TZDate;
   onStartDateChange: (date: TZDate) => void;
@@ -45,11 +29,10 @@ interface DateTimePickerProps {
   onIsAllDayChange: (isAllDay: boolean) => void;
   recurrences: string[];
   onRecurrencesChange: (recurrences: string[]) => void;
-  timezone: string;
-  onTimezoneChange: (timezone: string) => void;
 }
 
 export const DateTimePicker = ({
+  eventId,
   startDate,
   endDate,
   onStartDateChange,
@@ -58,8 +41,6 @@ export const DateTimePicker = ({
   onIsAllDayChange,
   recurrences,
   onRecurrencesChange,
-  timezone,
-  onTimezoneChange,
 }: DateTimePickerProps): React.JSX.Element => {
   const browserTimezone = useTimezone();
 
@@ -140,13 +121,23 @@ export const DateTimePicker = ({
       // Add DTSTART with TZID for proper frontend RRule parsing
       const dtstartEntry = isAllDay
         ? `DTSTART;VALUE=DATE:${startDate.toISOString().split("T")[0].replace(/-/g, "")}`
-        : `DTSTART;TZID=${timezone}:${startDate.withTimeZone("UTC").toISOString().replace(/[-:]/g, "").split(".")[0]}`;
+        : `DTSTART;TZID=${browserTimezone}:${startDate.withTimeZone("UTC").toISOString().replace(/[-:]/g, "").split(".")[0]}`;
 
       const updatedRecurrences = [dtstartEntry, newRRule, ...preservedEntries];
       onRecurrencesChange(updatedRecurrences);
     },
-    [recurrences, onRecurrencesChange, isAllDay, startDate, timezone],
+    [recurrences, isAllDay, startDate, browserTimezone, onRecurrencesChange],
   );
+
+  React.useEffect(() => {
+    if (!hasRRule(recurrences)) return;
+    const currentOption = recurrencesOptions.find((r) => r.matcher(recurrences));
+    if (!currentOption?.value) return;
+    const existingRRule = recurrences.find((r) => r.startsWith("RRULE:"));
+    if (existingRRule !== currentOption.value) {
+      updateRecurrenceRule(currentOption.value);
+    }
+  }, [recurrences, recurrencesOptions, startDate, updateRecurrenceRule]);
 
   return (
     <div className="flex flex-col space-y-4 rounded-lg border p-4">
@@ -301,24 +292,11 @@ export const DateTimePicker = ({
             </div>
           </PopoverContent>
         </Popover>
-        {!isAllDay && (
-          <Select value={timezone} onValueChange={onTimezoneChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select timezone" />
-            </SelectTrigger>
-            <SelectContent>
-              {timezoneOptions.map((tz) => (
-                <SelectItem key={tz.label} value={tz.value}>
-                  {tz.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
       </div>
       {hasRRule(recurrences) && (
         <div className="space-y-4 border-t pt-4">
           <RecurrenceDateEditor
+            key={`rdate-${eventId}`}
             recurrences={recurrences}
             onRecurrencesChange={onRecurrencesChange}
             type="RDATE"
@@ -326,6 +304,7 @@ export const DateTimePicker = ({
             defaultTime={startDate}
           />
           <RecurrenceDateEditor
+            key={`exdate-${eventId}`}
             recurrences={recurrences}
             onRecurrencesChange={onRecurrencesChange}
             type="EXDATE"
