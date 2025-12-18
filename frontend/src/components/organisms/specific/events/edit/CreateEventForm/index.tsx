@@ -25,8 +25,6 @@ interface CreateEventFormProps {
   onIsAllDayChange: (isAllDay: boolean) => void;
   recurrences: string[];
   onRecurrencesChange: (recurrences: string[]) => void;
-  timezone: string;
-  onTimezoneChange: (timezone: string) => void;
 }
 
 export const CreateEventForm = ({
@@ -39,8 +37,6 @@ export const CreateEventForm = ({
   onIsAllDayChange,
   recurrences,
   onRecurrencesChange,
-  timezone,
-  onTimezoneChange,
 }: CreateEventFormProps): React.JSX.Element => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -97,8 +93,6 @@ export const CreateEventForm = ({
             onIsAllDayChange={onIsAllDayChange}
             recurrences={recurrences}
             onRecurrencesChange={onRecurrencesChange}
-            timezone={timezone}
-            onTimezoneChange={onTimezoneChange}
           />
         </div>
         <Button type="submit">Create event</Button>
