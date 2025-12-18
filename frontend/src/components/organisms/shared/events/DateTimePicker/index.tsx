@@ -20,6 +20,7 @@ type RecurrencesOption = {
 };
 
 interface DateTimePickerProps {
+  eventId?: string;
   startDate: TZDate;
   endDate: TZDate;
   onStartDateChange: (date: TZDate) => void;
@@ -31,6 +32,7 @@ interface DateTimePickerProps {
 }
 
 export const DateTimePicker = ({
+  eventId,
   startDate,
   endDate,
   onStartDateChange,
@@ -294,6 +296,7 @@ export const DateTimePicker = ({
       {hasRRule(recurrences) && (
         <div className="space-y-4 border-t pt-4">
           <RecurrenceDateEditor
+            key={`rdate-${eventId}`}
             recurrences={recurrences}
             onRecurrencesChange={onRecurrencesChange}
             type="RDATE"
@@ -301,6 +304,7 @@ export const DateTimePicker = ({
             defaultTime={startDate}
           />
           <RecurrenceDateEditor
+            key={`exdate-${eventId}`}
             recurrences={recurrences}
             onRecurrencesChange={onRecurrencesChange}
             type="EXDATE"
