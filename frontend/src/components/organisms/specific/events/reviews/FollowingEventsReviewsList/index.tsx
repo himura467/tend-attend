@@ -5,7 +5,7 @@ import { useLocalNow } from "@/hooks/useLocalNow";
 import { useTimezone } from "@/hooks/useTimezone";
 import { useRouter } from "@/i18n/navigation";
 import { getFollowingEvents } from "@/lib/api/events";
-import { parseRecurrence } from "@/lib/utils/icalendar";
+import { convertRRuleDateToTZDate, parseRecurrence } from "@/lib/utils/icalendar";
 import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
 import { TZDate } from "@/lib/utils/tzdate";
@@ -70,7 +70,7 @@ export const FollowingEventsReviewsList = (): React.JSX.Element => {
             // Get occurrences within 1 year past to 1 year future
             const occurrences = rruleSet.between(oneYearAgo, oneYearLater, true);
             for (const occurrence of occurrences) {
-              const occurrenceStart = new TZDate(occurrence, event.timezone);
+              const occurrenceStart = convertRRuleDateToTZDate(occurrence, browserTimezone, event.timezone);
               const occurrenceEnd = new TZDate(occurrenceStart.getTime() + durationMs, event.timezone);
               allSessions.push({
                 eventId: event.id,
@@ -111,7 +111,6 @@ export const FollowingEventsReviewsList = (): React.JSX.Element => {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
-        timeZone: browserTimezone,
       });
     }
     return localStart.toLocaleString([], {
@@ -120,7 +119,6 @@ export const FollowingEventsReviewsList = (): React.JSX.Element => {
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-      timeZone: browserTimezone,
     });
   };
 
