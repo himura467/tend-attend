@@ -25,7 +25,7 @@ export const GoalsList = ({ eventId, start }: GoalsListProps): React.JSX.Element
       try {
         setLoading(true);
         const response = await getEventGoals(eventId, start);
-        if (response.error_codes && response.error_codes.length > 0) {
+        if (response.error_codes.length > 0) {
           setError("Failed to load goals");
         } else {
           setGoals(response.goals);
