@@ -5,7 +5,7 @@ import { useLocalNow } from "@/hooks/useLocalNow";
 import { useTimezone } from "@/hooks/useTimezone";
 import { useRouter } from "@/i18n/navigation";
 import { getFollowingEvents } from "@/lib/api/events";
-import { parseRecurrence } from "@/lib/utils/icalendar";
+import { convertRRuleDateToTZDate, parseRecurrence } from "@/lib/utils/icalendar";
 import { rr } from "@/lib/utils/reverseRouter";
 import { routerPush } from "@/lib/utils/router";
 import { TZDate } from "@/lib/utils/tzdate";
@@ -70,7 +70,7 @@ export const FollowingEventsGoalsList = (): React.JSX.Element => {
             // Get occurrences within 1 year past to 1 year future
             const occurrences = rruleSet.between(oneYearAgo, oneYearLater, true);
             for (const occurrence of occurrences) {
-              const occurrenceStart = new TZDate(occurrence, event.timezone);
+              const occurrenceStart = convertRRuleDateToTZDate(occurrence, browserTimezone, event.timezone);
               const occurrenceEnd = new TZDate(occurrenceStart.getTime() + durationMs, event.timezone);
               allSessions.push({
                 eventId: event.id,
@@ -100,26 +100,25 @@ export const FollowingEventsGoalsList = (): React.JSX.Element => {
   }, [browserTimezone, localNow]);
 
   const handleSessionClick = (session: EventSession): void => {
-    const utcStart = new TZDate(session.dtstart.toISOString({ excludeZ: true }), session.timezone).withTimeZone("UTC");
+    const utcStart = session.dtstart.withTimeZone("UTC");
     routerPush(rr.events.event.goals.index(session.eventId, encodeURIComponent(utcStart.toISOString())), router);
   };
 
   const formatSessionDate = (session: EventSession): string => {
+    const localStart = session.dtstart.withTimeZone(browserTimezone);
     if (session.isAllDay) {
-      return session.dtstart.toLocaleString([], {
+      return localStart.toLocaleString([], {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
-        timeZone: "UTC",
       });
     }
-    return session.dtstart.toLocaleString([], {
+    return localStart.toLocaleString([], {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-      timeZone: "UTC",
     });
   };
 
