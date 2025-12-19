@@ -100,27 +100,26 @@ export const FollowingEventsGoalsList = (): React.JSX.Element => {
   }, [browserTimezone, localNow]);
 
   const handleSessionClick = (session: EventSession): void => {
-    const utcStart = session.dtstart.withTimeZone("UTC");
+    const utcStart = new TZDate(session.dtstart.toISOString({ excludeZ: true }), session.timezone).withTimeZone("UTC");
     routerPush(rr.events.event.goals.index(session.eventId, encodeURIComponent(utcStart.toISOString())), router);
   };
 
   const formatSessionDate = (session: EventSession): string => {
-    const localStart = session.dtstart.withTimeZone(browserTimezone);
     if (session.isAllDay) {
-      return localStart.toLocaleString([], {
+      return session.dtstart.toLocaleString([], {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
-        timeZone: browserTimezone,
+        timeZone: "UTC",
       });
     }
-    return localStart.toLocaleString([], {
+    return session.dtstart.toLocaleString([], {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-      timeZone: browserTimezone,
+      timeZone: "UTC",
     });
   };
 
