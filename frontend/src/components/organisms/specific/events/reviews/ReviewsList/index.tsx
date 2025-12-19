@@ -25,7 +25,7 @@ export const ReviewsList = ({ eventId, start }: ReviewsListProps): React.JSX.Ele
       try {
         setLoading(true);
         const response = await getEventReviews(eventId, start);
-        if (response.error_codes && response.error_codes.length > 0) {
+        if (response.error_codes.length > 0) {
           setError("Failed to load reviews");
         } else {
           setReviews(response.reviews);
