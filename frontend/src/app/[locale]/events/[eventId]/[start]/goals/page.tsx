@@ -1,4 +1,4 @@
-import { GoalsList } from "@/components/organisms/specific/events/goals/GoalsList";
+import { GoalsList } from "@/components/organisms/specific/events/event/goals/GoalsList";
 import { SidebarTemplate } from "@/components/templates/SidebarTemplate";
 import { NextPage } from "next";
 import React from "react";

@@ -1,4 +1,4 @@
-import { SignInForm } from "@/components/organisms/specific/accounts/signin/SignInForm";
+import { SignInForm } from "@/components/organisms/specific/signin/SignInForm";
 import { DialogTemplate } from "@/components/templates/DialogTemplate";
 import { Link } from "@/i18n/navigation";
 import { rr } from "@/lib/utils/reverseRouter";
