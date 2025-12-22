@@ -1,4 +1,4 @@
-import { ReviewsList } from "@/components/organisms/specific/events/reviews/ReviewsList";
+import { ReviewsList } from "@/components/organisms/specific/events/event/reviews/ReviewsList";
 import { SidebarTemplate } from "@/components/templates/SidebarTemplate";
 import { NextPage } from "next";
 import React from "react";

@@ -1,4 +1,4 @@
-import { GoalForm } from "@/components/organisms/specific/events/goals/GoalForm";
+import { GoalForm } from "@/components/organisms/specific/events/event/goals/goal/GoalForm";
 import { SidebarTemplate } from "@/components/templates/SidebarTemplate";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
