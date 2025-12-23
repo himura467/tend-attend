@@ -45,21 +45,33 @@ export const verifyOAuthState = (receivedState: string | null): boolean => {
 };
 
 /**
- * Parse OAuth callback URL parameters
- * @param url - The callback URL or search params string
+ * Parse OAuth callback parameters
+ * @param params - Search params object from Next.js
  * @returns Object containing code, state, and error if present
+ * @throws Error if duplicate parameters are detected
  */
-export const parseOAuthCallback = (
-  url: string,
-): {
+export const parseOAuthCallback = (params: {
+  [key: string]: string | string[] | undefined;
+}): {
   code: string | null;
   state: string | null;
   error: string | null;
 } => {
-  const searchParams = new URLSearchParams(url);
+  const getValue = (key: string): string | null => {
+    const value = params[key];
+    if (!value) return null;
+
+    // Reject duplicate parameters
+    if (Array.isArray(value)) {
+      throw new Error(`Duplicate OAuth parameter detected: ${key}`);
+    }
+
+    return value;
+  };
+
   return {
-    code: searchParams.get("code"),
-    state: searchParams.get("state"),
-    error: searchParams.get("error"),
+    code: getValue("code"),
+    state: getValue("state"),
+    error: getValue("error"),
   };
 };
