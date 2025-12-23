@@ -1,15 +1,16 @@
-"use client";
-
 import { InviteForm } from "@/components/organisms/specific/invite/InviteForm";
 import { SidebarTemplate } from "@/components/templates/SidebarTemplate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NextPage } from "next";
-import { useSearchParams } from "next/navigation";
+import React from "react";
 
-const InvitePage: NextPage = (): React.JSX.Element => {
-  const searchParams = useSearchParams();
+interface InvitePageProps {
+  searchParams: Promise<{ from?: string }>;
+}
 
-  const from = searchParams.get("from");
+const InvitePage: NextPage<InvitePageProps> = async ({ searchParams }): Promise<React.JSX.Element> => {
+  const query = await searchParams;
+  const from = query.from;
 
   if (!from) {
     return (

@@ -18,7 +18,6 @@ import { routerPush } from "@/lib/utils/router";
 import { TZDate } from "@/lib/utils/tzdate";
 import { format } from "date-fns";
 import { Loader2, X } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import React from "react";
 import { toast } from "sonner";
 
@@ -37,9 +36,12 @@ const months = [
   "December",
 ];
 
-export const SignUpForm = (): React.JSX.Element => {
+interface SignUpFormProps {
+  followees?: string;
+}
+
+export const SignUpForm = ({ followees }: SignUpFormProps): React.JSX.Element => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const timezone = useTimezone();
   const localNow = useLocalNow();
 
@@ -53,8 +55,7 @@ export const SignUpForm = (): React.JSX.Element => {
   const [followeeInput, setFolloweeInput] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const followeesParam = searchParams.get("followees");
-  const initialFollowees = React.useMemo(() => followeesParam?.split(",").filter(Boolean) || [], [followeesParam]);
+  const initialFollowees = React.useMemo(() => followees?.split(",").filter(Boolean) || [], [followees]);
   const hasInitialFollowees = initialFollowees.length > 0;
 
   const years = Array.from({ length: 100 }, (_, i) => localNow.getFullYear() - i);
