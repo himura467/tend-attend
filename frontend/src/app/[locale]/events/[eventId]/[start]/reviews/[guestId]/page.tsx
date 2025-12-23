@@ -1,4 +1,4 @@
-import { ReviewForm } from "@/components/organisms/specific/events/reviews/ReviewForm";
+import { ReviewForm } from "@/components/organisms/specific/events/event/reviews/review/ReviewForm";
 import { SidebarTemplate } from "@/components/templates/SidebarTemplate";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
